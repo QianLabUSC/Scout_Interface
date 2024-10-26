@@ -37,5 +37,5 @@ Tasks for your first step:
 4. load the lassie-spirit-current-visualization.json
 5. look at the foxglove studio doc, and configure the topic send to the right 3d panel'
 6. implement a fake data generation (in order to publish fake data in the message format shown above, you should build a custom message)
-7. implement a data tranform, which tranforms map data into 2d occupany grid data format. 
+7. implement a data tranform, which tranforms map data into 2d occupany grid data format.
 

@@ -1,0 +1,3 @@
+[submodule "src/mapping_nodes"]
+	path = src/mapping_nodes
+	url = git@github.com:TRUSSES/risk_mapping.git
