@@ -15,7 +15,9 @@
   <depend>sensor_msgs/msg/CompressedImage</depend>
 
   <depend>visualization_msgs/msg/MarkerArray</depend>
-  <depend>visualization_msgs/msg/Marker</depend>
+  <depend>visualization_msgs/msg/Marker</depend> 
+  <depend>spirit_high_msgs</depend>
+  
 
 
 

@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'visualizer = foxglove_visualization.visualizer:main'
+            'visualizer = foxglove_visualization.visualizer:main',
+            'fake_data_publisher = foxglove_visualization.FakeDataPublisher:main'
         ],
     },
 )
