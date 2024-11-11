@@ -14,14 +14,14 @@ class CameraPublisher(Node):
         timer_period = 0.1  # seconds
         self.br = CvBridge()
         self.webcam = GoProStream()
-        #self.webcam.start_stream() #starts the http stream of photos
+        self.webcam.start_stream() #starts the http stream of photos
         self.timer = self.create_timer(timer_period, self.timer_callback) #publish on the topic "scienario_image" every 0.1 seconds 
 
 
     def timer_callback(self):
-        # ret, frame = self.webcam.image_capture() #acts as openCV's cap.read() which returns a boolean and numpy array represetning the image
-        frame = cv.imread("src/top_view_visualization/top_view_visualization/sample.jpg") #sample image for testing purpose
-        ret = True #testing purposes 
+        ret, frame = self.webcam.image_capture() #acts as openCV's cap.read() which returns a boolean and numpy array represetning the image
+        # frame = cv.imread("src/top_view_visualization/top_view_visualization/sample.jpg") #sample image for testing purpose
+        # ret = True #testing purposes 
         if ret:
             self.publisher_.publish(self.br.cv2_to_imgmsg(frame))
             # self.get_logger().info('Publishing video frame')

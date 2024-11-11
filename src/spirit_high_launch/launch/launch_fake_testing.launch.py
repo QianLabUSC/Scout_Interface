@@ -37,5 +37,10 @@ def generate_launch_description():
 
         foxglove_bridge_launch,
 
-
+        Node(
+            package='top_view_visualization', 
+            executable='camera', 
+            name='camera',
+            output='screen'
+        ),
     ])
