@@ -1,0 +1,9 @@
+string running_scenario
+string filename
+float32 penetrate_depth
+float32 penetrate_speed
+float32 penetrate_x_loc
+float32 penetrate_y_loc
+float32 penetrate_force
+float32 shear_speed
+float32 shear_dist
