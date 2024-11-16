@@ -111,10 +111,18 @@ class RealtimeSubscriber(Node):
         science_toe_idx = user_data[1]
         pos_penetrate = user_data[2:5]
         force_penetrate = user_data[5:8]
-        print(custom_mode)
-        #first checks what state we are in
-        if (custom_mode < 1e8) or (current_penetrate != 1):
-            #we are not in penetrating mode
+        # print("custom_mode = ")
+        # print(custom_mode)
+        # print("behavior = ")
+        # print(ghost_behav_mode)
+        # first checks what state we are in
+        # custom, mode = behavior
+        # 1, 50331648
+        # 2, 83886080
+        # 3, 117440512
+        # 4, 150994944
+        if (custom_mode < 1e8) or (custom_mode > 1.3e8) or (current_penetrate != 1):
+            #we are not in crawl mode
             #and we are in the penetrate, for some reason the custom_Mode is very
             #high for penetrate so we check this
             self.curr_pene = False
@@ -127,7 +135,7 @@ class RealtimeSubscriber(Node):
                 self.pene_time_buffer = []
                 self.pene_depth_buffer = []
                 self.pene_force_buffer = []
-            self.pene_leg_idx = science_toe_idx
+            self.pene_leg_idx = int(science_toe_idx)
             self.pene_depth = -pos_penetrate[2]   # cropped toe z
             self.pene_force = force_penetrate[2]   # cropped toe current z
             self.pene_time_buffer.append(self.pene_time)
@@ -140,7 +148,7 @@ class RealtimeSubscriber(Node):
         # and then convert the leg position from body frame to world frame
     	# toe's position in body frame
     	# initialize the toe position in body frame
-        Toe_B = np.zeros((3,4))
+        Hip_Toe_B = np.zeros((3,4))
         jointPos = self.spirit_state.joint_position
         if len(jointPos)==12:
             # jointPos = [0hip, 0knee, 1hip, 1knee, 2hip, 2knee, 3hip, 3knee, 4hip, 4knee, 0ab, 1ab, 2ab, 3ab]
@@ -190,6 +198,11 @@ class RealtimeSubscriber(Node):
         msg.pene_depth = self.pene_depth
         msg.pene_force = self.pene_force
         self.realtime_publisher.publish(msg)
+        if self.curr_pene:
+            print(self.pene_leg_idx)
+            print(msg.position)
+        else:
+            print("------------")
 
     '''
     def plot_4toes(self):
