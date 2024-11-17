@@ -21,7 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'visualizer = foxglove_visualization.visualizer:main',
-            'fake_data_publisher = foxglove_visualization.FakeDataPublisher:main'
+            'fake_data_publisher = foxglove_visualization.FakeDataPublisher:main',
+            'leg_measurements_publisher = foxglove_visualization.LegMeasurementRealtime:main'
         ],
     },
 )

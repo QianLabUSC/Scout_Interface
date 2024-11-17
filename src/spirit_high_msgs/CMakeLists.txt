@@ -13,6 +13,7 @@ set(msg_files
   "msg/SpatialMeasurement.msg"
   "msg/ExtrapolatedMap.msg"
   "msg/MeasurementArray.msg"
+  "msg/RealtimeMeasurement.msg"
 )
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${msg_files}

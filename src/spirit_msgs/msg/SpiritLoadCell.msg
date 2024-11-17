@@ -1,0 +1,2 @@
+int32 load_cell_reading1
+int32 load_cell_reading2
