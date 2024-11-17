@@ -58,7 +58,20 @@ def generate_launch_description():
             name='top_view_camera',
             output='screen'
         ),
+        
+        Node(
+            package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined
+            executable='data_collector',  # Replace with the executable name of FakeDataPublisher
+            name='data_collector',
+            output='screen'
+        ),
 
+        Node(
+            package='mapping_package',  # Replace with the package where FakeDataPublisher is defined
+            executable='mapping_node',  # Replace with the executable name of FakeDataPublisher
+            name='mapping_node',
+            output='screen'
+        ),
 
         foxglove_bridge_launch,
 
