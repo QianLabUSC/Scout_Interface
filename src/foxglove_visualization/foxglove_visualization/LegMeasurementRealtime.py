@@ -26,7 +26,7 @@ class RealtimeSubscriber(Node):
         self.subscription_mocap  # prevent unused variable warning
         self.realtime_publisher = self.create_publisher(
             RealtimeMeasurement,
-            'spirit/realtime_measurement',
+            'stiffness_measurement',
             10)
         self.realtime_publisher  # prevent unused variable warning
 
