@@ -16,8 +16,8 @@
 
   <depend>visualization_msgs/msg/MarkerArray</depend>
   <depend>visualization_msgs/msg/Marker</depend> 
-  <depend>spirit_high_msgs</depend>
-  <depend>spirit_msgs</depend>
+  <depend>trusses_custom_interfaces</depend>
+  
 
 
 

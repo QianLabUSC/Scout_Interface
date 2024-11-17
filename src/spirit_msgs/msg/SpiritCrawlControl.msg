@@ -1,8 +1,0 @@
-float32 trans_x_dir
-float32 trans_y_dir
-float32 trans_step_mag
-float32 yaw_rate
-float32 step_height
-float32 mu
-float32 crawl_height
-float32 crawl_force

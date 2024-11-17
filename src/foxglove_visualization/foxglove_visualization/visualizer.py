@@ -6,7 +6,7 @@ from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import Header, Int32
 from geometry_msgs.msg import Point
 from std_msgs.msg import ColorRGBA
-from spirit_high_msgs.msg import ExtrapolatedMap, MeasurementArray
+from trusses_custom_interfaces.msg import ExtrapolatedMap, MeasurementArray
 from std_msgs.msg import Header
 from foxglove_msgs.msg import Grid, PackedElementField, Vector2
 from geometry_msgs.msg import Pose
@@ -20,8 +20,8 @@ class Foxglove(Node):
             history=HistoryPolicy.KEEP_ALL,
         )
         
-        self.stiffness_map_subscriber = self.create_subscription(ExtrapolatedMap, 'stiffness_map', self.stiffness_map_callback, self.qos_profile)
-        self.stiffness_points_subscriber = self.create_subscription(MeasurementArray, 'stiffness_measurements', self.stiffness_points_callback, self.qos_profile)
+        self.spatial_map_subscriber = self.create_subscription(ExtrapolatedMap, 'extrapolated_map', self.spatial_map_callback, self.qos_profile)
+        self.spatial_points_subscriber = self.create_subscription(MeasurementArray, 'collected_measurements', self.spatial_points_callback, self.qos_profile)
         
 
         # Publishers for buffer size
@@ -30,7 +30,7 @@ class Foxglove(Node):
 
 
 
-    def stiffness_map_callback(self, msg: ExtrapolatedMap):
+    def spatial_map_callback(self, msg: ExtrapolatedMap):
         """Converts ExtrapolatedMap data to a Foxglove Grid for visualization."""
         # Create a Grid message
         grid_msg = Grid()
@@ -80,7 +80,7 @@ class Foxglove(Node):
             red = int(value)
             green = 25
             blue = int(255 - value)  # Static blue for visualization
-            alpha = 255 if uncertainty[index] > 0.5*np.max(uncertainty) else 50  # Fully opaque or transparent for unknown
+            alpha = 100 if uncertainty[index] > 0.7 else 255  # Fully opaque or transparent for unknown
             
             # Append values for each cell: [value, red, green, blue, alpha]
             grid_data.extend([int(value), red, green, blue, alpha])
@@ -92,7 +92,7 @@ class Foxglove(Node):
         self.terrain_map_publisher.publish(grid_msg)
 
 
-    def stiffness_points_callback(self, msg: MeasurementArray):
+    def spatial_points_callback(self, msg: MeasurementArray):
         """Converts MeasurementArray data to MarkerArray for visualization."""
         trajectory_markers = MarkerArray()
         
@@ -105,28 +105,29 @@ class Foxglove(Node):
             marker.id = marker_id
             marker.type = Marker.SPHERE
             marker.action = Marker.ADD
-            marker.pose.position = measurement.position
+            marker.pose.position.x = measurement.position.x
+            marker.pose.position.y = measurement.position.y
             marker.pose.position.z = 0.0
             
             # Scale and color based on measurement value
             marker.scale.x = 2.0
             marker.scale.y = 2.0
             marker.scale.z = 2.0
-            marker.color = self.get_color_by_stiffness(measurement.value)
+            marker.color = self.get_color_by_spatial(measurement.value)
             trajectory_markers.markers.append(marker)
             marker_id += 1
         
         # Publish trajectory buffer size
         self.measurements_publisher.publish(trajectory_markers)
 
-    def get_color_by_stiffness(self, stiffness):
-        """Maps stiffness value to a color for visualization."""
+    def get_color_by_spatial(self, spatial):
+        """Maps spatial value to a color for visualization."""
         color = ColorRGBA()
-        color.r = max(0.0, min(1.0, stiffness / 100.0))
+        color.r = max(0.0, min(1.0, spatial / 100.0))
         color.g = 0.25
 
         
-        color.b = max(0.0, min(1.0, 1.0 - stiffness / 100.0))
+        color.b = max(0.0, min(1.0, 1.0 - spatial / 100.0))
         color.a = 1.0  # Fully opaque
         return color
 

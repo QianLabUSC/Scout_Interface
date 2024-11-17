@@ -4,28 +4,23 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 from std_msgs.msg import Header
 from builtin_interfaces.msg import Time
-from geometry_msgs.msg import Point
-from spirit_high_msgs.msg import SpatialMeasurement, ExtrapolatedMap, MeasurementArray
+from geometry_msgs.msg import Point32
+from trusses_custom_interfaces.msg import SpatialMeasurement, ExtrapolatedMap, MeasurementArray
 
 class FakeDataPublisher(Node):
     def __init__(self):
         super().__init__('fake_data_publisher')
         
-        # QoS profile with KEEP_LAST history
-        self.qos_profile = QoSProfile(
-            reliability=ReliabilityPolicy.RELIABLE,
-            history=HistoryPolicy.KEEP_ALL,
-        )
         
         # Publishers for each message type on the specified topics
-        self.spatial_measurement_publisher = self.create_publisher(SpatialMeasurement, 'stiffness_measurement', self.qos_profile)
-        self.extrapolated_map_publisher = self.create_publisher(ExtrapolatedMap, 'stiffness_map', self.qos_profile)
-        self.measurement_array_publisher = self.create_publisher(MeasurementArray, 'stiffness_measurements', self.qos_profile)
+        self.spatial_measurement_publisher = self.create_publisher(SpatialMeasurement, 'spatial_measurements', 10)
+        # self.extrapolated_map_publisher = self.create_publisher(ExtrapolatedMap, 'extrapolated_map', self.qos_profile)
+        # self.measurement_array_publisher = self.create_publisher(MeasurementArray, 'collected_measurements', self.qos_profile)
         
         # Timers to publish each message type
         self.spatial_measurement_timer  = self.create_timer(0.5, self.publish_spatial_measurement)
-        self.extrapolated_map_timer  = self.create_timer(1.0, self.publish_extrapolated_map)
-        self.measurement_array_timer  = self.create_timer(1.0, self.publish_measurement_array)
+        # self.extrapolated_map_timer  = self.create_timer(1.0, self.publish_extrapolated_map)
+        # self.measurement_array_timer  = self.create_timer(1.0, self.publish_measurement_array)
     
         self.height = 100
         self.width = 50
@@ -33,7 +28,7 @@ class FakeDataPublisher(Node):
 
     def publish_spatial_measurement(self):
         msg = SpatialMeasurement()
-        msg.position = Point(x=np.random.uniform(0, 50), y=np.random.uniform(0, 100), z=np.random.uniform(0, 5))
+        msg.position = Point32(x=np.random.uniform(0, 50), y=np.random.uniform(0, 100), z=np.random.uniform(0, 5))
         msg.value = np.random.uniform(0, 100)
         msg.uncertainty = np.random.uniform(0, 10)
         msg.unit = "m"
@@ -42,7 +37,7 @@ class FakeDataPublisher(Node):
 
         self.spatial_measurement_publisher.publish(msg)
         self.gradient_rate = 0.05
-        # self.get_logger().info(f"Published SpatialMeasurement on 'stiffness_measurement': position=({msg.position.x}, {msg.position.y}, {msg.position.z}), value={msg.value}")
+        self.get_logger().info(f"Published SpatialMeasurement on 'spatial_measurement': position=({msg.position.x}, {msg.position.y}, {msg.position.z}), value={msg.value}")
 
     def generate_gradual_data(self):
         # Convert previous data to a numpy array for vectorized operations
@@ -90,7 +85,7 @@ class FakeDataPublisher(Node):
         msg.uncertainty = uncertainty
 
         self.extrapolated_map_publisher.publish(msg)
-        self.get_logger().info(f"Published ExtrapolatedMap on 'stiffness_map' with {self.height}x{self.width} grid.")
+        self.get_logger().info(f"Published ExtrapolatedMap on 'spatial_map' with {self.height}x{self.width} grid.")
 
     def publish_measurement_array(self):
         msg = MeasurementArray()
@@ -99,7 +94,7 @@ class FakeDataPublisher(Node):
         num_measurements = 5
         for _ in range(num_measurements):
             measurement = SpatialMeasurement()
-            measurement.position = Point(x=np.random.uniform(20, 30), y=np.random.uniform(40, 70), z=np.random.uniform(0, 5))
+            measurement.position = Point32(x=np.random.uniform(20, 30), y=np.random.uniform(40, 70), z=np.random.uniform(0, 5))
             measurement.value = np.random.uniform(0, 100)
             measurement.uncertainty = np.random.uniform(0, 10)
             measurement.unit = "m"
@@ -109,7 +104,7 @@ class FakeDataPublisher(Node):
             msg.measurements.append(measurement)
 
         self.measurement_array_publisher.publish(msg)
-        # self.get_logger().info(f"Published MeasurementArray on 'stiffness_measurements' with {num_measurements} measurements.")
+        # self.get_logger().info(f"Published MeasurementArray on 'spatial_measurements' with {num_measurements} measurements.")
 
 def main(args=None):
     rclpy.init(args=args)
