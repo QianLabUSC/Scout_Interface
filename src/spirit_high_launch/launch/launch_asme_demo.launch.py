@@ -26,6 +26,8 @@ def generate_launch_description():
             name='fake_data_publisher',
             output='screen'
         ),
+
+
         
         # Node 2: Foxglove
         Node(
@@ -35,12 +37,30 @@ def generate_launch_description():
             output='screen'
         ),
 
-        foxglove_bridge_launch,
 
         Node(
-            package='top_view_visualization', 
-            executable='camera', 
-            name='camera',
+            package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
+            executable='leg_measurements_publisher',  # Replace with the executable name of FakeDataPublisher
+            name='leg_measurements_publisher',
             output='screen'
         ),
+
+        Node(
+            package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
+            executable='leg_measurements_publisher',  # Replace with the executable name of FakeDataPublisher
+            name='leg_measurements_publisher',
+            output='screen'
+        ),
+
+        Node(
+            package='top_view_visualization',  # Replace with the package where FakeDataPublisher is defined
+            executable='camera',  # Replace with the executable name of FakeDataPublisher
+            name='top_view_camera',
+            output='screen'
+        ),
+
+
+        foxglove_bridge_launch,
+
+
     ])
