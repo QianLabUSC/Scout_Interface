@@ -25,15 +25,15 @@ class RealtimeSubscriber(Node):
             self.Pose_callback,
             10)
         self.subscription_mocap  # prevent unused variable warning
-        self.realtime_publisher = self.create_publisher(
-            RealtimeMeasurement,
-            'raw_measurements',
-            10)
+        # self.realtime_publisher = self.create_publisher(
+        #     RealtimeMeasurement,
+        #     'raw_measurements',
+        #     10)
         self.realtime_stiffness_publisher = self.create_publisher(
             SpatialMeasurement,
             'spatial_measurements',
             10)
-        self.realtime_publisher  # prevent unused variable warning
+        # self.realtime_publisher  # prevent unused variable warning
 
         # initialize hip positions in body frame
         # now suppose the MoCap gives the CoM location & body orientation
@@ -202,7 +202,7 @@ class RealtimeSubscriber(Node):
         msg.pene_time = self.pene_time
         msg.pene_depth = self.pene_depth
         msg.pene_force = self.pene_force
-        self.realtime_publisher.publish(msg)
+        # self.realtime_publisher.publish(msg)
         if self.curr_pene:
             print(self.pene_leg_idx)
             print(msg.position)

@@ -3,6 +3,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image 
 from cv_bridge import CvBridge 
 import cv2 as cv
+import numpy as np
 from top_view_visualization.GoProInterface.webcam import GoProWebcamPlayer
 
 
@@ -13,18 +14,35 @@ class CameraPublisher(Node):
         self.publisher_ = self.create_publisher(Image, 'scenario_image', 10)
         timer_period = 0.1  # seconds
         self.br = CvBridge()
-        self.webcam = GoProStream()
-        self.webcam.start_stream() #starts the http stream of photos
+        # self.webcam = GoProStream()
+        # self.webcam.start_stream() #starts the http stream of photos
         self.timer = self.create_timer(timer_period, self.timer_callback) #publish on the topic "scienario_image" every 0.1 seconds 
-
+        self.item = 1
 
     def timer_callback(self):
-        ret, frame = self.webcam.image_capture() #acts as openCV's cap.read() which returns a boolean and numpy array represetning the image
+        print(1)
+        self.item += 1
+        # ret, frame = self.webcam.image_capture() #acts as openCV's cap.read() which returns a boolean and numpy array represetning the image
         # frame = cv.imread("src/top_view_visualization/top_view_visualization/sample.jpg") #sample image for testing purpose
-        # ret = True #testing purposes 
+        frame = np.zeros((960,480, 3), dtype=np.uint8)
+        cv.putText(
+            frame,
+            "testing frames",
+            (50, self.item),
+            cv.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 0, 255),  # Red text color
+            2,
+            cv.LINE_AA
+        )
+        ret = True #testing purposes 
         if ret:
+            print("yes")
             self.publisher_.publish(self.br.cv2_to_imgmsg(frame))
-            # self.get_logger().info('Publishing video frame')
+        
+           
+
+            
 
 
 def main(args=None):
