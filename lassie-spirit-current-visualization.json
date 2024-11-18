@@ -1,31 +1,24 @@
 {
   "configById": {
-    "Publish!32t03dj": {
-      "buttonText": "Publish",
-      "buttonTooltip": "",
-      "advancedView": true,
-      "value": "{}"
-    },
-    "Publish!3z63g4o": {
-      "buttonText": "Publish",
-      "buttonTooltip": "",
-      "advancedView": true,
-      "value": "{}"
-    },
-    "Publish!oidbgy": {
-      "buttonText": "Publish",
-      "buttonTooltip": "",
-      "advancedView": true,
-      "value": "{}"
-    },
-    "Publish!gyus0a": {
-      "buttonText": "Publish",
-      "buttonTooltip": "",
-      "advancedView": true,
-      "value": "{}"
-    },
     "Plot!4dytizu": {
-      "paths": [],
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/raw_measurements.front_left_leg.pene_force",
+          "enabled": true,
+          "color": "#4e98e2",
+          "label": "FL",
+          "showLine": false
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/raw_measurements.front_right_leg.pene_force",
+          "enabled": true,
+          "color": "#f5774d",
+          "label": "FR",
+          "showLine": false
+        }
+      ],
       "showXAxisLabels": true,
       "showYAxisLabels": true,
       "showLegend": true,
@@ -34,10 +27,31 @@
       "isSynced": true,
       "xAxisVal": "timestamp",
       "sidebarDimension": 240,
-      "foxglovePanelTitle": "Force vs Time"
+      "foxglovePanelTitle": "Force vs Time",
+      "xAxisPath": {
+        "value": "/raw_measurements.pene_time"
+      },
+      "followingViewWidth": 60
     },
     "Plot!10l2t9v": {
-      "paths": [],
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/raw_measurements.front_left_leg.pene_depth",
+          "enabled": true,
+          "color": "#4e98e2",
+          "showLine": false,
+          "label": "FL"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/raw_measurements.front_right_leg.pene_depth",
+          "enabled": true,
+          "color": "#f5774d",
+          "label": "FR",
+          "showLine": false
+        }
+      ],
       "showXAxisLabels": true,
       "showYAxisLabels": true,
       "showLegend": true,
@@ -46,10 +60,23 @@
       "isSynced": true,
       "xAxisVal": "timestamp",
       "sidebarDimension": 240,
-      "foxglovePanelTitle": "Force vs Depth"
+      "foxglovePanelTitle": "Force vs Depth",
+      "xAxisPath": {
+        "value": "/raw_measurements.front_left_leg.pene_depth"
+      },
+      "followingViewWidth": 60
     },
     "Plot!4bhrthb": {
-      "paths": [],
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/spatial_measurements.value",
+          "enabled": true,
+          "color": "#09903d",
+          "label": "stiffness",
+          "showLine": true
+        }
+      ],
       "showXAxisLabels": true,
       "showYAxisLabels": true,
       "showLegend": true,
@@ -58,7 +85,8 @@
       "isSynced": true,
       "xAxisVal": "timestamp",
       "sidebarDimension": 240,
-      "foxglovePanelTitle": "Stiffness vs Step"
+      "foxglovePanelTitle": "Stiffness vs Step",
+      "followingViewWidth": 60
     },
     "RosOut!ar7z8c": {
       "searchTerms": [],
@@ -105,7 +133,9 @@
         "poseEstimateYDeviation": 0.5,
         "poseEstimateThetaDeviation": 0.26179939
       },
-      "imageMode": {}
+      "imageMode": {
+        "imageTopic": "/scenario_image"
+      }
     },
     "NodePlayground!2j07z4q": {
       "selectedNodeId": "337e0f46-2d44-47b9-846c-46f73c55ff4d",
@@ -114,19 +144,18 @@
     },
     "3D!2oa13l8": {
       "cameraState": {
+        "distance": 156.54786996584596,
         "perspective": true,
-        "distance": 115.0770697065335,
-        "phi": 38.650978154212396,
-        "thetaOffset": -174.22978674161178,
-        "targetOffset": [
-          23.98534128760644,
-          63.45040829455237,
-          -4.690046552181627e-17
-        ],
+        "phi": 36.29032241651194,
         "target": [
           0,
           0,
           0
+        ],
+        "targetOffset": [
+          19.96339660023769,
+          53.48510203633501,
+          -2.387371223147108e-16
         ],
         "targetOrientation": [
           0,
@@ -134,6 +163,7 @@
           0,
           1
         ],
+        "thetaOffset": -178.95109821702155,
         "fovy": 45,
         "near": 0.5,
         "far": 4991,
@@ -156,7 +186,11 @@
           "visible": true,
           "colorField": "value",
           "colorMode": "rgba-fields",
-          "colorMap": "turbo"
+          "colorMap": "turbo",
+          "frameLocked": false
+        },
+        "/scenario_image": {
+          "visible": false
         }
       },
       "layers": {
@@ -234,7 +268,9 @@
         "poseEstimateYDeviation": 0.5,
         "poseEstimateThetaDeviation": 0.26179939
       },
-      "imageMode": {},
+      "imageMode": {
+        "imageTopic": "/scenario_image"
+      },
       "foxglovePanelTitle": "Environment"
     },
     "SourceInfo!ektq6e": {},
@@ -243,13 +279,8 @@
       "diffMethod": "custom",
       "diffTopicPath": "",
       "showFullMessageForDiff": false,
-      "topicPath": "/stiffness_measurement",
-      "expansion": {
-        "position": "e",
-        "time": "c",
-        "start_time": "c",
-        "end_time": "c"
-      }
+      "topicPath": "/extrapolated_map",
+      "fontSize": 12
     },
     "TopicGraph!hd7ouv": {},
     "Tab!1hjb5z2": {
@@ -260,27 +291,10 @@
           "layout": {
             "first": {
               "first": {
-                "first": {
-                  "first": {
-                    "first": {
-                      "first": "Publish!32t03dj",
-                      "second": "Publish!3z63g4o",
-                      "direction": "row"
-                    },
-                    "second": {
-                      "first": "Publish!oidbgy",
-                      "second": "Publish!gyus0a",
-                      "direction": "row"
-                    },
-                    "direction": "row"
-                  },
-                  "second": "Plot!4dytizu",
-                  "direction": "column",
-                  "splitPercentage": 60.95154970042459
-                },
+                "first": "Plot!4dytizu",
                 "second": "Plot!10l2t9v",
                 "direction": "column",
-                "splitPercentage": 62.8630705394191
+                "splitPercentage": 43.46473029045644
               },
               "second": {
                 "first": "Plot!4bhrthb",
@@ -300,10 +314,10 @@
                 "first": "3D!2oa13l8",
                 "second": "Image!3c6k2o0",
                 "direction": "row",
-                "splitPercentage": 51.64233576642335
+                "splitPercentage": 57.896137469586364
               },
               "direction": "column",
-              "splitPercentage": 10.62215477996965
+              "splitPercentage": 16.46039603960396
             },
             "direction": "row",
             "splitPercentage": 31.5
@@ -315,10 +329,12 @@
             "first": {
               "first": "SourceInfo!ektq6e",
               "second": "RawMessages!1h6226c",
-              "direction": "column"
+              "direction": "column",
+              "splitPercentage": 59.82142694953353
             },
             "second": "TopicGraph!hd7ouv",
-            "direction": "row"
+            "direction": "row",
+            "splitPercentage": 56.770833333333336
           }
         }
       ]

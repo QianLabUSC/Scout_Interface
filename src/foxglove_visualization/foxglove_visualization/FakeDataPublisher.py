@@ -5,6 +5,7 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 from std_msgs.msg import Header
 from builtin_interfaces.msg import Time
 from geometry_msgs.msg import Point32
+from trusses_custom_interfaces.msg import RealtimeMeasurement, RobotMeasurements
 from trusses_custom_interfaces.msg import SpatialMeasurement, ExtrapolatedMap, MeasurementArray
 
 class FakeDataPublisher(Node):
@@ -14,17 +15,70 @@ class FakeDataPublisher(Node):
         
         # Publishers for each message type on the specified topics
         self.spatial_measurement_publisher = self.create_publisher(SpatialMeasurement, 'spatial_measurements', 10)
+        self.raw_measurments_publisher = self.create_publisher(RobotMeasurements, 'raw_measurements', 10)
         # self.extrapolated_map_publisher = self.create_publisher(ExtrapolatedMap, 'extrapolated_map', self.qos_profile)
         # self.measurement_array_publisher = self.create_publisher(MeasurementArray, 'collected_measurements', self.qos_profile)
         
         # Timers to publish each message type
         self.spatial_measurement_timer  = self.create_timer(0.5, self.publish_spatial_measurement)
+        self.raw_measurement_timer  = self.create_timer(0.05, self.publish_raw_measurement)
         # self.extrapolated_map_timer  = self.create_timer(1.0, self.publish_extrapolated_map)
         # self.measurement_array_timer  = self.create_timer(1.0, self.publish_measurement_array)
     
         self.height = 100
         self.width = 50
         self.previous_data = 30*np.ones(self.height * self.width)
+
+        # Initialize measurement variables
+        self.curr_pene = 0  # Boolean indicating penetration state
+        self.pene_time = 0.0
+        self.pene_depth = 0.0
+        self.pene_force = 0.0
+        self.time_step = 0.02  # Time increment for 50 Hz
+
+        # Variables for simulation
+        self.depth_increment = 0.1 / (3 / self.time_step)  # Increment per cycle step
+        self.force_increment = 100 / (3 / self.time_step)  # Increment per cycle step
+        self.state_duration = int(3 / self.time_step)  # Steps per state duration
+        self.step_counter = 0
+
+    def publish_raw_measurement(self):
+        msg = RobotMeasurements()
+        # Update penetration state
+        self.step_counter += 1
+        if self.step_counter < self.state_duration:
+            self.curr_pene = 0
+        elif self.step_counter < 2 * self.state_duration:
+            self.curr_pene = 1
+        else:
+            self.step_counter = 0
+            self.pene_depth = 0
+            self.pene_force = 0
+
+        # Update other measurements
+        if self.curr_pene == 1:
+            self.pene_time += self.time_step
+            self.pene_depth += self.depth_increment
+            self.pene_force += self.force_increment
+            # Cap values at their maximum
+            self.pene_time = min(self.pene_time, 3.0)
+            self.pene_depth = min(self.pene_depth, 0.1)
+            self.pene_force = min(self.pene_force, 100.0)
+             # Populate and publish message
+            msg.front_left_leg.curr_pene = bool(self.curr_pene)
+            msg.front_left_leg.pene_time = self.pene_time
+            msg.front_left_leg.pene_depth = self.pene_depth
+            msg.front_left_leg.pene_force = self.pene_force
+            msg.front_right_leg.curr_pene = bool(self.curr_pene)
+            msg.front_right_leg.pene_time = self.pene_time  
+            msg.front_right_leg.pene_depth = self.pene_depth + 0.05
+            msg.front_right_leg.pene_force = self.pene_force + 50
+
+
+            self.raw_measurments_publisher.publish(msg)
+
+       
+
 
     def publish_spatial_measurement(self):
         msg = SpatialMeasurement()

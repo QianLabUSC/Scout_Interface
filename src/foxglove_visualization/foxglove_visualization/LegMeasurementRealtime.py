@@ -1,9 +1,10 @@
 from scipy.spatial.transform import Rotation
 import rclpy
 from rclpy.node import Node
-from trusses_custom_interfaces.spirit_msg import SpiritState
+from trusses_custom_interfaces.msg import SpiritState
 from geometry_msgs.msg import Pose
 from trusses_custom_interfaces.msg import RealtimeMeasurement
+from trusses_custom_interfaces.msg import SpatialMeasurement
 # import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -26,6 +27,10 @@ class RealtimeSubscriber(Node):
         self.subscription_mocap  # prevent unused variable warning
         self.realtime_publisher = self.create_publisher(
             RealtimeMeasurement,
+            'raw_measurements',
+            10)
+        self.realtime_stiffness_publisher = self.create_publisher(
+            SpatialMeasurement,
             'spatial_measurements',
             10)
         self.realtime_publisher  # prevent unused variable warning
