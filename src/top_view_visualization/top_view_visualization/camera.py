@@ -5,27 +5,64 @@ from cv_bridge import CvBridge
 import cv2 as cv
 import numpy as np
 from top_view_visualization.GoProInterface.webcam import GoProWebcamPlayer
+from rclpy.qos import QoSProfile
+from rclpy.qos import QoSReliabilityPolicy
 
+import threading
 
 class CameraPublisher(Node):
 
     def __init__(self):
         super().__init__('camera_publisher')
-        self.publisher_ = self.create_publisher(Image, 'scenario_image', 10)
-        timer_period = 0.5 # seconds
+        bestEffort = QoSProfile(
+                    depth=10,
+                    reliability=QoSReliabilityPolicy.BEST_EFFORT)
+        self.publisher_ = self.create_publisher(Image, 'scenario_image', bestEffort)
+        timer_period = 0.1  # seconds
+        
         self.br = CvBridge()
         self.webcam = GoProStream()
-        self.timer = self.create_timer(timer_period, self.timer_callback) #publish on the topic "scienario_image" every 0.1 seconds 
         self.item = 1
+        self.frame = np.zeros((960, 480, 3), dtype=np.uint8)
+        cv.putText(
+            self.frame,
+            "testing frames",
+            (50, 50),
+            cv.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 0, 255),  # Red text color
+            2,
+            cv.LINE_AA
+        )
+        
+        # Start a separate thread for receiving frames
+        self.thread = threading.Thread(target=self.receive_frames, daemon=True)
+        self.thread.start()
+
+        # Timer for publishing frames
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+
+    def receive_frames(self):
+        while True:
+            ret, frame = self.webcam.image_capture()
+            if ret:
+                frame = cv.rotate(frame, cv.ROTATE_90_CLOCKWISE)
+                cv.putText(
+                    frame,
+                    "RoboLAND Testing",
+                    (50, 50),
+                    cv.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (0, 0, 255),  # Red text color
+                    2,
+                    cv.LINE_AA
+                )
+                self.frame = frame
 
     def timer_callback(self):
-        ret, frame = self.webcam.image_capture()
-        if ret:
-            half = cv.resize(frame, (0, 0), fx = 0.1, fy = 0.1)
-            self.publisher_.publish(self.br.cv2_to_imgmsg(half))
-        else:
-            print("no")
-        
+        print("publish")
+        self.publisher_.publish(self.br.cv2_to_imgmsg(self.frame))
+
            
 
             
@@ -68,6 +105,6 @@ class GoProStream:
 
 
     def image_capture(self):
-        print(self.webcam.player.url)
+        # print(self.webcam.player.url)
         ret, frame = self.cap.read()
         return ret, frame
