@@ -136,17 +136,17 @@ class RealtimeSubscriber(Node):
             #we are not in crawl mode
             #and we are in the penetrate, for some reason the custom_Mode is very
             #high for penetrate so we check this
-            if self.curr_pene:
+            if self.curr_pene and ((self.pene_leg_idx == self.idx_fl) or (self.pene_leg_idx == self.idx_fr)):
                 self.stiffness = self.stiffness_calculation()
                 self.spatial_measurement_publish()
-                self.pene_leg_idx = -1
+            self.pene_leg_idx = -1
             self.curr_pene = False
             self.pene_time_buffer = []
             self.pene_depth_buffer = []
             self.pene_force_buffer = []
         else:
             self.curr_pene = True
-            if science_toe_idx != self.pene_leg_idx:
+            if self.curr_pene and (science_toe_idx != self.pene_leg_idx) and ((self.pene_leg_idx == self.idx_fl) or (self.pene_leg_idx == self.idx_fr)):
                 self.stiffness = self.stiffness_calculation()
                 self.spatial_measurement_publish()
                 self.pene_time_buffer = []
@@ -212,9 +212,9 @@ class RealtimeSubscriber(Node):
         # force that we recognize as start penetration
         force_threshold = 5.0
         # we start searching from the zero height
-        depth_zero_idx = np.argmax(depth > 0)
+        depth_zero_idx = np.argmax(depth > -0.02)
         for i in range(depth_zero_idx, len(depth)):
-            if force > force_threshold:
+            if force[i] > force_threshold:
                 start_pene_idx = i
                 break
         # Perform linear fit
@@ -255,9 +255,11 @@ class RealtimeSubscriber(Node):
         msg.front_right_leg.pene_depth = self.pene_depth_fr
         msg.front_right_leg.pene_force = self.pene_force_fr
         self.realtime_publisher.publish(msg)
+        print(msg)
         # if self.curr_pene:
         #     print(self.pene_leg_idx)
-        #     print(msg.position)
+        #     print(msg.front_left_leg.position)
+        #     print(msg.front_right_leg.position)
         # else:
         #     print("------------")
 
@@ -272,6 +274,8 @@ class RealtimeSubscriber(Node):
         msg.unit = "N/m"
         msg.source_name = "Stiffness"
         msg.time = self.get_clock().now().to_msg()
+        # print(self.pene_leg_idx)
+        # print(msg)
         self.spatial_measurement_publisher.publish(msg)
 
     '''
