@@ -136,9 +136,11 @@ class RealtimeSubscriber(Node):
             #we are not in crawl mode
             #and we are in the penetrate, for some reason the custom_Mode is very
             #high for penetrate so we check this
-            if self.curr_pene and ((self.pene_leg_idx == self.idx_fl) or (self.pene_leg_idx == self.idx_fr)):
-                self.stiffness = self.stiffness_calculation()
-                self.spatial_measurement_publish()
+            if self.curr_pene:
+                # only calculate stiffness while on front leg or right leg
+                if (self.pene_leg_idx == self.idx_fl) or (self.pene_leg_idx == self.idx_fr):
+                    self.stiffness = self.stiffness_calculation()
+                    self.spatial_measurement_publish()
             self.pene_leg_idx = -1
             self.curr_pene = False
             self.pene_time_buffer = []
@@ -146,12 +148,14 @@ class RealtimeSubscriber(Node):
             self.pene_force_buffer = []
         else:
             self.curr_pene = True
-            if self.curr_pene and (science_toe_idx != self.pene_leg_idx) and ((self.pene_leg_idx == self.idx_fl) or (self.pene_leg_idx == self.idx_fr)):
-                self.stiffness = self.stiffness_calculation()
-                self.spatial_measurement_publish()
-                self.pene_time_buffer = []
-                self.pene_depth_buffer = []
-                self.pene_force_buffer = []
+            if self.curr_pene and (science_toe_idx != self.pene_leg_idx):
+                # only calculate stiffness while on front leg or right leg
+                if (self.pene_leg_idx == self.idx_fl) or (self.pene_leg_idx == self.idx_fr):
+                    self.stiffness = self.stiffness_calculation()
+                    self.spatial_measurement_publish()
+                    self.pene_time_buffer = []
+                    self.pene_depth_buffer = []
+                    self.pene_force_buffer = []
             self.pene_leg_idx = int(science_toe_idx)
             if self.pene_leg_idx == self.idx_fl:
                 # front left leg is in penetration
@@ -209,10 +213,15 @@ class RealtimeSubscriber(Node):
     def stiffness_calculation(self):
         depth = np.array(self.pene_depth_buffer)
         force = np.array(self.pene_force_buffer)
+        maxforce = np.max(force)
         # force that we recognize as start penetration
-        force_threshold = 5.0
+        # if the maxforce is small, we select the force threshold as 0.25*maxforce
+        force_threshold = min(10.0, 0.25*maxforce)
         # we start searching from the zero height
+        # sometimes the depth always greater than 0.0, so we select -0.02
+        # the function argmax will give index 0 if cannot find even one satisfying the condition
         depth_zero_idx = np.argmax(depth > -0.02)
+        start_pene_idx = depth_zero_idx
         for i in range(depth_zero_idx, len(depth)):
             if force[i] > force_threshold:
                 start_pene_idx = i
