@@ -3,8 +3,7 @@ import rclpy
 from rclpy.node import Node
 from trusses_custom_interfaces.msg import SpiritState
 from geometry_msgs.msg import Pose
-from trusses_custom_interfaces.msg import RealtimeMeasurement
-from trusses_custom_interfaces.msg import SpatialMeasurement
+from trusses_custom_interfaces.msg import RobotMeasurements, SpatialMeasurement
 # import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -25,15 +24,16 @@ class RealtimeSubscriber(Node):
             self.Pose_callback,
             10)
         self.subscription_mocap  # prevent unused variable warning
-        # self.realtime_publisher = self.create_publisher(
-        #     RealtimeMeasurement,
-        #     'raw_measurements',
-        #     10)
-        self.realtime_stiffness_publisher = self.create_publisher(
+        self.realtime_publisher = self.create_publisher(
+            RobotMeasurements,
+            'raw_measurements',
+            10)
+        self.realtime_publisher  # prevent unused variable warning
+        self.spatial_measurement_publisher = self.create_publisher(
             SpatialMeasurement,
             'spatial_measurements',
             10)
-        # self.realtime_publisher  # prevent unused variable warning
+        self.spatial_measurement_publisher  # prevent unused variable warning
 
         # initialize hip positions in body frame
         # now suppose the MoCap gives the CoM location & body orientation
@@ -46,16 +46,24 @@ class RealtimeSubscriber(Node):
         # mocap state
         self.R_WB = np.identity(3)
         self.CoM_pos = np.array([0.0, 0.0, 0.0])
+        # front left leg and fron right leg index
+        self.idx_fl = 0
+        self.idx_fr = 2
         # penetration raw data
         self.curr_pene = False
-        self.pene_leg_idx = 0
-        self.pene_time = 0.0
-        self.pene_depth = 0.0
-        self.pene_force = 0.0
+        self.pene_leg_idx = -1
+        self.pene_time_fl = 0.0
+        self.pene_depth_fl = 0.0
+        self.pene_force_fl = 0.0
+        self.pene_time_fr = 0.0
+        self.pene_depth_fr = 0.0
+        self.pene_force_fr = 0.0
         # buffer to calculate the penetration measurement
+        # now only consider the front left and front right legs
         self.pene_time_buffer = []
         self.pene_depth_buffer = []
         self.pene_force_buffer = []
+        self.stiffness = 0.0
         # plot configuration
         # self.lastframe_time = time.time()
         # self.plot_refresh_rate = 10
@@ -104,7 +112,8 @@ class RealtimeSubscriber(Node):
 
     def update_measurement(self):
         #gets the custom mode
-        self.pene_time = self.spirit_state.mainboard_t
+        self.pene_time_fl = self.spirit_state.mainboard_t
+        self.pene_time_fr = self.spirit_state.mainboard_t
         custom_mode = self.spirit_state.mode[1]
         #gets the ghost behavior mode
         ghost_behav_mode = self.spirit_state.behavior[1]
@@ -116,10 +125,7 @@ class RealtimeSubscriber(Node):
         science_toe_idx = user_data[1]
         pos_penetrate = user_data[2:5]
         force_penetrate = user_data[5:8]
-        # print("custom_mode = ")
-        # print(custom_mode)
-        # print("behavior = ")
-        # print(ghost_behav_mode)
+        # spirit_forces = self.spirit_state.joint_residuals
         # first checks what state we are in
         # custom, mode = behavior
         # 1, 50331648
@@ -130,6 +136,10 @@ class RealtimeSubscriber(Node):
             #we are not in crawl mode
             #and we are in the penetrate, for some reason the custom_Mode is very
             #high for penetrate so we check this
+            if self.curr_pene:
+                self.stiffness = self.stiffness_calculation()
+                self.spatial_measurement_publish()
+                self.pene_leg_idx = -1
             self.curr_pene = False
             self.pene_time_buffer = []
             self.pene_depth_buffer = []
@@ -137,15 +147,34 @@ class RealtimeSubscriber(Node):
         else:
             self.curr_pene = True
             if science_toe_idx != self.pene_leg_idx:
+                self.stiffness = self.stiffness_calculation()
+                self.spatial_measurement_publish()
                 self.pene_time_buffer = []
                 self.pene_depth_buffer = []
                 self.pene_force_buffer = []
             self.pene_leg_idx = int(science_toe_idx)
-            self.pene_depth = -pos_penetrate[2]   # cropped toe z
-            self.pene_force = force_penetrate[2]   # cropped toe current z
-            self.pene_time_buffer.append(self.pene_time)
-            self.pene_depth_buffer.append(self.pene_depth)
-            self.pene_force_buffer.append(self.pene_force)
+            if self.pene_leg_idx == self.idx_fl:
+                # front left leg is in penetration
+                self.pene_depth_fl = -pos_penetrate[2]   # cropped toe z
+                self.pene_force_fl = force_penetrate[2]   # cropped toe current z
+                # buffer to calculate stiffness later
+                self.pene_time_buffer.append(self.pene_time_fl)
+                self.pene_depth_buffer.append(self.pene_depth_fl)
+                self.pene_force_buffer.append(self.pene_force_fl)
+                # we also want to know the force from front right leg
+                self.pene_depth_fr = float('nan')
+                self.pene_force_fr = float('nan')
+            elif self.pene_leg_idx == self.idx_fr:
+                # front right leg is in penetration
+                self.pene_depth_fr = -pos_penetrate[2]   # cropped toe z
+                self.pene_force_fr = force_penetrate[2]   # cropped toe current z
+                # buffer to calculate stiffness later
+                self.pene_time_buffer.append(self.pene_time_fr)
+                self.pene_depth_buffer.append(self.pene_depth_fr)
+                self.pene_force_buffer.append(self.pene_force_fr)
+                # we also want to know the force from front left leg
+                self.pene_depth_fl = float('nan')
+                self.pene_force_fl = float('nan')
 
 # if we don't know toe position and have to calculate from joint position
     def update_toePos_W(self):
@@ -177,6 +206,22 @@ class RealtimeSubscriber(Node):
         # if time.time() - self.lastframe_time > 1.0 / self.plot_refresh_rate:
         #     self.plot_4toes()
 
+    def stiffness_calculation(self):
+        depth = np.array(self.pene_depth_buffer)
+        force = np.array(self.pene_force_buffer)
+        # force that we recognize as start penetration
+        force_threshold = 5.0
+        # we start searching from the zero height
+        depth_zero_idx = np.argmax(depth > 0)
+        for i in range(depth_zero_idx, len(depth)):
+            if force > force_threshold:
+                start_pene_idx = i
+                break
+        # Perform linear fit
+        coefficients = np.polyfit(depth[start_pene_idx:-1], force[start_pene_idx:-1], 1)
+        slope, intercept = coefficients
+        return slope
+
     def SpiritState_callback(self, msg):
         self.spirit_state = msg
         # update toe position
@@ -194,20 +239,40 @@ class RealtimeSubscriber(Node):
         # self.update_toePos_W()
 
     def realtime_measurement_publish(self):
-        msg = RealtimeMeasurement()
-        msg.position.x = self.Toe_W[0,self.pene_leg_idx]
-        msg.position.y = self.Toe_W[1,self.pene_leg_idx]
-        msg.position.z = self.Toe_W[2,self.pene_leg_idx]
-        msg.curr_pene = self.curr_pene
-        msg.pene_time = self.pene_time
-        msg.pene_depth = self.pene_depth
-        msg.pene_force = self.pene_force
-        # self.realtime_publisher.publish(msg)
-        if self.curr_pene:
-            print(self.pene_leg_idx)
-            print(msg.position)
-        else:
-            print("------------")
+        msg = RobotMeasurements()
+        msg.front_left_leg.position.x = self.Toe_W[0,self.idx_fl]
+        msg.front_left_leg.position.y = self.Toe_W[1,self.idx_fl]
+        msg.front_left_leg.position.z = self.Toe_W[2,self.idx_fl]
+        msg.front_left_leg.curr_pene = (self.pene_leg_idx == self.idx_fl)
+        msg.front_left_leg.pene_time = self.pene_time_fl
+        msg.front_left_leg.pene_depth = self.pene_depth_fl
+        msg.front_left_leg.pene_force = self.pene_force_fl
+        msg.front_right_leg.position.x = self.Toe_W[0,self.idx_fr]
+        msg.front_right_leg.position.y = self.Toe_W[1,self.idx_fr]
+        msg.front_right_leg.position.z = self.Toe_W[2,self.idx_fr]
+        msg.front_right_leg.curr_pene = (self.pene_leg_idx == self.idx_fr)
+        msg.front_right_leg.pene_time = self.pene_time_fr
+        msg.front_right_leg.pene_depth = self.pene_depth_fr
+        msg.front_right_leg.pene_force = self.pene_force_fr
+        self.realtime_publisher.publish(msg)
+        # if self.curr_pene:
+        #     print(self.pene_leg_idx)
+        #     print(msg.position)
+        # else:
+        #     print("------------")
+
+    def spatial_measurement_publish(self):
+        msg = SpatialMeasurement()
+        if (self.pene_leg_idx == self.idx_fl) or (self.pene_leg_idx == self.idx_fr):
+            msg.position.x = self.Toe_W[0,self.pene_leg_idx]
+            msg.position.y = self.Toe_W[0,self.pene_leg_idx]
+            msg.position.z = self.Toe_W[0,self.pene_leg_idx]
+        msg.uncertainty = 0.0
+        msg.value = self.stiffness
+        msg.unit = "N/m"
+        msg.source_name = "Stiffness"
+        msg.time = self.get_clock().now().to_msg()
+        self.spatial_measurement_publisher.publish(msg)
 
     '''
     def plot_4toes(self):
