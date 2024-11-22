@@ -7,16 +7,14 @@
           "value": "/raw_measurements.front_left_leg.pene_force",
           "enabled": true,
           "color": "#4e98e2",
-          "label": "FL",
-          "showLine": false
+          "label": "FL"
         },
         {
           "timestampMethod": "receiveTime",
           "value": "/raw_measurements.front_right_leg.pene_force",
           "enabled": true,
           "color": "#f5774d",
-          "label": "FR",
-          "showLine": false
+          "label": "FR"
         }
       ],
       "showXAxisLabels": true,
@@ -27,11 +25,7 @@
       "isSynced": true,
       "xAxisVal": "timestamp",
       "sidebarDimension": 240,
-      "foxglovePanelTitle": "Force vs Time",
-      "xAxisPath": {
-        "value": "/raw_measurements.pene_time"
-      },
-      "followingViewWidth": 60
+      "foxglovePanelTitle": "Force vs Time"
     },
     "Plot!10l2t9v": {
       "paths": [
@@ -40,7 +34,6 @@
           "value": "/raw_measurements.front_left_leg.pene_depth",
           "enabled": true,
           "color": "#4e98e2",
-          "showLine": false,
           "label": "FL"
         },
         {
@@ -48,8 +41,7 @@
           "value": "/raw_measurements.front_right_leg.pene_depth",
           "enabled": true,
           "color": "#f5774d",
-          "label": "FR",
-          "showLine": false
+          "label": "FR"
         }
       ],
       "showXAxisLabels": true,
@@ -60,11 +52,7 @@
       "isSynced": true,
       "xAxisVal": "timestamp",
       "sidebarDimension": 240,
-      "foxglovePanelTitle": "Force vs Depth",
-      "xAxisPath": {
-        "value": "/raw_measurements.front_left_leg.pene_depth"
-      },
-      "followingViewWidth": 60
+      "foxglovePanelTitle": "Depth vs Time"
     },
     "Plot!4bhrthb": {
       "paths": [
@@ -72,9 +60,8 @@
           "timestampMethod": "receiveTime",
           "value": "/spatial_measurements.value",
           "enabled": true,
-          "color": "#09903d",
-          "label": "stiffness",
-          "showLine": true
+          "color": "#4e98e2",
+          "label": "FL"
         }
       ],
       "showXAxisLabels": true,
@@ -85,8 +72,7 @@
       "isSynced": true,
       "xAxisVal": "timestamp",
       "sidebarDimension": 240,
-      "foxglovePanelTitle": "Stiffness vs Step",
-      "followingViewWidth": 60
+      "foxglovePanelTitle": "Stiffness vs Step"
     },
     "RosOut!ar7z8c": {
       "searchTerms": [],
@@ -137,25 +123,20 @@
         "imageTopic": "/scenario_image"
       }
     },
-    "NodePlayground!2j07z4q": {
-      "selectedNodeId": "337e0f46-2d44-47b9-846c-46f73c55ff4d",
-      "autoFormatOnSave": true,
-      "foxglovePanelTitle": "Useful Notes"
-    },
     "3D!2oa13l8": {
       "cameraState": {
-        "distance": 156.54786996584596,
+        "distance": 115.07706970653213,
         "perspective": true,
-        "phi": 36.29032241651194,
+        "phi": 37.04702863572569,
         "target": [
           0,
           0,
           0
         ],
         "targetOffset": [
-          19.96339660023769,
-          53.48510203633501,
-          -2.387371223147108e-16
+          23.98534128760644,
+          63.45040829455237,
+          -4.690046552181627e-17
         ],
         "targetOrientation": [
           0,
@@ -163,7 +144,7 @@
           0,
           1
         ],
-        "thetaOffset": -178.95109821702155,
+        "thetaOffset": -176.3683951642217,
         "fovy": 45,
         "near": 0.5,
         "far": 4991,
@@ -186,11 +167,7 @@
           "visible": true,
           "colorField": "value",
           "colorMode": "rgba-fields",
-          "colorMap": "turbo",
-          "frameLocked": false
-        },
-        "/scenario_image": {
-          "visible": false
+          "colorMap": "turbo"
         }
       },
       "layers": {
@@ -279,7 +256,7 @@
       "diffMethod": "custom",
       "diffTopicPath": "",
       "showFullMessageForDiff": false,
-      "topicPath": "/extrapolated_map",
+      "topicPath": "sensor_msgs/msg/Image",
       "fontSize": 12
     },
     "TopicGraph!hd7ouv": {},
@@ -294,30 +271,27 @@
                 "first": "Plot!4dytizu",
                 "second": "Plot!10l2t9v",
                 "direction": "column",
-                "splitPercentage": 43.46473029045644
+                "splitPercentage": 45.02074688796681
               },
               "second": {
                 "first": "Plot!4bhrthb",
                 "second": {
                   "first": "RosOut!ar7z8c",
                   "second": "Image!4b8an0z",
-                  "direction": "row"
+                  "direction": "row",
+                  "splitPercentage": 65.31084656084656
                 },
-                "direction": "column"
+                "direction": "column",
+                "splitPercentage": 36.15702479338842
               },
               "direction": "column",
-              "splitPercentage": 57.51789976133651
+              "splitPercentage": 42.243436754176614
             },
             "second": {
-              "first": "NodePlayground!2j07z4q",
-              "second": {
-                "first": "3D!2oa13l8",
-                "second": "Image!3c6k2o0",
-                "direction": "row",
-                "splitPercentage": 57.896137469586364
-              },
-              "direction": "column",
-              "splitPercentage": 16.46039603960396
+              "first": "3D!2oa13l8",
+              "second": "Image!3c6k2o0",
+              "direction": "row",
+              "splitPercentage": 51.64233576642335
             },
             "direction": "row",
             "splitPercentage": 31.5
@@ -329,12 +303,10 @@
             "first": {
               "first": "SourceInfo!ektq6e",
               "second": "RawMessages!1h6226c",
-              "direction": "column",
-              "splitPercentage": 59.82142694953353
+              "direction": "column"
             },
             "second": "TopicGraph!hd7ouv",
-            "direction": "row",
-            "splitPercentage": 56.770833333333336
+            "direction": "row"
           }
         }
       ]

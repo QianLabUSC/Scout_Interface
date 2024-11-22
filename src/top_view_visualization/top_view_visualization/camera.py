@@ -5,41 +5,64 @@ from cv_bridge import CvBridge
 import cv2 as cv
 import numpy as np
 from top_view_visualization.GoProInterface.webcam import GoProWebcamPlayer
+from rclpy.qos import QoSProfile
+from rclpy.qos import QoSReliabilityPolicy
 
+import threading
 
 class CameraPublisher(Node):
 
     def __init__(self):
         super().__init__('camera_publisher')
-        self.publisher_ = self.create_publisher(Image, 'scenario_image', 10)
+        bestEffort = QoSProfile(
+                    depth=10,
+                    reliability=QoSReliabilityPolicy.BEST_EFFORT)
+        self.publisher_ = self.create_publisher(Image, 'scenario_image', bestEffort)
         timer_period = 0.1  # seconds
+        
         self.br = CvBridge()
-        # self.webcam = GoProStream()
-        # self.webcam.start_stream() #starts the http stream of photos
-        self.timer = self.create_timer(timer_period, self.timer_callback) #publish on the topic "scienario_image" every 0.1 seconds 
+        self.webcam = GoProStream()
         self.item = 1
-
-    def timer_callback(self):
-        print(1)
-        self.item += 1
-        # ret, frame = self.webcam.image_capture() #acts as openCV's cap.read() which returns a boolean and numpy array represetning the image
-        # frame = cv.imread("src/top_view_visualization/top_view_visualization/sample.jpg") #sample image for testing purpose
-        frame = np.zeros((960,480, 3), dtype=np.uint8)
+        self.frame = np.zeros((960, 480, 3), dtype=np.uint8)
         cv.putText(
-            frame,
+            self.frame,
             "testing frames",
-            (50, self.item),
+            (50, 50),
             cv.FONT_HERSHEY_SIMPLEX,
             1,
             (0, 0, 255),  # Red text color
             2,
             cv.LINE_AA
         )
-        ret = True #testing purposes 
-        if ret:
-            print("yes")
-            self.publisher_.publish(self.br.cv2_to_imgmsg(frame))
         
+        # Start a separate thread for receiving frames
+        self.thread = threading.Thread(target=self.receive_frames, daemon=True)
+        self.thread.start()
+
+        # Timer for publishing frames
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+
+    def receive_frames(self):
+        while True:
+            ret, frame = self.webcam.image_capture()
+            if ret:
+                frame = cv.rotate(frame, cv.ROTATE_90_CLOCKWISE)
+                cv.putText(
+                    frame,
+                    "RoboLAND Testing",
+                    (50, 50),
+                    cv.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (0, 0, 255),  # Red text color
+                    2,
+                    cv.LINE_AA
+                )
+                self.frame = frame
+
+    def timer_callback(self):
+        print("publish")
+        self.publisher_.publish(self.br.cv2_to_imgmsg(self.frame))
+
            
 
             
@@ -69,7 +92,9 @@ class GoProStream:
     def __init__(self, serial_number: list[int] = [5,3,7], port: int = 9000):
         self.serial_number = serial_number
         self.port = port
-        self.webcam = GoProWebcamPlayer([5,3,7], 9000)
+        self.webcam = GoProWebcamPlayer([5,3,7], port)
+        self.start_stream()
+        self.cap = cv.VideoCapture(self.webcam.player.url+"?overrun_nonfatal=1&fifo_size=50000000", cv.CAP_FFMPEG)
     """
     Starts video stream
     ros2_send toggles between sending over a topic and displaying with opencv.
@@ -78,7 +103,8 @@ class GoProStream:
         self.webcam.open()
         self.webcam.play()
 
+
     def image_capture(self):
-        cap = cv.VideoCapture(f'udp://127.0.0.1:{self.port}',cv.CAP_FFMPEG)
-        ret, frame = cap.read()
+        # print(self.webcam.player.url)
+        ret, frame = self.cap.read()
         return ret, frame
