@@ -89,7 +89,7 @@ class GoProStream:
     """
     Initialize an object to stream gopro video as a webcam, serial number is the last three numbers of the serial, port is the http port you want to send on
     """
-    def __init__(self, serial_number: list[int] = [5,3,7], port: int = 9000):
+    def __init__(self, serial_number: list[int] = [5,3,7], port: int = 7567):
         self.serial_number = serial_number
         self.port = port
         self.webcam = GoProWebcamPlayer([5,3,7], port)
