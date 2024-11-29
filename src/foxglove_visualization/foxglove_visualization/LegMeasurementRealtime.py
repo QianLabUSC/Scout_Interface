@@ -276,9 +276,12 @@ class RealtimeSubscriber(Node):
     def spatial_measurement_publish(self):
         msg = SpatialMeasurement()
         if (self.pene_leg_idx == self.idx_fl) or (self.pene_leg_idx == self.idx_fr):
-            msg.position.x = self.Toe_W[0,self.pene_leg_idx]
+            
+
+            # adjusted based calibration:x = -z y =x, z =y, x need to be the short edge
+            msg.position.x = -self.Toe_W[2,self.pene_leg_idx]
             msg.position.y = self.Toe_W[0,self.pene_leg_idx]
-            msg.position.z = self.Toe_W[0,self.pene_leg_idx]
+            msg.position.z = self.Toe_W[1,self.pene_leg_idx]
         msg.uncertainty = 0.0
         msg.value = self.stiffness
         msg.unit = "N/m"

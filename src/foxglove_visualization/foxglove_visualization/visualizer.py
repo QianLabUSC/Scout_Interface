@@ -28,6 +28,10 @@ class Foxglove(Node):
         self.terrain_map_publisher = self.create_publisher(Grid, 'terrain_map', 10)
         self.measurements_publisher = self.create_publisher(MarkerArray, 'measurements_markers', 10)
 
+        self.x_range = (-1.5, 1.5)
+        self.y_range=  (-3, 3)
+        self.resolution = (100, 50)
+
 
 
     def spatial_map_callback(self, msg: ExtrapolatedMap):
@@ -107,8 +111,8 @@ class Foxglove(Node):
             marker.id = marker_id
             marker.type = Marker.SPHERE
             marker.action = Marker.ADD
-            marker.pose.position.x = measurement.position.x
-            marker.pose.position.y = measurement.position.y
+            marker.pose.position.x = (measurement.position.x - self.x_range[0])/(self.x_range[1] - self.x_range[0]) * self.resolution[1]
+            marker.pose.position.y = (measurement.position.y - self.y_range[0])/(self.y_range[1] - self.y_range[0]) * self.resolution[0]
             marker.pose.position.z = 0.0
             
             # Scale and color based on measurement value
