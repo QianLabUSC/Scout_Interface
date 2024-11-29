@@ -66,8 +66,10 @@ class Foxglove(Node):
 
         # Prepare data
         data_array = np.array(msg.data, dtype=np.uint8)
-        min_value = np.min(data_array[data_array >= 0])  # Exclude unknowns (-1)
-        max_value = np.max(data_array)
+        # min_value = np.min(data_array[data_array >= 0])  # Exclude unknowns (-1)
+        # max_value = np.max(data_array)
+        min_value = 0
+        max_value = 2000
 
         # Scale data to 0–255 and convert to uint8
         normalized_data = np.clip(((data_array - min_value) / (max_value - min_value)) * 255, 0, 255).astype(np.uint8)
@@ -110,9 +112,9 @@ class Foxglove(Node):
             marker.pose.position.z = 0.0
             
             # Scale and color based on measurement value
-            marker.scale.x = 2.0
-            marker.scale.y = 2.0
-            marker.scale.z = 2.0
+            marker.scale.x = 1.0
+            marker.scale.y = 1.0
+            marker.scale.z = 1.0
             marker.color = self.get_color_by_spatial(measurement.value)
             trajectory_markers.markers.append(marker)
             marker_id += 1
@@ -128,6 +130,9 @@ class Foxglove(Node):
 
         
         color.b = max(0.0, min(1.0, 1.0 - spatial / 100.0))
+        color.r = 0.0
+        color.g = 0.0
+        color.b = 0.0
         color.a = 1.0  # Fully opaque
         return color
 

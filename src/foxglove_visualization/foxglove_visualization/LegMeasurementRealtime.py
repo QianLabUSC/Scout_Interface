@@ -233,6 +233,7 @@ class RealtimeSubscriber(Node):
 
     def SpiritState_callback(self, msg):
         self.spirit_state = msg
+        print("receive msgs")
         # update toe position
         self.update_toePos_W()
         self.update_measurement()
