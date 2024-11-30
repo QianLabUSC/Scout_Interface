@@ -183,6 +183,12 @@ class RealtimeSubscriber(Node):
         # 2, 83886080
         # 3, 117440512
         # 4, 150994944
+        # first upadate forces calculated from Jacobian
+        fl_toe_force = self.toeForceSolver(self.jointVec[:,self.idx_fl], self.jointCurrent[:,self.idx_fl], self.idx_fl)
+        fr_toe_force = self.toeForceSolver(self.jointVec[:,self.idx_fr], self.jointCurrent[:,self.idx_fr], self.idx_fr)
+        # note that this is in body frame, let's keep it for now for the demo
+        self.pene_force_fl = -fl_toe_force[2]
+        self.pene_force_fr = -fr_toe_force[2]
         if (custom_mode < 1e8) or (custom_mode > 1.3e8) or (current_penetrate != 1):
             #we are not in crawl mode
             #and we are in the penetrate, for some reason the custom_Mode is very
@@ -218,12 +224,6 @@ class RealtimeSubscriber(Node):
                     self.pene_depth_buffer = []
                     self.pene_force_buffer = []
             self.pene_leg_idx = int(science_toe_idx)
-            # first upadate forces calculated from Jacobian
-            fl_toe_force = self.toeForceSolver(self.jointVec[:,self.idx_fl], self.jointCurrent[:,self.idx_fl], self.idx_fl)
-            fr_toe_force = self.toeForceSolver(self.jointVec[:,self.idx_fr], self.jointCurrent[:,self.idx_fr], self.idx_fr)
-            # note that this is in body frame, let's keep it for now for the demo
-            self.pene_force_fl = fl_toe_force[2]
-            self.pene_force_fr = fr_toe_force[2]
             # the depth of non penetration leg should be 0
             self.pene_depth_fl = 0.0
             self.pene_depth_fr = 0.0
