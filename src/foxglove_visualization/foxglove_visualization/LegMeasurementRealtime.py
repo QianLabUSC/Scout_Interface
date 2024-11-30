@@ -197,15 +197,17 @@ class RealtimeSubscriber(Node):
             self.pene_time_buffer = []
             self.pene_depth_buffer = []
             self.pene_force_buffer = []
-            # while not in penetrate mode, if we are in ghost mode, we use Momentum Observer output
-            # front left is leg # 0
-            self.pene_force_fl = self.spirit_state.joint_residuals[0]
-            # front left is leg # 2
-            self.pene_force_fr = self.spirit_state.joint_residuals[4]
-            # we still dk the depth
-            self.pene_depth_fl = float('nan')
-            self.pene_depth_fr = float('nan')
+            if(ghost_behav_mode  < 3):
+                # while not in penetrate mode, if we are in ghost mode, we use Momentum Observer output
+                # front left is leg # 0
+                self.pene_force_fl = self.spirit_state.joint_residuals[0]
+                # front left is leg # 2
+                self.pene_force_fr = self.spirit_state.joint_residuals[4]
+                # we still dk the depth
+                self.pene_depth_fl = float('nan')
+                self.pene_depth_fr = float('nan')
         else:
+            # otherwise we are in crawl mode
             self.curr_pene = True
             if self.curr_pene and (science_toe_idx != self.pene_leg_idx):
                 # only calculate stiffness while on front right leg
@@ -216,6 +218,15 @@ class RealtimeSubscriber(Node):
                     self.pene_depth_buffer = []
                     self.pene_force_buffer = []
             self.pene_leg_idx = int(science_toe_idx)
+            # first upadate forces calculated from Jacobian
+            fl_toe_force = self.toeForceSolver(self.jointVec[:,self.idx_fl], self.jointCurrent[:,self.idx_fl], self.idx_fl)
+            fr_toe_force = self.toeForceSolver(self.jointVec[:,self.idx_fr], self.jointCurrent[:,self.idx_fr], self.idx_fr)
+            # note that this is in body frame, let's keep it for now for the demo
+            self.pene_force_fl = fl_toe_force[2]
+            self.pene_force_fr = fr_toe_force[2]
+            # the depth of non penetration leg should be 0
+            self.pene_depth_fl = 0.0
+            self.pene_depth_fr = 0.0
             if self.pene_leg_idx == self.idx_fl:
                 # front left leg is in penetration
                 self.pene_depth_fl = -pos_penetrate[2]   # cropped toe z
@@ -224,12 +235,6 @@ class RealtimeSubscriber(Node):
                 self.pene_time_buffer.append(self.pene_time_fl)
                 self.pene_depth_buffer.append(self.pene_depth_fl)
                 self.pene_force_buffer.append(self.pene_force_fl)
-                # we also want to know the force from front right leg, calculate from Jacobian
-                fr_toe_force = self.toeForceSolver(self.jointVec[:,self.idx_fr], self.jointCurrent[:,self.idx_fr], self.idx_fr)
-                # still we cannot know the depth without calculating the ground plane
-                self.pene_depth_fr = float('nan')
-                # note that this is in body frame, let's keep it for now for the demo
-                self.pene_force_fr = fr_toe_force[2]
             elif self.pene_leg_idx == self.idx_fr:
                 # front right leg is in penetration
                 self.pene_depth_fr = -pos_penetrate[2]   # cropped toe z
@@ -238,12 +243,6 @@ class RealtimeSubscriber(Node):
                 self.pene_time_buffer.append(self.pene_time_fr)
                 self.pene_depth_buffer.append(self.pene_depth_fr)
                 self.pene_force_buffer.append(self.pene_force_fr)
-                # we also want to know the force from front left leg, calculate from Jacobian
-                fl_toe_force = self.toeForceSolver(self.jointVec[:,self.idx_fl], self.jointCurrent[:,self.idx_fl], self.idx_fl)
-                # still we cannot know the depth without calculating the ground plane
-                self.pene_depth_fl = float('nan')
-                # note that this is in body frame, let's keep it for now for the demo
-                self.pene_force_fl = fl_toe_force[2]
 
     # if we don't know toe position and have to calculate from joint position
     def update_toePos_W(self):
@@ -300,7 +299,7 @@ class RealtimeSubscriber(Node):
         else:
             print("Joint Pos recv error")
         # debug for jointPos
-        print(jointPos)
+        # print(jointPos)
         # update self.jointCurrent
         jointCurr = self.spirit_state.joint_currents
         if len(jointCurr)==12:
