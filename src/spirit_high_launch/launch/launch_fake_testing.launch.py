@@ -5,8 +5,28 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 import os
 from launch.launch_description_sources import FrontendLaunchDescriptionSource
+from launch import LaunchDescription
+from launch.substitutions import LaunchConfiguration
+
+import pathlib
+import yaml
 
 def generate_launch_description():
+
+    # yaml_dir = get_package_share_directory('spirit_high_launch')
+    # using source dir instead of install directory
+    yaml_dir = "/home/qianlab/SpiritHighLevel/src/spirit_high_launch/config"
+    config_file = os.path.join(yaml_dir, 'asme.yaml')
+    print(config_file)
+    # LaunchConfiguration('ros_control_config').perform(context)
+    
+    with open(config_file, 'r') as file:
+        config = yaml.safe_load(file)
+    visualizer_params = config.get('visualizer', {}).get('ros__parameters', {})
+    print(visualizer_params)
+    mapping_params = config.get('mapping_node', {}).get('ros__parameters', {})
+    data_collector_params = config.get('data_collector', {}).get('ros__parameters', {})
+ 
 
     foxglove_bridge_launch = IncludeLaunchDescription(
         FrontendLaunchDescriptionSource([
@@ -34,7 +54,8 @@ def generate_launch_description():
             package='foxglove_visualization',  # Replace with the package where Foxglove is defined
             executable='visualizer',  # Replace with the executable name of Foxglove
             name='visualizer',
-            output='screen'
+            output='screen',
+            parameters=[visualizer_params]
         ),
 
 
@@ -57,14 +78,16 @@ def generate_launch_description():
             package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined
             executable='data_collector',  # Replace with the executable name of FakeDataPublisher
             name='data_collector',
-            output='screen'
+            output='screen',
+            parameters=[data_collector_params]
         ),
 
         Node(
             package='mapping_package',  # Replace with the package where FakeDataPublisher is defined
             executable='mapping_node',  # Replace with the executable name of FakeDataPublisher
             name='mapping_node',
-            output='screen'
+            output='screen',
+            parameters=[mapping_params]
         ),
 
         foxglove_bridge_launch,

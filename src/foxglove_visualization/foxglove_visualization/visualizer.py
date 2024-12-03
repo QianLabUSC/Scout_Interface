@@ -6,6 +6,9 @@ from visualization_msgs.msg import Marker, MarkerArray
 from std_msgs.msg import Header, Int32
 from geometry_msgs.msg import Point
 from std_msgs.msg import ColorRGBA
+from sensor_msgs.msg import Image 
+from cv_bridge import CvBridge
+import cv2
 from trusses_custom_interfaces.msg import ExtrapolatedMap, MeasurementArray
 from std_msgs.msg import Header
 from foxglove_msgs.msg import Grid, PackedElementField, Vector2
@@ -27,10 +30,40 @@ class Foxglove(Node):
         # Publishers for buffer size
         self.terrain_map_publisher = self.create_publisher(Grid, 'terrain_map', 10)
         self.measurements_publisher = self.create_publisher(MarkerArray, 'measurements_markers', 10)
+        self.colorbar_publisher = self.create_publisher(Image, 'terrain_color_bar', 10)
+        self.bridge = CvBridge()
+        
 
-        self.x_range = (-1.5, 1.5)
-        self.y_range=  (-3, 3)
-        self.resolution = (100, 50)
+        # Declare parameters with default values
+        self.declare_parameter('x_range', (-1.5, 1.5))
+        self.declare_parameter('y_range', (-3, 3))
+        self.declare_parameter('resolution', (100, 50))
+        self.declare_parameter('stiffness_range', (0, 2000))
+        self.declare_parameter('uncertainty_threshold', 0.7)
+        self.declare_parameter('uncertainty_alpha', 100)
+
+        # Retrieve parameters (defaults will be used if not overridden)
+        x_range = self.get_parameter('x_range').value
+        y_range = self.get_parameter('y_range').value
+        resolution = self.get_parameter('resolution').value
+        stiffness_range = self.get_parameter('stiffness_range').value
+        uncertainty_threshold = self.get_parameter('uncertainty_threshold').value
+        uncertainty_alpha = self.get_parameter('uncertainty_alpha').value
+
+        # Log parameters to confirm values
+        self.get_logger().info(f"x_range: {x_range}")
+        self.get_logger().info(f"y_range: {y_range}")
+        self.get_logger().info(f"resolution: {resolution}")
+        self.get_logger().info(f"stiffness_range: {stiffness_range}")
+        self.get_logger().info(f"uncertainty_threshold: {uncertainty_threshold}")
+        self.get_logger().info(f"uncertainty_alpha: {uncertainty_alpha}")
+
+        self.x_range = (x_range[0], x_range[1])
+        self.y_range=  (y_range[0], y_range[1])
+        self.resolution = (resolution[0], resolution[1])
+        self.stiffness_range = stiffness_range
+        self.uncertainty_threshold = uncertainty_threshold
+        self.uncertainty_alpha = uncertainty_alpha
 
 
 
@@ -69,15 +102,23 @@ class Foxglove(Node):
         ]
 
         # Prepare data
-        data_array = np.array(msg.data, dtype=np.uint8)
+        data_array = np.array(msg.data)
+        formatted_array = np.array2string(data_array, precision=2, separator=',', suppress_small=True)
+
+        self.get_logger().info(formatted_array)
         # min_value = np.min(data_array[data_array >= 0])  # Exclude unknowns (-1)
         # max_value = np.max(data_array)
-        min_value = 0
-        max_value = 2000
+        min_value = self.stiffness_range[0]
+        max_value = self.stiffness_range[1]
 
         # Scale data to 0–255 and convert to uint8
         normalized_data = np.clip(((data_array - min_value) / (max_value - min_value)) * 255, 0, 255).astype(np.uint8)
         normalized_data[data_array == -1] = 0  # Set unknowns to 0
+        # print(normalized_data)
+        formatted_array = np.array2string(normalized_data, precision=2, separator=',', suppress_small=True)
+
+        self.get_logger().info(formatted_array)
+
 
         # Initialize grid data buffer
         grid_data = []
@@ -86,8 +127,8 @@ class Foxglove(Node):
             red = int(value)
             green = 25
             blue = int(255 - value)  # Static blue for visualization
-            alpha = 100 if uncertainty[index] > 0.7 else 255  # Fully opaque or transparent for unknown
-            
+            alpha = self.uncertainty_alpha if uncertainty[index] > self.uncertainty_threshold else 255  # Fully opaque or transparent for unknown
+            # alpha = 255
             # Append values for each cell: [value, red, green, blue, alpha]
             grid_data.extend([int(value), red, green, blue, alpha])
 
@@ -96,6 +137,38 @@ class Foxglove(Node):
         
         # Publish the Grid message
         self.terrain_map_publisher.publish(grid_msg)
+        # Create the color bar image (height=50, width=256)
+        height, width = 80, 1024
+        color_bar = np.zeros((height, width, 3), dtype=np.uint8)
+
+        for value in range(width):
+            red = int(value/width * 255)
+            green = 25
+            blue = int((255 - value/width) * 255)
+            color_bar[:, value] = (blue, green, red)  # OpenCV uses BGR format
+
+        # Overlay value labels
+        
+        for value in range(min_value, max_value, int((max_value-min_value)/5)):  # Show labels every 25 units
+            x_position = int((value - min_value) / (max_value - min_value) * width)
+            cv2.putText(
+                color_bar,
+                str(value),
+                (x_position, height-5),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 255, 255),  # White text
+                2,
+                cv2.LINE_AA
+            )
+
+        # Convert the OpenCV image to a ROS Image message
+        image_msg = self.bridge.cv2_to_imgmsg(color_bar, encoding='bgr8')
+
+        # Publish the Image message
+        self.colorbar_publisher.publish(image_msg)
+
+
 
 
     def spatial_points_callback(self, msg: MeasurementArray):
@@ -129,11 +202,11 @@ class Foxglove(Node):
     def get_color_by_spatial(self, spatial):
         """Maps spatial value to a color for visualization."""
         color = ColorRGBA()
-        color.r = max(0.0, min(1.0, spatial / 100.0))
+        color.r = max(0.0, min(1.0, spatial / 2000.0))
         color.g = 0.25
 
         
-        color.b = max(0.0, min(1.0, 1.0 - spatial / 100.0))
+        color.b = max(0.0, min(1.0, 1.0 - spatial / 2000.0))
         color.r = 0.0
         color.g = 0.0
         color.b = 0.0

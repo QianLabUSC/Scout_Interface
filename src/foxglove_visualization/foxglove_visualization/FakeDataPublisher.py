@@ -12,22 +12,22 @@ class FakeDataPublisher(Node):
     def __init__(self):
         super().__init__('fake_data_publisher')
         
-        
+        self.gradient_rate = 0.05
         # Publishers for each message type on the specified topics
         self.spatial_measurement_publisher = self.create_publisher(SpatialMeasurement, 'spatial_measurements', 10)
         self.raw_measurments_publisher = self.create_publisher(RobotMeasurements, 'raw_measurements', 10)
-        # self.extrapolated_map_publisher = self.create_publisher(ExtrapolatedMap, 'extrapolated_map', self.qos_profile)
-        # self.measurement_array_publisher = self.create_publisher(MeasurementArray, 'collected_measurements', self.qos_profile)
+        # self.extrapolated_map_publisher = self.create_publisher(ExtrapolatedMap, 'extrapolated_map', 10)
+        # self.measurement_array_publisher = self.create_publisher(MeasurementArray, 'collected_measurements', 10)
         
         # Timers to publish each message type
-        self.spatial_measurement_timer  = self.create_timer(0.5, self.publish_spatial_measurement)
-        self.raw_measurement_timer  = self.create_timer(0.05, self.publish_raw_measurement)
-        # self.extrapolated_map_timer  = self.create_timer(1.0, self.publish_extrapolated_map)
-        # self.measurement_array_timer  = self.create_timer(1.0, self.publish_measurement_array)
+        self.spatial_measurement_timer  = self.create_timer(1, self.publish_spatial_measurement)
+        self.raw_measurement_timer  = self.create_timer(1, self.publish_raw_measurement)
+        # self.extrapolated_map_timer  = self.create_timer(1, self.publish_extrapolated_map)
+        # self.measurement_array_timer  = self.create_timer(1, self.publish_measurement_array)
     
         self.height = 100
         self.width = 50
-        self.previous_data = 30*np.ones(self.height * self.width)
+        self.previous_data = 1000*np.ones(self.height * self.width)
 
         # Initialize measurement variables
         self.curr_pene = 0  # Boolean indicating penetration state
@@ -82,15 +82,15 @@ class FakeDataPublisher(Node):
 
     def publish_spatial_measurement(self):
         msg = SpatialMeasurement()
-        msg.position = Point32(x=np.random.uniform(0, 50), y=np.random.uniform(0, 100), z=np.random.uniform(0, 5))
-        msg.value = np.random.uniform(0, 100)
+        msg.position = Point32(x=np.random.uniform(-1.5, 1.5), y=np.random.uniform(-3, 3), z=np.random.uniform(0, 5))
+        msg.value = np.random.uniform(0, 2000)
         msg.uncertainty = np.random.uniform(0, 10)
         msg.unit = "m"
         msg.source_name = "RandomSensor"
         msg.time = self.get_clock().now().to_msg()
 
         self.spatial_measurement_publisher.publish(msg)
-        self.gradient_rate = 0.05
+        
         self.get_logger().info(f"Published SpatialMeasurement on 'spatial_measurement': position=({msg.position.x}, {msg.position.y}, {msg.position.z}), value={msg.value}")
 
     def generate_gradual_data(self):
@@ -102,18 +102,18 @@ class FakeDataPublisher(Node):
         change_rate = np.max([1, self.gradient_rate])  # Adjust this for faster or slower temporal changes
 
         # Generate a spatial gradient (smooth change across rows and columns)
-        x_gradient = np.linspace(0, 100, self.width)  # Horizontal gradient
-        y_gradient = np.linspace(0, 100, self.height).reshape(-1, 1)  # Vertical gradient
+        x_gradient = np.linspace(0, 2000, self.width)  # Horizontal gradient
+        y_gradient = np.linspace(0, 2000, self.height).reshape(-1, 1)  # Vertical gradient
         spatial_gradient = (x_gradient + y_gradient) / 2  # Combine for a smooth 2D gradient
 
         # Generate random small increments/decrements for temporal variation
-        temporal_variation = np.random.uniform(-1, 1, (self.height, self.width)) * 10
+        temporal_variation = np.random.uniform(-100, 100, (self.height, self.width)) * 10
 
         # Apply spatial gradient and add small temporal changes to previous data
-        new_data = data * (1-change_rate) + spatial_gradient * change_rate + temporal_variation
-
+        # new_data = data * (1-change_rate) + spatial_gradient * change_rate + temporal_variation
+        new_data = spatial_gradient
         # Clip data to ensure it remains within the range [0, 100]
-        new_data = np.clip(new_data, 0, 100)
+        new_data = np.clip(new_data, 0, 2000)
         uncertainty = 0.5 * new_data + 20 + np.random.uniform(0, 5, (self.height, self.width))
 
         return new_data.flatten().tolist(), uncertainty.flatten().tolist()  # Return as a 1D list to match the expected format
@@ -148,7 +148,7 @@ class FakeDataPublisher(Node):
         num_measurements = 5
         for _ in range(num_measurements):
             measurement = SpatialMeasurement()
-            measurement.position = Point32(x=np.random.uniform(20, 30), y=np.random.uniform(40, 70), z=np.random.uniform(0, 5))
+            measurement.position = Point32(x=np.random.uniform(-1.5, 1.5), y=np.random.uniform(-3, 3), z=np.random.uniform(0, 5))
             measurement.value = np.random.uniform(0, 100)
             measurement.uncertainty = np.random.uniform(0, 10)
             measurement.unit = "m"
@@ -157,7 +157,7 @@ class FakeDataPublisher(Node):
 
             msg.measurements.append(measurement)
 
-        self.measurement_array_publisher.publish(msg)
+        # self.measurement_array_publisher.publish(msg)
         # self.get_logger().info(f"Published MeasurementArray on 'spatial_measurements' with {num_measurements} measurements.")
 
 def main(args=None):

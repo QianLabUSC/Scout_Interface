@@ -1,0 +1,29 @@
+visualizer:
+  ros__parameters:
+    x_range: [-1.5, 1.5]
+    y_range: [-3, 3]
+    resolution: [100, 50]
+    stiffness_range: [0, 2500]
+    uncertainty_threshold: 0.7
+    uncertainty_alpha: 100
+
+
+leg_measurements_publisher:
+  ros__parameters:
+
+
+top_view_camera:
+  ros__parameters:
+
+data_collector:
+  ros__parameters:
+    csv_file: ASME_DEMO_TEST1
+
+mapping_node:
+  ros__parameters:
+    x_range: [-1.5, 1.5]
+    y_range: [-3, 3]
+    resolution: [100, 50]
+    noise_level: 0.1
+    length_scale: 0.3
+    sigma_f: 1.0

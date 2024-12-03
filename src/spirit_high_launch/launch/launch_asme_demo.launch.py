@@ -6,8 +6,11 @@ from ament_index_python.packages import get_package_share_directory
 import os
 from launch.launch_description_sources import FrontendLaunchDescriptionSource
 
+custom_csv_path = 'ASME_DEMO_TEST'
+
 def generate_launch_description():
 
+    
     foxglove_bridge_launch = IncludeLaunchDescription(
         FrontendLaunchDescriptionSource([
             os.path.join(
@@ -47,7 +50,8 @@ def generate_launch_description():
             package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined
             executable='data_collector',  # Replace with the executable name of FakeDataPublisher
             name='data_collector',
-            output='screen'
+            output='screen',
+            parameters=[{'csv_path': custom_csv_path}],
         ),
 
         Node(
