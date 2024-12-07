@@ -266,19 +266,30 @@ class RealtimeSubscriber(Node):
         force = np.array(self.pene_force_buffer)
         maxforce = np.max(force)
         # force that we recognize as start penetration
-        # if the maxforce is small, we select the force threshold as 0.25*maxforce
-        force_threshold = min(10.0, 0.25*maxforce)
+        # if the maxforce is small, we select the force threshold as 0.90*maxforce, this ensures we get data even if max penetration force is below 10
+        force_threshold = min(10.0, 0.90*maxforce)
         # we start searching from the zero height
         # sometimes the depth always greater than 0.0, so we select -0.02
         # the function argmax will give index 0 if cannot find even one satisfying the condition
-        depth_zero_idx = np.argmax(depth > -0.02)
+        depth_zero_idx = 0 #np.argmax(depth > -0.02)
         start_pene_idx = depth_zero_idx
         for i in range(depth_zero_idx, len(depth)):
             if force[i] > force_threshold:
                 start_pene_idx = i
                 break
         # Perform linear fit
-        coefficients = np.polyfit(depth[start_pene_idx:-1], force[start_pene_idx:-1], 1)
+        """
+        WE MAY HAVE AN ISSUE WITH POLYFIT GOING TO END OF DATA. THIS IS BECAUSE
+        WE HAVE A CLUMPING OF DATA AT THE END. WILL CAUSE SKEWING. FOR NOW LETS 
+        DO START_PENE_IDX TO INDEX OF 0.95 OF MAX FORCE 
+        
+        """
+        #FIND END PENE IDX
+        max_force_threshold = 0.9*maxforce
+        for i in range(depth_zero_idx,len(depth)):
+            if force[i] < max_force_threshold:
+                end_pene_idx = i
+        coefficients = np.polyfit(depth[start_pene_idx:end_pene_idx], force[start_pene_idx:end_pene_idx], 1)
         slope, intercept = coefficients
         return slope
 
