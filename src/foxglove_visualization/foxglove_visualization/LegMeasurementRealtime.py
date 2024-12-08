@@ -329,10 +329,16 @@ class RealtimeSubscriber(Node):
 
     def Pose_callback(self, msg):
         mocap_q = np.array([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
-        self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z])
+        R_MoB = np.array([0.0, 1.0, 0.0],
+                        [0.0, 0.0, 1.0],
+                        [1.0, 0.0, 0.0])
+        p_offset = R_MoB @ np.array([0.0, 0.0, -0.14])
+        self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
         # quaternion to rotation matrix, this is rotation matrix from MoCap to World
         R_WMo = Rotation.from_quat(mocap_q)
-        self.R_WB = R_WMo.as_matrix()
+        R_WMo = R_WMo.as_matrix()
+        self.R_WB = R_WMo @ R_MoB
+        # self.R_WB = R_WMo.as_matrix()
         # update toe position
         # self.update_toePos_W()
 
