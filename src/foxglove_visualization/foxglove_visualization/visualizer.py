@@ -9,6 +9,8 @@ from std_msgs.msg import ColorRGBA
 from sensor_msgs.msg import Image 
 from cv_bridge import CvBridge
 import cv2
+from scipy.spatial.transform import Rotation
+import rclpy
 from trusses_custom_interfaces.msg import ExtrapolatedMap, MeasurementArray
 from std_msgs.msg import Header
 from foxglove_msgs.msg import Grid, PackedElementField, Vector2
@@ -25,18 +27,20 @@ class Foxglove(Node):
         
         self.spatial_map_subscriber = self.create_subscription(ExtrapolatedMap, 'extrapolated_map', self.spatial_map_callback, self.qos_profile)
         self.spatial_points_subscriber = self.create_subscription(MeasurementArray, 'collected_measurements', self.spatial_points_callback, self.qos_profile)
+        self.robot_center_subscriber = self.create_subscription(Pose, 'spirit/mocap', self.mocap_callback, self.qos_profile)
         
 
         # Publishers for buffer size
         self.terrain_map_publisher = self.create_publisher(Grid, 'terrain_map', 10)
         self.measurements_publisher = self.create_publisher(MarkerArray, 'measurements_markers', 10)
         self.colorbar_publisher = self.create_publisher(Image, 'terrain_color_bar', 10)
+        self.robot_regid_body_publisher = self.create_publisher(Marker, 'robot_body', 10)
         self.bridge = CvBridge()
         
 
         # Declare parameters with default values
         self.declare_parameter('x_range', (-1.5, 1.5))
-        self.declare_parameter('y_range', (-3, 3))
+        self.declare_parameter('y_range', (-3.0, 3.0))
         self.declare_parameter('resolution', (100, 50))
         self.declare_parameter('stiffness_range', (0, 2000))
         self.declare_parameter('uncertainty_threshold', 0.7)
@@ -65,7 +69,63 @@ class Foxglove(Node):
         self.uncertainty_threshold = uncertainty_threshold
         self.uncertainty_alpha = uncertainty_alpha
 
+    def mocap_callback(self, msg: Pose):
+        marker = Marker()
+        marker.header.frame_id = "map"  # Set the frame of reference
+        marker.header.stamp = self.get_clock().now().to_msg()
+        marker.ns = "rectangle"
+        marker.id = 0
+        marker.type = Marker.SPHERE
+        # marker.action = Marker.ADD
+        marker.action = Marker.ADD
 
+
+        mocap_q = np.array([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
+        p_WMo_W = np.array([msg.position.x, msg.position.y, msg.position.z])
+        
+        
+        # Init Rotations
+        # quaternion to rotation matrix, this is rotation matrix from MoCap to World
+        R_WM = Rotation.from_quat(mocap_q).as_matrix()
+        R_MB = np.array([[0.0, 1.0, 0.0],
+                        [0.0, 0.0, 1.0],
+                        [1.0, 0.0, 0.0]])
+        R_WB = R_WM @ R_MB
+
+        p_BM_B = np.array([0.037,0,0.1075]) #body to tracker in body
+        p_WB_W = p_WMo_W + R_WB @ ( -p_BM_B )
+        
+        self.R_WB = R_WB
+        # print(R_WB)
+        # self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
+        self.CoM_pos = p_WB_W
+        # Position
+        marker.pose.position.x = (4 + self.CoM_pos[0] - self.x_range[0])/(self.x_range[1] - self.x_range[0]) * self.resolution[1]
+        marker.pose.position.y = (4 - self.CoM_pos[2] - self.y_range[0])/(self.y_range[1] - self.y_range[0]) * self.resolution[0]
+            
+        marker.pose.position.z = (self.CoM_pos[1] + 0.2) * 5.0
+        
+        # Orientation
+        # marker.pose.orientation = msg.orientation
+        
+        # Dimensions of the rectangle
+        # marker.scale.x = 50/4 * 0.4  # Length
+        # marker.scale.y = 100/6 * 0.6  # Width
+        # marker.scale.z = 0.2 * 7  # Thickness
+
+        marker.scale.x = 50/4 * 0.4
+        marker.scale.y = 50/4 * 0.4
+        marker.scale.z = 50/4 * 0.4
+
+
+        # Color (gray with transparency)
+        marker.color.r = 0.5
+        marker.color.g = 0.5
+        marker.color.b = 0.5
+        marker.color.a = 0.8  # Transparency (0.0 = fully transparent, 1.0 = fully opaque)
+
+        # self.robot_regid_body_publisher.publish(marker)
+        
 
     def spatial_map_callback(self, msg: ExtrapolatedMap):
         """Converts ExtrapolatedMap data to a Foxglove Grid for visualization."""

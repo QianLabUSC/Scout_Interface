@@ -328,17 +328,26 @@ class RealtimeSubscriber(Node):
         self.realtime_measurement_publish()
 
     def Pose_callback(self, msg):
+        # Get data from mocap
         mocap_q = np.array([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
-        R_MoB = np.array([0.0, 1.0, 0.0],
-                        [0.0, 0.0, 1.0],
-                        [1.0, 0.0, 0.0])
-        p_offset = R_MoB @ np.array([0.0, 0.0, -0.14])
-        self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
+        p_WMo_W = np.array([msg.position.x, msg.position.y, msg.position.z])
+        
+        
+        # Init Rotations
         # quaternion to rotation matrix, this is rotation matrix from MoCap to World
-        R_WMo = Rotation.from_quat(mocap_q)
-        R_WMo = R_WMo.as_matrix()
-        self.R_WB = R_WMo @ R_MoB
-        # self.R_WB = R_WMo.as_matrix()
+        R_WM = Rotation.from_quat(mocap_q).as_matrix()
+        R_MB = np.array([[0.0, 1.0, 0.0],
+                        [0.0, 0.0, 1.0],
+                        [1.0, 0.0, 0.0]])
+        R_WB = R_WM @ R_MB
+
+        p_BM_B = np.array([0.037,0,0.1075]) #body to tracker in body
+        p_WB_W = p_WMo_W + R_WB @ ( -p_BM_B )
+        
+        self.R_WB = R_WB
+        # self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
+        self.CoM_pos = p_WB_W
+
         # update toe position
         # self.update_toePos_W()
 
@@ -372,12 +381,13 @@ class RealtimeSubscriber(Node):
 
     def spatial_measurement_publish(self):
         msg = SpatialMeasurement()
-        if (self.pene_leg_idx == self.idx_fl) or (self.pene_leg_idx == self.idx_fr):
+        if (self.pene_leg_idx == self.idx_fr):
             # adjusted based calibration:x = -z y =x, z =y, x need to be the short edge
-            msg.position.x = -self.Toe_W[2,self.pene_leg_idx]
-            msg.position.y = self.Toe_W[0,self.pene_leg_idx]
+            msg.position.x = 4 + self.Toe_W[0,self.pene_leg_idx]
+            msg.position.y = 4 - self.Toe_W[2,self.pene_leg_idx]
             msg.position.z = self.Toe_W[1,self.pene_leg_idx]
         msg.uncertainty = 0.0
+        msg.leg_idx = self.pene_leg_idx
         msg.value = self.stiffness
         msg.unit = "N/m"
         msg.source_name = "Stiffness"

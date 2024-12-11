@@ -46,6 +46,15 @@ def generate_launch_description():
             
         ),
 
+        Node(
+            package='foxglove_visualization',  # Replace with the package where Foxglove is defined
+            executable='mocap_collection',  # Replace with the executable name of Foxglove
+            name='mocap_collection',
+            output='screen',
+            parameters=[visualizer_params]
+            
+        ),
+
 
         Node(
             package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined

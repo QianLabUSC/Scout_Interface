@@ -22,7 +22,9 @@ setup(
         'console_scripts': [
             'visualizer = foxglove_visualization.visualizer:main',
             'fake_data_publisher = foxglove_visualization.FakeDataPublisher:main',
-            'leg_measurements_publisher = foxglove_visualization.LegMeasurementRealtime:main'
+            'leg_measurements_publisher = foxglove_visualization.LegMeasurementRealtime:main',
+            'mocap_collection = foxglove_visualization.mocapCollection:main'
+
         ],
     },
 )

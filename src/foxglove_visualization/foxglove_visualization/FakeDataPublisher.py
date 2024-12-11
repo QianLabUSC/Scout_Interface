@@ -7,6 +7,8 @@ from builtin_interfaces.msg import Time
 from geometry_msgs.msg import Point32
 from trusses_custom_interfaces.msg import RealtimeMeasurement, RobotMeasurements
 from trusses_custom_interfaces.msg import SpatialMeasurement, ExtrapolatedMap, MeasurementArray
+from geometry_msgs.msg import Pose
+from scipy.spatial.transform import Rotation
 
 class FakeDataPublisher(Node):
     def __init__(self):
@@ -18,10 +20,12 @@ class FakeDataPublisher(Node):
         self.raw_measurments_publisher = self.create_publisher(RobotMeasurements, 'raw_measurements', 10)
         # self.extrapolated_map_publisher = self.create_publisher(ExtrapolatedMap, 'extrapolated_map', 10)
         # self.measurement_array_publisher = self.create_publisher(MeasurementArray, 'collected_measurements', 10)
+        self.robot_pose_publisher_ = self.create_publisher(Pose, 'spirit/mocap', 10)
         
         # Timers to publish each message type
         self.spatial_measurement_timer  = self.create_timer(1, self.publish_spatial_measurement)
         self.raw_measurement_timer  = self.create_timer(1, self.publish_raw_measurement)
+        self.robot_pose_timer = self.create_timer(1, self.publish_motion_msg)
         # self.extrapolated_map_timer  = self.create_timer(1, self.publish_extrapolated_map)
         # self.measurement_array_timer  = self.create_timer(1, self.publish_measurement_array)
     
@@ -82,6 +86,7 @@ class FakeDataPublisher(Node):
 
     def publish_spatial_measurement(self):
         msg = SpatialMeasurement()
+        msg.leg_idx = int(np.random.choice([0, 2]))
         msg.position = Point32(x=np.random.uniform(-1.5, 1.5), y=np.random.uniform(-3, 3), z=np.random.uniform(0, 5))
         msg.value = np.random.uniform(0, 2000)
         msg.uncertainty = np.random.uniform(0, 10)
@@ -93,6 +98,26 @@ class FakeDataPublisher(Node):
         
         self.get_logger().info(f"Published SpatialMeasurement on 'spatial_measurement': position=({msg.position.x}, {msg.position.y}, {msg.position.z}), value={msg.value}")
 
+
+
+    def publish_motion_msg(self):   
+        
+        # print( "Received frame for rigid body", id )
+        # np.array(rotation)
+       
+        # print(rot, pos)
+        self.robot_pose = Pose()
+        self.robot_pose.position.x = 0.0
+        self.robot_pose.position.y = 0.0
+        self.robot_pose.position.z = 0.0
+        rotation = Rotation.from_euler('y', 0)  # Only yaw rotation
+        quaternion = rotation.as_quat()  # Returns [x, y, z, w]
+        self.robot_pose.orientation.x = quaternion[0]
+        self.robot_pose.orientation.y = quaternion[1]
+        self.robot_pose.orientation.z = quaternion[2]
+        self.robot_pose.orientation.w = quaternion[3]
+        print("publish pose")
+        self.robot_pose_publisher_.publish(self.robot_pose)
     def generate_gradual_data(self):
         # Convert previous data to a numpy array for vectorized operations
         data = np.array(self.previous_data).reshape((self.height, self.width))

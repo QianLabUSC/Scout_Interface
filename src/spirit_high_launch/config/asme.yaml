@@ -1,11 +1,15 @@
 visualizer:
   ros__parameters:
-    x_range: [-1.5, 1.5]
-    y_range: [-3, 3]
-    resolution: [100, 50]
-    stiffness_range: [0, 2500]
-    uncertainty_threshold: 0.7
+    x_range: [0.0, 4.0]
+    y_range: [0.0, 6.0]
+    resolution: [240, 160]
+    stiffness_range: [200, 1500]
+    uncertainty_threshold: 1.2
     uncertainty_alpha: 100
+
+# mocapCollection:
+#   ros__parameters:
+#     localIP: 
 
 
 leg_measurements_publisher:
@@ -17,13 +21,13 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: ASME_DEMO_TEST1
+    csv_file: AMES_2024_Dec_10_Day5_Column2a_3a_1b_preview
 
 mapping_node:
   ros__parameters:
-    x_range: [-1.5, 1.5]
-    y_range: [-3, 3]
-    resolution: [100, 50]
+    x_range: [0.0, 4.0]
+    y_range: [0.0, 6.0]
+    resolution: [240, 160]
     noise_level: 0.1
-    length_scale: 0.3
+    length_scale: 0.5
     sigma_f: 1.0
