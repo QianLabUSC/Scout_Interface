@@ -161,7 +161,7 @@ class GoProStream:
         if ids is None or len(corners) == 0:
             print("No ArUco markers detected!")
             return
-        marker_size = 1
+        marker_size = 1 #TODO Hyperparmeter for the size of the arucotag
         objPoints = np.array([
             [-marker_size / 2, marker_size / 2, 0],
             [marker_size / 2, marker_size / 2, 0],
