@@ -1,8 +1,8 @@
 visualizer:
   ros__parameters:
-    x_range: [0.0, 4.0]
-    y_range: [0.0, 6.0]
-    resolution: [480, 320]
+    x_range: [0.0, 2.0]
+    y_range: [0.0, 8.0]
+    resolution: [480, 120]
     stiffness_range: [200, 1500]
     uncertainty_threshold: 1.0
     uncertainty_alpha: 100
@@ -14,6 +14,10 @@ visualizer:
 
 leg_measurements_publisher:
   ros__parameters:
+    use_mocap: False # if true, use position from mocap
+    use_gnss: False # if not use_mocap, use gnss, if true
+    use_visual_tag: True # use april tag
+    
 
 
 top_view_camera:
@@ -21,13 +25,13 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: AMES_2024_Dec_10_Day5_troting
+    csv_file: lpsc_testing_in_the_lab
 
 mapping_node:
   ros__parameters:
-    x_range: [0.0, 4.0]
-    y_range: [0.0, 6.0]
-    resolution: [480, 320]
+    x_range: [0.0, 2.0]
+    y_range: [0.0, 8.0]
+    resolution: [480, 120]
     noise_level: 0.1
     length_scale: 0.5
     sigma_f: 1.0

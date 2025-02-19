@@ -1,0 +1,354 @@
+{
+  "configById": {
+    "Plot!4dytizu": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/raw_measurements.front_left_leg.pene_force",
+          "enabled": true,
+          "color": "#4e98e2",
+          "label": "FL"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/raw_measurements.front_right_leg.pene_force",
+          "enabled": true,
+          "color": "#f5774d",
+          "label": "FR"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Continuous Force vs Time",
+      "followingViewWidth": 60
+    },
+    "Plot!10l2t9v": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/raw_pene_measurements.front_left_leg.pene_force",
+          "enabled": true,
+          "color": "#4e98e2",
+          "label": "FL"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/raw_pene_measurements.front_right_leg.pene_force",
+          "enabled": true,
+          "color": "#f5774d",
+          "label": "FR"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Cropped Force vs Time",
+      "followingViewWidth": 60
+    },
+    "Plot!4bhrthb": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/spatial_measurements.value",
+          "enabled": true,
+          "color": "#000000",
+          "label": "FR",
+          "showLine": false,
+          "lineSize": 5.6084
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240,
+      "foxglovePanelTitle": "Stiffness vs Step",
+      "followingViewWidth": 300,
+      "minYValue": 350,
+      "maxYValue": 2400
+    },
+    "RosOut!ar7z8c": {
+      "searchTerms": [],
+      "minLogLevel": 1,
+      "nameFilter": {}
+    },
+    "3D!2oa13l8": {
+      "cameraState": {
+        "distance": 658.2429475850657,
+        "perspective": false,
+        "phi": 2.1668672725282523,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          161.9701610834669,
+          234.79151334691383,
+          -5.3142471415593014e-17
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": -179.9373396912533,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 4991,
+        "logDepth": true
+      },
+      "followMode": "follow-none",
+      "scene": {
+        "syncCamera": false,
+        "ignoreColladaUpAxis": false,
+        "backgroundColor": "#f2efef",
+        "labelScaleFactor": 1.7,
+        "meshUpAxis": "y_up"
+      },
+      "transforms": {},
+      "topics": {
+        "/measurements_markers": {
+          "visible": true
+        },
+        "/terrain_map": {
+          "visible": true,
+          "colorField": "value",
+          "colorMode": "rgba-fields",
+          "colorMap": "turbo"
+        },
+        "/robot_body": {
+          "visible": false
+        }
+      },
+      "layers": {
+        "grid": {
+          "visible": false,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "9be0c8ea-fc77-41ce-93f3-fbbeac9300e9",
+          "layerId": "foxglove.Grid",
+          "size": 10,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "divisions": 10
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {},
+      "foxglovePanelTitle": "Terrain strength (N/m)"
+    },
+    "Image!2yz1ex": {
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 45,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {
+        "imageTopic": "/terrain_color_bar"
+      },
+      "foxglovePanelTitle": "Terrain strength color bar(N/m)"
+    },
+    "Image!3c6k2o0": {
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 45,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {
+        "imageTopic": "/scenario_image"
+      },
+      "foxglovePanelTitle": "Environment"
+    },
+    "SourceInfo!ektq6e": {},
+    "RawMessages!1h6226c": {
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/spatial_measurements",
+      "fontSize": 12
+    },
+    "TopicGraph!hd7ouv": {},
+    "Tab!1hjb5z2": {
+      "activeTabIdx": 0,
+      "tabs": [
+        {
+          "title": "Visualization control",
+          "layout": {
+            "first": {
+              "first": {
+                "first": "Plot!4dytizu",
+                "second": "Plot!10l2t9v",
+                "direction": "column",
+                "splitPercentage": 50.78864353312302
+              },
+              "second": {
+                "first": "Plot!4bhrthb",
+                "second": "RosOut!ar7z8c",
+                "direction": "column",
+                "splitPercentage": 45.941406297545
+              },
+              "direction": "column",
+              "splitPercentage": 46.68630338733431
+            },
+            "second": {
+              "first": {
+                "first": "3D!2oa13l8",
+                "second": "Image!2yz1ex",
+                "direction": "column",
+                "splitPercentage": 89.10162002945509
+              },
+              "second": "Image!3c6k2o0",
+              "direction": "row",
+              "splitPercentage": 54.30067314884069
+            },
+            "direction": "row",
+            "splitPercentage": 46.30522088353414
+          }
+        },
+        {
+          "title": "Debug",
+          "layout": {
+            "first": {
+              "first": "SourceInfo!ektq6e",
+              "second": "RawMessages!1h6226c",
+              "direction": "column",
+              "splitPercentage": 49.51298701298701
+            },
+            "second": "TopicGraph!hd7ouv",
+            "direction": "row"
+          }
+        }
+      ]
+    }
+  },
+  "globalVariables": {
+    "globalVariable": 4,
+    "": "\"\"",
+    "test": 8
+  },
+  "userNodes": {
+    "ffc14330-8948-45f9-be0c-8bf9ea77368f": {
+      "sourceCode": "// The ./types module provides helper types for your Input events and messages.\nimport { Input, Message } from \"./types\";\n\n// Your script can output well-known message types, any of your custom message types, or\n// complete custom message types.\n//\n// Use `Message` to access your data source types or well-known types:\n// type Twist = Message<\"geometry_msgs/Twist\">;\n//\n// Conventionally, it's common to make a _type alias_ for your script's output type\n// and use that type name as the return type for your script function.\n// Here we've called the type `Output` but you can pick any type name.\ntype Output = {\n  hello: string;\n};\n\n// These are the topics your script \"subscribes\" to. Studio will invoke your script function\n// when any message is received on one of these topics.\nexport const inputs = [\"/input/topic\"];\n\n// Any output your script produces is \"published\" to this topic. Published messages are only visible within Studio, not to your original data source.\nexport const output = \"/studio_script/output_topic\";\n\n// This function is called with messages from your input topics.\n// The first argument is an event with the topic, receive time, and message.\n// Use the `Input<...>` helper to get the correct event type for your input topic messages.\nexport default function script(event: Input<\"/input/topic\">): Output {\n  return {\n    hello: \"world!\",\n  };\n};",
+      "name": "ffc14330"
+    },
+    "98c97f95-e13d-49a8-aa30-7d939567d29a": {
+      "sourceCode": "// The ./types module provides helper types for your Input events and messages.\nimport { Input, Message } from \"./types\";\n\n// Your script can output well-known message types, any of your custom message types, or\n// complete custom message types.\n//\n// Use `Message` to access your data source types or well-known types:\n// type Twist = Message<\"geometry_msgs/Twist\">;\n//\n// Conventionally, it's common to make a _type alias_ for your script's output type\n// and use that type name as the return type for your script function.\n// Here we've called the type `Output` but you can pick any type name.\ntype Output = {\n  hello: string;\n};\n\n// These are the topics your script \"subscribes\" to. Studio will invoke your script function\n// when any message is received on one of these topics.\nexport const inputs = [\"/input/topic\"];\n\n// Any output your script produces is \"published\" to this topic. Published messages are only visible within Studio, not to your original data source.\nexport const output = \"/studio_script/output_topic\";\n\n// This function is called with messages from your input topics.\n// The first argument is an event with the topic, receive time, and message.\n// Use the `Input<...>` helper to get the correct event type for your input topic messages.\nexport default function script(event: Input<\"/input/topic\">): Output {\n  return {\n    hello: \"world!\",\n  };\n};",
+      "name": "98c97f95"
+    },
+    "92ca2133-5fc8-42d1-af59-6a4a8c986b78": {
+      "sourceCode": "",
+      "name": "92ca2133"
+    },
+    "337e0f46-2d44-47b9-846c-46f73c55ff4d": {
+      "sourceCode": "1. BLUE TO RED COLOR MAP -> estimated stiffness map \n2. MARKER -> stiffness measurements Array\n3. 50% TRANSPARENT -> locations where uncertainty is higher than 50%",
+      "name": "337e0f46"
+    }
+  },
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": "Tab!1hjb5z2"
+}
