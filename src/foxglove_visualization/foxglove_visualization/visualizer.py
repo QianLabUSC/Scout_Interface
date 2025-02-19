@@ -100,10 +100,10 @@ class Foxglove(Node):
         # self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
         self.CoM_pos = p_WB_W
         # Position
-        marker.pose.position.x = (4 + self.CoM_pos[0] - self.x_range[0])/(self.x_range[1] - self.x_range[0]) * self.resolution[1]
-        marker.pose.position.y = (4 - self.CoM_pos[2] - self.y_range[0])/(self.y_range[1] - self.y_range[0]) * self.resolution[0]
+        marker.pose.position.x = (4 + mocap_q[0] - self.x_range[0])/(self.x_range[1] - self.x_range[0]) * self.resolution[1]
+        marker.pose.position.y = (4 - mocap_q[2] - self.y_range[0])/(self.y_range[1] - self.y_range[0]) * self.resolution[0]
             
-        marker.pose.position.z = (self.CoM_pos[1] + 0.2) * 5.0
+        marker.pose.position.z = (mocap_q[1] + 0.1) * 5.0
         
         # Orientation
         # marker.pose.orientation = msg.orientation
@@ -113,9 +113,9 @@ class Foxglove(Node):
         # marker.scale.y = 100/6 * 0.6  # Width
         # marker.scale.z = 0.2 * 7  # Thickness
 
-        marker.scale.x = 50/4 * 0.4
-        marker.scale.y = 50/4 * 0.4
-        marker.scale.z = 50/4 * 0.4
+        marker.scale.x = 480/4 * 0.4
+        marker.scale.y = 480/4 * 0.4
+        marker.scale.z = 80/4 * 0.4
 
 
         # Color (gray with transparency)
@@ -124,7 +124,7 @@ class Foxglove(Node):
         marker.color.b = 0.5
         marker.color.a = 0.8  # Transparency (0.0 = fully transparent, 1.0 = fully opaque)
 
-        # self.robot_regid_body_publisher.publish(marker)
+        self.robot_regid_body_publisher.publish(marker)
         
 
     def spatial_map_callback(self, msg: ExtrapolatedMap):
@@ -249,9 +249,9 @@ class Foxglove(Node):
             marker.pose.position.z = 0.0
             
             # Scale and color based on measurement value
-            marker.scale.x = 1.0
-            marker.scale.y = 1.0
-            marker.scale.z = 1.0
+            marker.scale.x = 9.0
+            marker.scale.y = 9.0
+            marker.scale.z = 9.0
             marker.color = self.get_color_by_spatial(measurement.value)
             trajectory_markers.markers.append(marker)
             marker_id += 1
