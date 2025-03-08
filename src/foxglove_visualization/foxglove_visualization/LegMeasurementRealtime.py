@@ -24,6 +24,12 @@ class RealtimeSubscriber(Node):
             self.Pose_callback,
             10)
         self.subscription_mocap  # prevent unused variable warning
+        self.subscription_marker = self.create_subscription(
+            Pose,
+            'spirit/marker_robot',
+            self.marker_pose_callback,
+            10)
+        self.subscription_marker # prevent unused variable warning
         self.realtime_publisher = self.create_publisher(
             RobotMeasurements,
             'raw_measurements',
@@ -295,6 +301,7 @@ class RealtimeSubscriber(Node):
 
     def SpiritState_callback(self, msg):
         self.spirit_state = msg
+        # self.get_logger().info("_".join([str(m) for m in self.spirit_state.mode]))
         # update self.jointVec
         jointPos = self.spirit_state.joint_position
         if len(jointPos)==12:
@@ -351,6 +358,34 @@ class RealtimeSubscriber(Node):
         # update toe position
         # self.update_toePos_W()
 
+    def marker_pose_callback(self, msg):
+        # Get data from mocap
+        self.get_logger().info("Pose Update *******************************")
+        mocap_q = np.array([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
+        p_WMo_W = np.array([msg.position.x, msg.position.y, msg.position.z])
+        
+        
+        # Init Rotations
+        # quaternion to rotation matrix, this is rotation matrix from MoCap to World
+        R_WM = Rotation.from_quat(mocap_q).as_matrix()
+        R_MB = np.array([[1.0, 0.0, 0.0],
+                        [0.0, 1.0, 0.0],
+                        [0.0, 0.0, 1.0]])
+        R_WB = R_WM @ R_MB
+
+        p_BM_B = np.array([0.0,0,0.0]) #body to tracker in body
+        p_WB_W = p_WMo_W + R_WB @ ( -p_BM_B )
+        
+        self.R_WB = R_WB
+        # self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
+        self.CoM_pos = p_WB_W
+
+        self.get_logger().info(np.array2string(self.R_WB))
+        self.get_logger().info(np.array2string(self.CoM_pos))
+
+        # update toe position
+        # self.update_toePos_W()
+
     def realtime_measurement_publish(self):
         msg = RobotMeasurements()
         msg.front_left_leg.position.x = self.Toe_W[0,self.idx_fl]
@@ -383,9 +418,21 @@ class RealtimeSubscriber(Node):
         msg = SpatialMeasurement()
         if (self.pene_leg_idx == self.idx_fr):
             # adjusted based calibration:x = -z y =x, z =y, x need to be the short edge
-            msg.position.x = 4 + self.Toe_W[0,self.pene_leg_idx]
-            msg.position.y = 4 - self.Toe_W[2,self.pene_leg_idx]
-            msg.position.z = self.Toe_W[1,self.pene_leg_idx]
+            transform_to_map_T_MW = np.array(
+                [[-1, 0, 0, 0],
+                 [ 0,-1, 0, 2.4],
+                 [ 0, 0, 1, 0],
+                 [ 0, 0, 0, 1]]
+            )
+            p_WT_homo = np.zeros((4,1))
+            p_WT_homo[0:3,0] = self.Toe_W[:,self.pene_leg_idx]
+            p_WT_homo[3,0]   = 1
+            p_MT_homo = transform_to_map_T_MW @ p_WT_homo
+
+            msg.position.x = p_MT_homo[0,0]
+            msg.position.y = p_MT_homo[1,0]
+            msg.position.z = p_MT_homo[2,0]
+
         msg.uncertainty = 0.0
         msg.leg_idx = self.pene_leg_idx
         msg.value = self.stiffness
