@@ -421,7 +421,7 @@ class RealtimeSubscriber(Node):
     def spatial_measurement_publish(self):
         msg = SpatialMeasurement()
         if (self.pene_leg_idx == self.idx_fr):
-            # adjusted based calibration:x = -z y =x, z =y, x need to be the short edge
+
             transform_to_map_T_MW = np.array(
                 [[-1, 0, 0, 0],
                  [ 0,-1, 0, 2.4],
