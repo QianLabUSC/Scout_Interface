@@ -14,7 +14,7 @@ class RealtimeSubscriber(Node):
         super().__init__('measurement_subscriber')
         self.subscription_state = self.create_subscription(
             SpiritState,
-            'spirit/state',
+            '/spirit/state_low_speed',
             self.SpiritState_callback,
             10)
         self.subscription_state  # prevent unused variable warning
@@ -169,9 +169,13 @@ class RealtimeSubscriber(Node):
 
     def update_measurement(self):
         #gets the custom mode
+        try:
+            custom_mode = self.spirit_state.mode[1]
+        except Exception as e:
+            self.get_logger().error("MODE NOT SET, not ready yet")
+            return
         self.pene_time_fl = self.spirit_state.mainboard_t
         self.pene_time_fr = self.spirit_state.mainboard_t
-        custom_mode = self.spirit_state.mode[1]
         #gets the ghost behavior mode
         ghost_behav_mode = self.spirit_state.behavior[1]
         #gets forces during walk, i guess we will develop the later
