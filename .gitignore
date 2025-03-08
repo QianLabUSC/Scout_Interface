@@ -2,4 +2,9 @@ build/*
 log/*
 install/*
 __pycache__
+*picture_*.jpg
+*/build/*
+*/install/*
+*/log/*
+*.pkl
 

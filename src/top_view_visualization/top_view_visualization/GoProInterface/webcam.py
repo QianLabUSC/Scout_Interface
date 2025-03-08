@@ -257,6 +257,7 @@ class GoProWebcamPlayer:
             resolution (Optional[int]): Resolution for webcam stream. Defaults to None (will be assigned by GoPro).
             fov (Optional[int]): Field of view for webcam stream. Defaults to None (will be assigned by GoPro).
         """
+        print(f"fov: {fov}, resolution: {resolution}")
         self.webcam.start(self.port, resolution, fov)
         self.player.start(GoProWebcamPlayer.STREAM_URL.format(port=self.port))
 
