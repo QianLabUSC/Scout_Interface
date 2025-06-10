@@ -1,16 +1,15 @@
 visualizer:
   ros__parameters:
-    x_range: [0.0, 1.0]
-    y_range: [0.0, 2.5]
+    x_range: [-0.4, 0.4]
+    y_range: [0.0, 2.0]
     resolution: [300, 120]
-    stiffness_range: [700, 1100]
-    uncertainty_threshold: 1.0
+    stiffness_range: [500, 1200]
+    uncertainty_threshold: 1.01100
     uncertainty_alpha: 100
 
 # mocapCollection:
 #   ros__parameters:
 #     localIP: 
-
 
 leg_measurements_publisher:
   ros__parameters:
@@ -25,12 +24,12 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: lpsc_official_demo_in_the_lab_4
+    csv_file: lpsc_demo8
 
 mapping_node:
   ros__parameters:
-    x_range: [0.0, 1.0]
-    y_range: [0.0, 2.5]
+    x_range: [-0.4, 0.4]
+    y_range: [0.0, 2.0]
     resolution: [300, 120]
     noise_level: 0.1
     length_scale: 0.4

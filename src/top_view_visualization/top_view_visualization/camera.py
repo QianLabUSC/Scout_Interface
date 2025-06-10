@@ -14,6 +14,7 @@ import threading
 import time
 from scipy.spatial.transform import Rotation as R
 from scipy.spatial.transform import Slerp
+import argparse
 
 from dataclasses import dataclass
 from collections import defaultdict
@@ -38,46 +39,68 @@ class CameraPublisher(Node):
 
     def __init__(self):
         super().__init__('camera_publisher')
+
+
+
+        # Declare a parameter with a default value
+        self.declare_parameter('imshow', False)
+        self.imshow = self.get_parameter('imshow').get_parameter_value().bool_value
+        
         bestEffort = QoSProfile(
                     depth=10,
                     reliability=QoSReliabilityPolicy.BEST_EFFORT)
         self.photo_publisher = self.create_publisher(Image, 'scenario_image', bestEffort)
-        self.scenario_image_publish_rate = 0.1  # TODO HYPERPARAMETER period in seconds
+        self.scenario_image_publish_rate = 1.0  # TODO HYPERPARAMETER period in seconds
         self.pose_publisher = self.create_publisher(Pose, 'spirit/marker_robot', 10)
-        self.pose_publisher_rate = 0.25 # TODO HYPERPARAMETER period in seconds
+        self.pose_publisher_rate = 0.2 # TODO HYPERPARAMETER period in seconds
         self.br = CvBridge()
-        self.webcam = GoProStream()
+        self.webcam = GoProStream(imshow=self.imshow)
         self.frame = np.zeros((960, 480, 3), dtype=np.uint8)
         self.detected_frame_rate = 0
         self.frame_rate = 1/60.0
         self.marker_offsets_T_BMi = defaultdict(Isometric)
         self.robot_pose = Pose()
+        self.triangle_constellation = {"front":5,"left":2,"right":3}
 
         # Filter variable
         self.filtered_pose = None
-        self.low_pass_alpha = 0.4
-        self.low_pass_alpha_R = 0.4
+        self.low_pass_alpha = 0.55
+        self.low_pass_alpha_R = 0.05
 
         #TODO Add these configs (origin and robot marker pose) into the yaml
-        a = 0.050681
-        b = 0.036168  + 0.075
-        c = 0.071655 + 0.075
+        # a = 0.050681
+        # b = 0.036168  + 0.075
+        # c = 0.071655 + 0.075
         
-        cth = np.cos(np.pi * 70.0/180)
-        sth = np.sin(np.pi * 70.0/180)
+        # cth = np.cos(np.pi * 70.0/180)
+        # sth = np.sin(np.pi * 70.0/180)
         
         # self.marker_offsets_T_BMi[10] = Isometric(np.array([[ a, 0, b]]).T,np.array([[cth,0,sth],[0,1,0],[-sth,0,cth]]))
         # self.marker_offsets_T_BMi[11] = Isometric(np.array([[ 0,-a, b]]).T,np.array([[1,0,0],[0,cth,-sth],[0,sth,cth]]))
-        self.marker_offsets_T_BMi[12] = Isometric(np.array([[-a, 0, b]]).T,np.array([[cth,0,-sth],[0,1,0],[sth,0,cth]]))
+        # self.marker_offsets_T_BMi[12] = Isometric(np.array([[-a, 0, b]]).T,np.array([[cth,0,-sth],[0,1,0],[sth,0,cth]]))
         # self.marker_offsets_T_BMi[13] = Isometric(np.array([[ 0, a, b]]).T,np.array([[1,0,0],[0,cth,sth],[0,-sth,cth]]))
         # self.marker_offsets_T_BMi[14] = Isometric(np.array([[ 0, 0, c]]).T,np.array([[1,0,0],[0,1,0],[0,0,1]]))
+        self.marker_offsets_T_BMi[5] = Isometric(np.array([[ 0.058, 0, 0.0985]]).T,np.array([[1,0,0],[0,1,0],[0,0,1]]))
+        self.triangle_front_offset_p_MMbar = np.array([[0,0,-0.025]]).T
 
+
+        # self.origin_backup_T_CO = Isometric(
+        #     np.array([[0.59494335, -0.36280709, 0.98195445]]).T, 
+        #     np.array(
+        #        [[ 0.00611825, -0.55763577, -0.8300632 ],
+        #         [-0.99347451, -0.0979292,   0.05846603],
+        #         [-0.11389017,  0.82428891, -0.55459608]]
+        #     )
+        # )
         self.origin_backup_T_CO = Isometric(
-            np.array([[0.59494335, -0.36280709, 0.98195445]]).T, 
-            np.array(
-               [[ 0.00611825, -0.55763577, -0.8300632 ],
-                [-0.99347451, -0.0979292,   0.05846603],
-                [-0.11389017,  0.82428891, -0.55459608]]
+            np.array([[-1.0, -0.5, 1.5]]).T, 
+            np.array(                [[0.0,1.0,0.0],
+                                      [1.0,0.0,0.0],
+                                      [0.0,0.0,-1.0]]
+                # [[1,0,0],[0,1,0],[0,0,1]]
+            #    [[-0.130,  0.990, -0.042 ],
+            #     [ 0.986,  0.140, -0.088],
+            #     [-0.093,  0.030, -0.995]]
             )
         )
         self.origin_backup_T_OC = Isometric(
@@ -98,7 +121,7 @@ class CameraPublisher(Node):
         try:
             img = cv.rotate(self.frame, cv.ROTATE_90_CLOCKWISE)
             cv.putText(
-                    img,
+                    img[350:1030,:],
                     "RoboLAND Testing",
                     (50, 50),
                     cv.FONT_HERSHEY_SIMPLEX,
@@ -120,38 +143,92 @@ class CameraPublisher(Node):
             self.get_logger().warn("No Detection")
             return
         
-        self.get_logger().info(", ".join([str(id) for id in ids]))
+        # self.get_logger().info(", ".join([str(id) for id in ids]))
         robot_id = None
-        for key in self.marker_offsets_T_BMi.keys():
-            if key in ids:
-                robot_id = key
-                break
-        if robot_id is None:
-            self.get_logger().warn("No Robot Marker Found")
-            return
-        self.get_logger().info("Robot Marker ID: " + str(robot_id))
+        id_index_maps = {}
 
+        for id in ids:
+            try:
+                id_index_maps[id[0]] = np.where(ids == id[0])[0][0]
+            except Exception as e:
+                print(id)
+                print(e)
+                1/0
+        triangle_constellation_indices = {}
+
+        for name,id in self.triangle_constellation.items():
+            triangle_constellation_indices[name] = id_index_maps.get(id, None)
+        
+        #Get Triangle Frame
+        if triangle_constellation_indices["front"] is None:# and 10 not in ids:
+            return
+
+
+
+        # for key in self.marker_offsets_T_BMi.keys():
+        #     if key in ids:
+        #         robot_id = key
+        #         break
+        
         rvecs, tvecs, ids = self.webcam.calculate_rvecs_tvecs(img, corners, ids)
-        robot_index = np.where(ids == robot_id)[0][0]
+        # robot_index = np.where(ids == robot_id)[0][0]
         distances, quaternions = self.webcam.get_distance_and_quaternion(rvecs=rvecs, tvecs=tvecs)
+        
+        if 10 in ids:
+            rot_R_CT = R.from_quat(
+                            quaternions[id_index_maps[10]]
+                            ).as_matrix()
+            
+            translation_p_CT = tvecs[id_index_maps[10]]
+        elif (triangle_constellation_indices["right"] is None) or  (triangle_constellation_indices["left"] is None):
+
+            rot_R_CT = R.from_quat(
+                            quaternions[triangle_constellation_indices["front"]]
+                            ).as_matrix()
+            translation_p_CT = tvecs[triangle_constellation_indices["front"]]
+        else: 
+            rot_R_CT = self.getAxisFromTriangle(
+                tvecs[triangle_constellation_indices["front"]] + R.from_quat(quaternions[triangle_constellation_indices["front"]]).as_matrix()@self.triangle_front_offset_p_MMbar,
+                tvecs[triangle_constellation_indices["left"]],
+                tvecs[triangle_constellation_indices["right"]])
+
+            translation_p_CT = tvecs[triangle_constellation_indices["front"]]
+
+        # translation_p_CT = tvecs[triangle_constellation_indices["front"]]
+        rvec_CT = np.zeros((3,1))
+        rvec_CO = np.zeros((3,1))
+        # cv.Rodrigues(rot_R_CT.astype(np.float32),rvec_CT)
+        # cv.Rodrigues(self.origin_backup_T_CO.R.astype(np.float32),rvec_CO)
+        print (self.origin_backup_T_CO.R)
+        # img = cv.drawFrameAxes(img, self.webcam.camMatrix, self.webcam.distCoeff, rot_R_CT , translation_p_CT, 0.5, 3)
+        
+        # if robot_id is None:
+        #     self.get_logger().warn("No Robot Marker Found")
+        #     return
+        # self.get_logger().info("Robot Marker ID: " + str(robot_id))
+
         if 0 in ids:
             origin_index = np.where(ids == 0)[0][0]
-            self.get_logger().debug("***\norigin, q:"+np.array2string(quaternions[origin_index])+", t:"+np.array2string(tvecs[origin_index])+", R:"+ np.array2string(R.from_quat(quaternions[origin_index]).as_matrix() )+"\n***")
+            self.get_logger().info("***\norigin, q:"+np.array2string(quaternions[origin_index])+", t:"+np.array2string(tvecs[origin_index])+", R:"+ np.array2string(R.from_quat(quaternions[origin_index]).as_matrix() )+"\n***")
 
-        quaternion = quaternions[robot_index]
-        rot_R_CMi = R.from_quat(quaternion).as_matrix()
-        translation_p_CMi = tvecs[robot_index]
+        # quaternion = quaternions[robot_index]
+        # rot_R_CMi = R.from_quat(quaternion).as_matrix()
+        # translation_p_CMi = tvecs[robot_index]
+        # marker_offset = self.marker_offsets_T_BMi[robot_id]
 
-
+        rot_R_CMi = rot_R_CT
+        translation_p_CMi = translation_p_CT
+        marker_offset = self.marker_offsets_T_BMi[triangle_constellation_indices["front"]]
+        
         rot_R_OMi = self.origin_backup_T_OC.R @ rot_R_CMi
-        rot_R_OB = rot_R_OMi @ (self.marker_offsets_T_BMi[robot_id].R.T)
+        rot_R_OB = rot_R_OMi @ (marker_offset.R.T)
         
         translation_p_OMi = self.origin_backup_T_OC.t + self.origin_backup_T_OC.R @ translation_p_CMi
-        translation_p_OB = translation_p_OMi - rot_R_OB @ self.marker_offsets_T_BMi[robot_id].t
+        translation_p_OB = translation_p_OMi - rot_R_OB @ marker_offset.t
         quat_R_OB = R.from_matrix(rot_R_OB).as_quat()
         
-        self.get_logger().debug("***\nMarker Pose,\nt:"+
-              np.array2string(translation_p_OB.T)+"\nR:\n"+ np.array2string(rot_R_OB)+"***")
+        self.get_logger().info("***\nMarker Pose,\nt:"+
+              np.array2string(translation_p_OB.T)+"\nR:\n"+ np.array2string(rot_R_OB,precision=3)+"***")
         if self.filtered_pose is None:
             self.filtered_pose = Isometric(translation_p_OB, rot_R_OB)
             rotate_filt = R.from_matrix(rot_R_OB)
@@ -161,10 +238,12 @@ class CameraPublisher(Node):
                 return
                 
             translate_filt = (1-self.low_pass_alpha)*self.filtered_pose.t + self.low_pass_alpha*translation_p_OB
+
             slerp_for_filter = Slerp([0,1],R.from_matrix(np.array([self.filtered_pose.R, rot_R_OB ])))
             rotate_filt = slerp_for_filter(self.low_pass_alpha_R)
-            self.filtered_pose = Isometric(translate_filt, rotate_filt.as_matrix())
 
+            self.filtered_pose = Isometric(translate_filt, rotate_filt.as_matrix())
+            # self.get_logger().info("temp:\n"+np.array2string(self.filtered_pose.t)+"\n" +np.array2string(translation_p_OB ))
         rotate_filt_quat = rotate_filt.as_quat()
         self.robot_pose.position.x = self.filtered_pose.t[0,0]
         self.robot_pose.position.y = self.filtered_pose.t[1,0]
@@ -173,9 +252,37 @@ class CameraPublisher(Node):
         self.robot_pose.orientation.y = rotate_filt_quat[1]
         self.robot_pose.orientation.z = rotate_filt_quat[2]
         self.robot_pose.orientation.w = rotate_filt_quat[3]
+    
+
         self.pose_publisher.publish(self.robot_pose)
         
         self.get_logger().info("Pose PUBLISHED")
+        if self.imshow:
+                
+            img = cv.drawFrameAxes(img, self.webcam.camMatrix, self.webcam.distCoeff, self.origin_backup_T_CO.R , self.origin_backup_T_CO.t, 0.5, 1)
+            img = cv.drawFrameAxes(img, self.webcam.camMatrix, self.webcam.distCoeff, self.origin_backup_T_CO.R @ self.filtered_pose.R , self.origin_backup_T_CO.R @ self.filtered_pose.t + self.origin_backup_T_CO.t, 0.5, 3)
+            cv.imshow("ArUco Detection",img)
+            if cv.waitKey(1) & 0xFF == ord('q'): 
+                cv.destroyAllWindows()
+
+    def getCrossProductAxis(self, vect1, vect2):
+        out = np.cross(np.reshape(vect1,(3,)),np.reshape(vect2,(3,)))
+        return np.reshape(out/np.linalg.norm(out),(3,1))
+    
+    def getAxisFromTriangle(self, pos_front, pos_left, pos_right):
+        
+        # self.get_logger().info("***positions f l r,\n"+
+        #       np.array2string(pos_front)+"\n"+np.array2string(pos_left)+"\n"+np.array2string(pos_right))
+        zAxis = self.getCrossProductAxis(pos_left - pos_front, pos_right - pos_front)
+        zAxis = zAxis/np.linalg.norm(zAxis)
+        xAxis = ((pos_front - pos_right) + (pos_front - pos_left))
+        xAxis = xAxis/np.linalg.norm(xAxis)
+        yAxis = self.getCrossProductAxis(zAxis, xAxis)
+        return np.hstack((xAxis,yAxis,zAxis)) # R_CT
+        # return Isometric(pos_front, np.hstack((xAxis,yAxis,zAxis))) # R_CT
+        
+    
+
 
 
 
@@ -185,11 +292,13 @@ class GoProStream:
     """
     RES_DICT = {"1080":12, "720":7, "480":4}
     FOV_DICT = {"wide":0, "linear":4, "narrow":2, "superview":3}
-    def __init__(self, serial_number: list[int] = [5,3,7], port: int = 7567):
+    def __init__(self, serial_number: list[int] = [5,3,7], port: int = 7567,imshow = False):
         #Getting Gopro setup
         self.serial_number = serial_number
         self.port = port
         self.webcam = GoProWebcamPlayer([5,3,7], port)
+
+        self.imshow = imshow
         
         #TODO to config yaml
         self.resolution = self.RES_DICT["1080"]
@@ -210,11 +319,14 @@ class GoProStream:
         #AruCo Tag Parameters
         self.arucoDict = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_4X4_50)
         self.arucoParams = cv.aruco.DetectorParameters()
-        self.arucoParams.cornerRefinementMethod = cv.aruco.CORNER_REFINE_CONTOUR
+        self.arucoParams.cornerRefinementMethod = cv.aruco.CORNER_REFINE_SUBPIX
+        self.arucoParams.cornerRefinementMaxIterations = 100
+        self.arucoParams.cornerRefinementWinSize = 3
+        self.arucoParams.cornerRefinementMinAccuracy = 0.5
         self.detector = cv.aruco.ArucoDetector(dictionary=self.arucoDict, detectorParams=self.arucoParams)
 
         #TODO Hyperparmeter for the size of the arucotag (Currently, scaling with a meter stick, do better)
-        self.marker_size = 0.06153 
+        self.marker_size = 0.0762 * 1.20 * 1.75 /2.51# 0.06153/0.84
         self.newcameramtx, self.roi = cv.getOptimalNewCameraMatrix(self.camMatrix, self.distCoeff, (1920, 1080), self.alpha_level, (3840,2160))
         self.output_image_size = (3840, 2160) #(width, height)
         self.map1, self.map2 = cv.initUndistortRectifyMap(self.camMatrix, self.distCoeff, np.eye(3), self.newcameramtx, self.output_image_size, cv.CV_32FC1)
@@ -234,11 +346,12 @@ class GoProStream:
     def undistort_image(self, img):
         try:
             dst = cv.remap(img, self.map1, self.map2, cv.INTER_LINEAR)
-            # cv.imshow("Undistorted",dst)
             x, y, w, h = self.roi
             dst = dst[y:y+h, x:x+w]
-            # cv.imshow("Undistorted ROI",dst)
-            # cv.waitKey(0)
+            # if self.imshow:
+            #     cv.imshow("Undistorted",dst)
+            #     cv.imshow("Undistorted ROI",dst)
+            #     cv.waitKey(0)
             return dst
         except Exception as e:
             self.get_logger().warn(str(e))
@@ -270,14 +383,15 @@ class GoProStream:
                 success_ids.append(ids[i])
 
         # uncomment to draw bounding box + frames.
-        for i in range(len(rvecs)):
-            img = cv.drawFrameAxes(img, self.camMatrix, self.distCoeff, rvecs[i], tvecs[i], 0.5, 2)
-        if ids is not None:
-            img = cv.aruco.drawDetectedMarkers(img, corners, ids)
-        # if you want to see the images
-        cv.imshow("ArUco Detection", img)
-        if cv.waitKey(1) & 0xFF == ord('q'): 
-            cv.destroyAllWindows()
+        if self.imshow:
+            for i in range(len(rvecs)):
+                img = cv.drawFrameAxes(img, self.camMatrix, self.distCoeff, rvecs[i], tvecs[i], 0.5, 1)
+            if ids is not None:
+                img = cv.aruco.drawDetectedMarkers(img, corners, ids)
+            # if you want to see the images
+            cv.imshow("ArUco Detection", img)
+            if cv.waitKey(1) & 0xFF == ord('q'): 
+                cv.destroyAllWindows()
         
         return rvecs, tvecs, ids
 

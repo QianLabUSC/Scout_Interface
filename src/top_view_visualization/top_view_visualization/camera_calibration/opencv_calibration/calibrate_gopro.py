@@ -68,6 +68,8 @@ def calibrate_and_save(internal_corner_row, internal_corner_col):
 
     print("ending callibration")
 
+    if not os.path.exists("../calibration_settings"):
+        os.makedirs("../calibration_settings")
     pickle.dump((mtx, dist), open("../calibration_settings/calibration.pkl", "wb"))
     
     newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (1920, 1080), 1, (3840,2160))
@@ -84,16 +86,16 @@ def calibrate_and_save(internal_corner_row, internal_corner_col):
         
 if __name__ == "__main__":
     
-    RESOLUTION = 12 
-    FOV = 0
-    webcam = GoProWebcamPlayer([5,3,7], 7567)
-    webcam.open()
-    webcam.play(RESOLUTION,FOV)
-    status, cap = camera_check(webcam)
-    if status:
-        get_images(cap, delete_prev_photos=False)
-    webcam.close()
-    del webcam
+    # RESOLUTION = 12 
+    # FOV = 0
+    # webcam = GoProWebcamPlayer([5,3,7], 7567)
+    # webcam.open()
+    # webcam.play(RESOLUTION,FOV)
+    # status, cap = camera_check(webcam)
+    # if status:
+    #     get_images(cap, delete_prev_photos=False)
+    # webcam.close()
+    # del webcam
   
     calibrate_and_save(9,6)
 

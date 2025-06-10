@@ -422,12 +422,19 @@ class RealtimeSubscriber(Node):
         msg = SpatialMeasurement()
         if (self.pene_leg_idx == self.idx_fr):
 
+            # transform_to_map_T_MW = np.array(
+            #     [[-1, 0, 0, 0],
+            #      [ 0,-1, 0, 2.4],
+            #      [ 0, 0, 1, 0],
+            #      [ 0, 0, 0, 1]]
+            # )
             transform_to_map_T_MW = np.array(
-                [[-1, 0, 0, 0],
-                 [ 0,-1, 0, 2.4],
-                 [ 0, 0, 1, 0],
-                 [ 0, 0, 0, 1]]
+                [[ 1, 0, 0, 0],
+                [ 0, 1, 0, 0],
+                [ 0, 0, 1, 0],
+                [ 0, 0, 0, 1]]
             )
+
             p_WT_homo = np.zeros((4,1))
             p_WT_homo[0:3,0] = self.Toe_W[:,self.pene_leg_idx]
             p_WT_homo[3,0]   = 1
