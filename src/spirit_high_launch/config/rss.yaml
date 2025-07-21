@@ -1,0 +1,33 @@
+visualizer:
+  ros__parameters:
+    x_range: [0.0, 0.8]
+    y_range: [0.0, 3.1]
+    resolution: [310, 80]
+    stiffness_range: [500, 1400]
+    uncertainty_threshold: 1.0
+    uncertainty_alpha: 200
+
+# mocapCollection:
+#   ros__parameters:
+#     localIP: 
+
+
+leg_measurements_publisher:
+  ros__parameters:
+
+
+top_view_camera:
+  ros__parameters:
+
+data_collector:
+  ros__parameters:
+    csv_file: rsstest25
+
+mapping_node:
+  ros__parameters:
+    x_range: [0.0, 0.8]
+    y_range: [0.0, 3.1]
+    resolution: [310, 80]
+    noise_level: 0.1
+    length_scale: 20.0
+    sigma_f: 1.0
