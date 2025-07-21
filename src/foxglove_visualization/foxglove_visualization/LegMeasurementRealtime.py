@@ -347,17 +347,17 @@ class RealtimeSubscriber(Node):
         # Init Rotations
         # quaternion to rotation matrix, this is rotation matrix from MoCap to World
         R_WM = Rotation.from_quat(mocap_q).as_matrix()
-        R_MB = np.array([[0.0, 1.0, 0.0],
-                        [0.0, 0.0, 1.0],
-                        [1.0, 0.0, 0.0]])
-        R_WB = R_WM @ R_MB
+        # R_MB = np.array([[0.0, 1.0, 0.0],
+        #                 [0.0, 0.0, 1.0],
+        #                 [1.0, 0.0, 0.0]])
+        # R_WB = R_WM @ R_MB
 
-        p_BM_B = np.array([0.037,0,0.1075]) #body to tracker in body
-        p_WB_W = p_WMo_W + R_WB @ ( -p_BM_B )
+        # p_BM_B = np.array([0.037,0,0.1075]) #body to tracker in body
+        # p_WB_W = p_WMo_W + R_WB @ ( -p_BM_B )
         
-        self.R_WB = R_WB
+        self.R_WB = R_WM
         # self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
-        self.CoM_pos = p_WB_W
+        self.CoM_pos = p_WMo_W
 
         # update toe position
         # self.update_toePos_W()
@@ -422,20 +422,20 @@ class RealtimeSubscriber(Node):
         msg = SpatialMeasurement()
         if (self.pene_leg_idx == self.idx_fr):
 
-            transform_to_map_T_MW = np.array(
-                [[-1, 0, 0, 0],
-                 [ 0,-1, 0, 2.4],
-                 [ 0, 0, 1, 0],
-                 [ 0, 0, 0, 1]]
-            )
+            # transform_to_map_T_MW = np.array(
+            #     [[-1, 0, 0, 0],
+            #      [ 0,-1, 0, 2.4],
+            #      [ 0, 0, 1, 0],
+            #      [ 0, 0, 0, 1]]
+            # )
             p_WT_homo = np.zeros((4,1))
             p_WT_homo[0:3,0] = self.Toe_W[:,self.pene_leg_idx]
-            p_WT_homo[3,0]   = 1
-            p_MT_homo = transform_to_map_T_MW @ p_WT_homo
+            # p_WT_homo[3,0]   = 1
+            # p_MT_homo = transform_to_map_T_MW @ p_WT_homo
 
-            msg.position.x = p_MT_homo[0,0]
-            msg.position.y = p_MT_homo[1,0]
-            msg.position.z = p_MT_homo[2,0]
+            msg.position.x = p_WT_homo[0,0]
+            msg.position.y = p_WT_homo[1,0]
+            msg.position.z = p_WT_homo[2,0]
 
         msg.uncertainty = 0.0
         msg.leg_idx = self.pene_leg_idx

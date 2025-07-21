@@ -11,12 +11,10 @@ from launch.substitutions import LaunchConfiguration
 import pathlib
 import yaml
 
-def generate_launch_description():
 
-    # yaml_dir = get_package_share_directory('spirit_high_launch')
-    # using source dir instead of install directory
+def generate_launch_description():
     yaml_dir = "/home/qianlab/SpiritHighLevel/src/spirit_high_launch/config"
-    config_file = os.path.join(yaml_dir, 'faketesting.yaml')
+    config_file = os.path.join(yaml_dir, 'rss.yaml')
     print(config_file)
     # LaunchConfiguration('ros_control_config').perform(context)
     
@@ -26,8 +24,7 @@ def generate_launch_description():
     print(visualizer_params)
     mapping_params = config.get('mapping_node', {}).get('ros__parameters', {})
     data_collector_params = config.get('data_collector', {}).get('ros__parameters', {})
- 
-
+    
     foxglove_bridge_launch = IncludeLaunchDescription(
         FrontendLaunchDescriptionSource([
             os.path.join(
@@ -38,17 +35,7 @@ def generate_launch_description():
         ])
     )
 
-    return LaunchDescription([
-        # Node 1: FakeDataPublisher
-        Node(
-            package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
-            executable='fake_data_publisher',  # Replace with the executable name of FakeDataPublisher
-            name='fake_data_publisher',
-            output='screen'
-        ),
-
-
-        
+    return LaunchDescription([ 
         # Node 2: Foxglove
         Node(
             package='foxglove_visualization',  # Replace with the package where Foxglove is defined
@@ -56,6 +43,16 @@ def generate_launch_description():
             name='visualizer',
             output='screen',
             parameters=[visualizer_params]
+            
+        ),
+
+        Node(
+            package='foxglove_visualization',  # Replace with the package where Foxglove is defined
+            executable='mocap_collection',  # Replace with the executable name of Foxglove
+            name='mocap_collection',
+            output='screen',
+            parameters=[visualizer_params]
+            
         ),
 
 

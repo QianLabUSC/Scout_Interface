@@ -100,8 +100,8 @@ class Foxglove(Node):
         # self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
         self.CoM_pos = p_WB_W
         # Position
-        marker.pose.position.x = (4 + mocap_q[0] - self.x_range[0])/(self.x_range[1] - self.x_range[0]) * self.resolution[1]
-        marker.pose.position.y = (4 - mocap_q[2] - self.y_range[0])/(self.y_range[1] - self.y_range[0]) * self.resolution[0]
+        marker.pose.position.x = (mocap_q[0] - self.x_range[0])/(self.x_range[1] - self.x_range[0]) * self.resolution[1]
+        marker.pose.position.y = (1.54 - mocap_q[2] - self.y_range[0])/(self.y_range[1] - self.y_range[0]) * self.resolution[0]
             
         marker.pose.position.z = (mocap_q[1] + 0.1) * 5.0
         
@@ -245,7 +245,7 @@ class Foxglove(Node):
             marker.type = Marker.SPHERE
             marker.action = Marker.ADD
             marker.pose.position.x = (measurement.position.x - self.x_range[0])/(self.x_range[1] - self.x_range[0]) * self.resolution[1]
-            marker.pose.position.y = (measurement.position.y - self.y_range[0])/(self.y_range[1] - self.y_range[0]) * self.resolution[0]
+            marker.pose.position.y = (1.54 - measurement.position.z - self.y_range[0])/(self.y_range[1] - self.y_range[0]) * self.resolution[0]
             marker.pose.position.z = 0.0
             
             # Scale and color based on measurement value

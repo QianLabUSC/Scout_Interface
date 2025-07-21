@@ -96,7 +96,9 @@ class CameraPublisher(Node):
             
     def publish_scenario_image(self):
         try:
-            img = cv.rotate(self.frame, cv.ROTATE_90_CLOCKWISE)
+            # img = cv.rotate(self.frame, cv.ROTATE_90_CLOCKWISE)
+            img = cv.rotate(self.frame, cv.ROTATE_90_COUNTERCLOCKWISE)
+
             cv.putText(
                     img,
                     "RoboLAND Testing",
