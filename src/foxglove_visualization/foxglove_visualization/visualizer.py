@@ -15,6 +15,8 @@ from trusses_custom_interfaces.msg import ExtrapolatedMap, MeasurementArray
 from std_msgs.msg import Header
 from foxglove_msgs.msg import Grid, PackedElementField, Vector2
 from geometry_msgs.msg import Pose
+from nav_msgs.msg import Path
+from foxglove_msgs.msg import LocationFix
 class Foxglove(Node):
     def __init__(self):
         super().__init__('foxglove_visualization_inter_')
@@ -28,13 +30,14 @@ class Foxglove(Node):
         self.spatial_map_subscriber = self.create_subscription(ExtrapolatedMap, 'extrapolated_map', self.spatial_map_callback, self.qos_profile)
         self.spatial_points_subscriber = self.create_subscription(MeasurementArray, 'collected_measurements', self.spatial_points_callback, self.qos_profile)
         self.robot_center_subscriber = self.create_subscription(Pose, 'spirit/mocap', self.mocap_callback, self.qos_profile)
-        
+        self.path_subscriber = self.create_subscription(Path, 'planner_path/rover', self.path_callback, self.qos_profile)
 
         # Publishers for buffer size
         self.terrain_map_publisher = self.create_publisher(Grid, 'terrain_map', 10)
         self.measurements_publisher = self.create_publisher(MarkerArray, 'measurements_markers', 10)
         self.colorbar_publisher = self.create_publisher(Image, 'terrain_color_bar', 10)
         self.robot_regid_body_publisher = self.create_publisher(Marker, 'robot_body', 10)
+        self.foxglove_path_publisher = self.create_publisher(MarkerArray, 'foxglove_path_markers', 10)
         self.bridge = CvBridge()
         
 
@@ -69,6 +72,91 @@ class Foxglove(Node):
         self.uncertainty_threshold = uncertainty_threshold
         self.uncertainty_alpha = uncertainty_alpha
 
+
+    def path_callback(self, msg: Path):
+        """Converts Path data to MarkerArray for visualization with scaled coordinates."""
+        path_markers = MarkerArray()
+        
+        marker_id = 0
+        for i, pose_stamped in enumerate(msg.poses):
+            marker = Marker()
+            marker.header.frame_id = "map"
+            marker.header.stamp = self.get_clock().now().to_msg()
+            marker.ns = "path"
+            marker.id = marker_id
+            marker.type = Marker.SPHERE
+            marker.action = Marker.ADD
+            
+            # Scale coordinates to match map visualization
+            # Map: x_range maps to resolution[1] (320), y_range maps to resolution[0] (480)
+            scaled_x = (pose_stamped.pose.position.x - self.x_range[0]) / (self.x_range[1] - self.x_range[0]) * self.resolution[1]
+            scaled_y = (pose_stamped.pose.position.y - self.y_range[0]) / (self.y_range[1] - self.y_range[0]) * self.resolution[0]
+            
+            marker.pose.position.x = scaled_x
+            marker.pose.position.y = scaled_y
+            marker.pose.position.z = pose_stamped.pose.position.z * 10.0  # Scale Z for visibility
+            
+            # Set marker size and color based on position in path
+            if i == 0:  # Start point
+                marker.scale.x = 10.0  # Larger marker for start
+                marker.scale.y = 10.0
+                marker.scale.z = 2.0
+                marker.color.r = 0.0
+                marker.color.g = 1.0  # Green for start
+                marker.color.b = 0.0
+                marker.color.a = 1.0
+                marker.ns = "path_start"
+            elif i == len(msg.poses) - 1:  # Goal point
+                marker.scale.x = 10.0  # Larger marker for goal
+                marker.scale.y = 10.0
+                marker.scale.z = 2.0
+                marker.color.r = 1.0  # Red for goal
+                marker.color.g = 0.0
+                marker.color.b = 0.0
+                marker.color.a = 1.0
+                marker.ns = "path_goal"
+            else:  # Path points
+                marker.scale.x = 5.0  # Smaller markers for path
+                marker.scale.y = 5.0
+                marker.scale.z = 5.0
+                marker.color.r = 1.0
+                marker.color.g = 1.0
+                marker.color.b = 1.0  # Blue for path
+                marker.color.a = 0.8
+                marker.ns = "path_waypoint"
+            
+            path_markers.markers.append(marker)
+            marker_id += 1
+        
+        # Add path lines connecting waypoints
+        if len(msg.poses) > 1:
+            line_marker = Marker()
+            line_marker.header.frame_id = "map"
+            line_marker.header.stamp = self.get_clock().now().to_msg()
+            line_marker.ns = "path_line"
+            line_marker.id = marker_id
+            line_marker.type = Marker.LINE_STRIP
+            line_marker.action = Marker.ADD
+            
+            # Line properties
+            line_marker.scale.x = 2.0  # Line width
+            line_marker.color.r = 1.0
+            line_marker.color.g = 1.0
+            line_marker.color.b = 0.0  # Yellow line
+            line_marker.color.a = 0.8
+            
+            # Add all path points to the line
+            for pose_stamped in msg.poses:
+                point = Point()
+                point.x = (pose_stamped.pose.position.x - self.x_range[0]) / (self.x_range[1] - self.x_range[0]) * self.resolution[1]
+                point.y = (pose_stamped.pose.position.y - self.y_range[0]) / (self.y_range[1] - self.y_range[0]) * self.resolution[0]
+                point.z = pose_stamped.pose.position.z * 10.0
+                line_marker.points.append(point)
+            
+            path_markers.markers.append(line_marker)
+        
+        # Publish path markers
+        self.foxglove_path_publisher.publish(path_markers)
     def mocap_callback(self, msg: Pose):
         marker = Marker()
         marker.header.frame_id = "map"  # Set the frame of reference
