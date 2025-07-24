@@ -23,21 +23,24 @@ class Foxglove(Node):
         
         # QoS profile with KEEP_LAST history
         self.qos_profile = QoSProfile(
-            reliability=ReliabilityPolicy.RELIABLE,
-            history=HistoryPolicy.KEEP_ALL,
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=5
         )
+
         
         self.spatial_map_subscriber = self.create_subscription(ExtrapolatedMap, 'extrapolated_map', self.spatial_map_callback, self.qos_profile)
         self.spatial_points_subscriber = self.create_subscription(MeasurementArray, 'collected_measurements', self.spatial_points_callback, self.qos_profile)
         self.robot_center_subscriber = self.create_subscription(Pose, 'spirit/mocap', self.mocap_callback, self.qos_profile)
         self.path_subscriber = self.create_subscription(Path, 'planner_path/rover', self.path_callback, self.qos_profile)
-
+        self.gps_path_subscriber = self.create_subscription(Path, '/spirit/gps/robot_path', self.gps_path_callback, self.qos_profile)
         # Publishers for buffer size
         self.terrain_map_publisher = self.create_publisher(Grid, 'terrain_map', 10)
         self.measurements_publisher = self.create_publisher(MarkerArray, 'measurements_markers', 10)
         self.colorbar_publisher = self.create_publisher(Image, 'terrain_color_bar', 10)
         self.robot_regid_body_publisher = self.create_publisher(Marker, 'robot_body', 10)
         self.foxglove_path_publisher = self.create_publisher(MarkerArray, 'foxglove_path_markers', 10)
+        self.path_foxglove_publisher = self.create_publisher(Path, '/foxglove/spirit/path', 10)
         self.bridge = CvBridge()
         
 
@@ -71,6 +74,41 @@ class Foxglove(Node):
         self.stiffness_range = stiffness_range
         self.uncertainty_threshold = uncertainty_threshold
         self.uncertainty_alpha = uncertainty_alpha
+        self.last_published_markers = {}  # Key: (ns, id), Value: Marker
+
+
+    def gps_path_callback(self, msg: Path):
+        scaled = Path()
+        scaled.header.frame_id = msg.header.frame_id
+        # stamp with now or preserve original stamp:
+        scaled.header.stamp    = self.get_clock().now().to_msg()
+
+        for ps in msg.poses:
+            
+
+            # scale X
+            ps.pose.position.x = (
+                (ps.pose.position.x - self.x_range[0])
+                / (self.x_range[1] - self.x_range[0])
+                * self.resolution[1]
+            )
+            # scale Y
+            ps.pose.position.y = (
+                (ps.pose.position.y - self.y_range[0])
+                / (self.y_range[1] - self.y_range[0])
+                * self.resolution[0]
+            )
+            # scale Z
+            ps.pose.position.z = ps.pose.position.z * 10
+
+            # preserve orientation
+            ps.pose.orientation = ps.pose.orientation
+
+            scaled.poses.append(ps)
+
+        # finally publish the scaled path
+        self.path_foxglove_publisher.publish(scaled)
+        
 
 
     def path_callback(self, msg: Path):
@@ -98,27 +136,27 @@ class Foxglove(Node):
             
             # Set marker size and color based on position in path
             if i == 0:  # Start point
-                marker.scale.x = 10.0  # Larger marker for start
-                marker.scale.y = 10.0
-                marker.scale.z = 2.0
+                marker.scale.x = 20.0  # Larger marker for start
+                marker.scale.y = 20.0
+                marker.scale.z = 4.0
                 marker.color.r = 0.0
                 marker.color.g = 1.0  # Green for start
                 marker.color.b = 0.0
                 marker.color.a = 1.0
                 marker.ns = "path_start"
             elif i == len(msg.poses) - 1:  # Goal point
-                marker.scale.x = 10.0  # Larger marker for goal
-                marker.scale.y = 10.0
-                marker.scale.z = 2.0
+                marker.scale.x = 20.0  # Larger marker for goal
+                marker.scale.y = 20.0
+                marker.scale.z = 4.0
                 marker.color.r = 1.0  # Red for goal
                 marker.color.g = 0.0
                 marker.color.b = 0.0
                 marker.color.a = 1.0
                 marker.ns = "path_goal"
             else:  # Path points
-                marker.scale.x = 5.0  # Smaller markers for path
-                marker.scale.y = 5.0
-                marker.scale.z = 5.0
+                marker.scale.x = 10.0  # Smaller markers for path
+                marker.scale.y = 10.0
+                marker.scale.z = 10.0
                 marker.color.r = 1.0
                 marker.color.g = 1.0
                 marker.color.b = 1.0  # Blue for path
@@ -139,7 +177,7 @@ class Foxglove(Node):
             line_marker.action = Marker.ADD
             
             # Line properties
-            line_marker.scale.x = 2.0  # Line width
+            line_marker.scale.x = 4.0  # Line width
             line_marker.color.r = 1.0
             line_marker.color.g = 1.0
             line_marker.color.b = 0.0  # Yellow line

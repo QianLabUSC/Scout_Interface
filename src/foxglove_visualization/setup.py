@@ -24,7 +24,8 @@ setup(
             'fake_data_publisher = foxglove_visualization.FakeDataPublisher:main',
             'leg_measurements_publisher = foxglove_visualization.LegMeasurementRealtime:main',
             'mocap_collection = foxglove_visualization.mocapCollection:main',
-            'fake_path_publisher = foxglove_visualization.FakePathPublisher:main'
+            'fake_path_publisher = foxglove_visualization.FakePathPublisher:main',
+            'gps_visualizer = foxglove_visualization.gpsVisualizer:main'
 
         ],
     },
