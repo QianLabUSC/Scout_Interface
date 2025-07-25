@@ -81,6 +81,12 @@ def generate_launch_description():
         #     output='screen'
         # ),
         Node(
+            package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
+            executable='diff_drive_sim',  # Replace with the executable name of FakeDataPublisher
+            name='diff_drive_sim',
+            output='screen'
+        ),
+        Node(
             package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined
             executable='data_collector',  # Replace with the executable name of FakeDataPublisher
             name='data_collector',

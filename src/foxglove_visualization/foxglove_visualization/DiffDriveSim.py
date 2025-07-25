@@ -29,7 +29,7 @@ class DifferentialDriveSim(Node):
         )
 
         # Publisher for pose (geometry_msgs/Pose)
-        self.pose_pub = self.create_publisher(Pose, 'pose', 10)
+        self.pose_pub = self.create_publisher(Pose, 'spirit/mocap', 10)
 
         # TF broadcaster for map -> base_link
         self.tf_broadcaster = TransformBroadcaster(self)

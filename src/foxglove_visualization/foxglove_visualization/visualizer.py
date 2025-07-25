@@ -17,6 +17,7 @@ from foxglove_msgs.msg import Grid, PackedElementField, Vector2
 from geometry_msgs.msg import Pose
 from nav_msgs.msg import Path
 from foxglove_msgs.msg import LocationFix
+
 class Foxglove(Node):
     def __init__(self):
         super().__init__('foxglove_visualization_inter_')
@@ -84,27 +85,7 @@ class Foxglove(Node):
         scaled.header.stamp    = self.get_clock().now().to_msg()
 
         for ps in msg.poses:
-            
-
-            # scale X
-            ps.pose.position.x = (
-                (ps.pose.position.x - self.x_range[0])
-                / (self.x_range[1] - self.x_range[0])
-                * self.resolution[1]
-            )
-            # scale Y
-            ps.pose.position.y = (
-                (ps.pose.position.y - self.y_range[0])
-                / (self.y_range[1] - self.y_range[0])
-                * self.resolution[0]
-            )
-            # scale Z
-            ps.pose.position.z = ps.pose.position.z * 10
-
-            # preserve orientation
-            ps.pose.orientation = ps.pose.orientation
-
-            scaled.poses.append(ps)
+            scaled.poses.append(ps.pose)
 
         # finally publish the scaled path
         self.path_foxglove_publisher.publish(scaled)
@@ -125,14 +106,8 @@ class Foxglove(Node):
             marker.type = Marker.SPHERE
             marker.action = Marker.ADD
             
-            # Scale coordinates to match map visualization
-            # Map: x_range maps to resolution[1] (320), y_range maps to resolution[0] (480)
-            scaled_x = (pose_stamped.pose.position.x - self.x_range[0]) / (self.x_range[1] - self.x_range[0]) * self.resolution[1]
-            scaled_y = (pose_stamped.pose.position.y - self.y_range[0]) / (self.y_range[1] - self.y_range[0]) * self.resolution[0]
-            
-            marker.pose.position.x = scaled_x
-            marker.pose.position.y = scaled_y
-            marker.pose.position.z = pose_stamped.pose.position.z * 10.0  # Scale Z for visibility
+            marker.pose.position = pose_stamped.pose.position
+
             
             # Set marker size and color based on position in path
             if i == 0:  # Start point
@@ -186,15 +161,16 @@ class Foxglove(Node):
             # Add all path points to the line
             for pose_stamped in msg.poses:
                 point = Point()
-                point.x = (pose_stamped.pose.position.x - self.x_range[0]) / (self.x_range[1] - self.x_range[0]) * self.resolution[1]
-                point.y = (pose_stamped.pose.position.y - self.y_range[0]) / (self.y_range[1] - self.y_range[0]) * self.resolution[0]
-                point.z = pose_stamped.pose.position.z * 10.0
+                point.x = pose_stamped.pose.position.x 
+                point.y = pose_stamped.pose.position.y 
+                point.z = pose_stamped.pose.position.z 
                 line_marker.points.append(point)
             
             path_markers.markers.append(line_marker)
         
         # Publish path markers
         self.foxglove_path_publisher.publish(path_markers)
+        
     def mocap_callback(self, msg: Pose):
         marker = Marker()
         marker.header.frame_id = "map"  # Set the frame of reference
@@ -230,7 +206,7 @@ class Foxglove(Node):
         marker.pose.position.y = (1.54 - mocap_q[2] - self.y_range[0])/(self.y_range[1] - self.y_range[0]) * self.resolution[0]
             
         marker.pose.position.z = (mocap_q[1] + 0.1) * 5.0
-        
+  
         # Orientation
         # marker.pose.orientation = msg.orientation
         
@@ -262,17 +238,22 @@ class Foxglove(Node):
         # Fill in the header
         grid_msg.timestamp = self.get_clock().now().to_msg()
         grid_msg.frame_id = "map"
+        grid_msg.cell_size = Vector2(
+            x=(self.x_range[1] - self.x_range[0]) / self.resolution[1],
+            y=(self.y_range[1] - self.y_range[0]) / self.resolution[0]
+        )
+        print(f"Cell size: {grid_msg.cell_size.x}, {grid_msg.cell_size.y}")
 
         # Define the pose of the grid's origin
         grid_msg.pose = Pose()
-        grid_msg.pose.position.x = 0.0
-        grid_msg.pose.position.y = 0.0
+        grid_msg.pose.position.x = self.x_range[0] 
+        grid_msg.pose.position.y = self.y_range[0] 
+
         grid_msg.pose.position.z = 0.0
         grid_msg.pose.orientation.w = 1.0
 
         # Set grid dimensions and cell size
         grid_msg.column_count = width 
-        grid_msg.cell_size = Vector2(x=1.0, y=1.0)  # Adjust cell size as needed
 
         # Calculate row and cell strides
         grid_msg.row_stride = width * 5  # 5 bytes per cell if using RGBA + value
@@ -314,7 +295,7 @@ class Foxglove(Node):
             green = 25
             blue = int(255 - value)  # Static blue for visualization
             alpha = self.uncertainty_alpha if uncertainty[index] > self.uncertainty_threshold else 255  # Fully opaque or transparent for unknown
-            # alpha = 255
+            alpha = 255
             # Append values for each cell: [value, red, green, blue, alpha]
             grid_data.extend([int(value), red, green, blue, alpha])
 
@@ -370,8 +351,8 @@ class Foxglove(Node):
             marker.id = marker_id
             marker.type = Marker.SPHERE
             marker.action = Marker.ADD
-            marker.pose.position.x = (measurement.position.x - self.x_range[0])/(self.x_range[1] - self.x_range[0]) * self.resolution[1]
-            marker.pose.position.y = (1.54 - measurement.position.z - self.y_range[0])/(self.y_range[1] - self.y_range[0]) * self.resolution[0]
+            marker.pose.position.x = measurement.position.x
+            marker.pose.position.y = 1.54 - measurement.position.z
             marker.pose.position.z = 0.0
             
             # Scale and color based on measurement value
