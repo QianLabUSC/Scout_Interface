@@ -1,0 +1,79 @@
+visualizer:
+  ros__parameters:
+    x_range: [-20.0, 20.0]
+    y_range: [-20.0, 20.0]
+    resolution: [40, 40] # first is y range, second is x range
+    stiffness_range: [700, 1100]
+    uncertainty_threshold: 1.0
+    uncertainty_alpha: 100
+
+# mocapCollection:
+#   ros__parameters:
+#     localIP: 
+
+
+leg_measurements_publisher:
+  ros__parameters:
+    # use_mocap: False # if true, use position from mocap
+    # use_gnss: False # if not use_mocap, use gnss, if true
+    # use_visual_tag: True # use april tag
+    
+
+
+top_view_camera:
+  ros__parameters:
+
+data_collector:
+  ros__parameters:
+    csv_file: AMES_2024_Dec_10_Day5_Column2a_1b_4a_demo_3b_1.9a
+    enable_measurement_array: True
+
+mapping_node:
+  ros__parameters:
+    x_range: [-20.0, 20.0]
+    y_range: [-20.0, 20.0]
+    resolution: [40, 40]
+    noise_level: 0.1
+    length_scale: 0.4
+    sigma_f: 1.0
+    enable_map_publisher: True
+
+reactive_planner:
+  ros__parameters:
+    p: 2.0                    # R-function exponent
+    epsilon: 0.4              # Distance for the switches
+    varepsilon: 0.4          # Distance allowed to dilate the polygon
+    mu_1: 1.0                 # Switch exponent mu1
+    mu_2: 0.15                 # Switch exponent mu2
+    robot_radius: 1         # Robot radius for collision avoidance (meters)
+    linear_gain: 1.0          # Linear velocity gain
+    angular_gain: 1.0         # Angular velocity gain
+    linear_cmd_limit: 0.3     # Maximum linear velocity command (m/s)
+    angular_cmd_limit: 1.0    # Maximum angular velocity command (rad/s)
+    goal_tolerance: 0.1       # Distance tolerance to stop near subgoal (meters)
+
+
+safe_bayesian_optimization_node:
+  ros__parameters:
+    opt: 
+      beta: 2.0
+      lipshitz: 1.0
+      f_min: 500.0
+      subgoal_erosion: 0.4
+      
+    # Terrain map request parameters
+    terrain_map:
+      width: 40.0   # need to match with resolution second
+      height: 40.0  # need to match with resolution first
+      width_cells: 40 # x range
+      height_cells: 40 # y range
+      
+    # Debug configuration
+    debug:
+      publish_debug_image: false
+      
+    # Node configuration
+    node:
+      update_rate: 10.0  # Hz
+      log_level: "info"
+      enable_visualization: true
