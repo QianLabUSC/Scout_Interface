@@ -125,18 +125,19 @@
     },
     "3D!2oa13l8": {
       "cameraState": {
-        "distance": 115.07706970653213,
         "perspective": true,
-        "phi": 37.04702863572569,
+        "distance": 53.00068653280534,
+        "phi": 37.047028635777984,
+        "thetaOffset": -176.36839516422194,
+        "targetOffset": [
+          15.745007850719634,
+          17.213495157233808,
+          -9.163673550948423e-18
+        ],
         "target": [
           0,
           0,
           0
-        ],
-        "targetOffset": [
-          23.98534128760644,
-          63.45040829455237,
-          -4.690046552181627e-17
         ],
         "targetOrientation": [
           0,
@@ -144,7 +145,6 @@
           0,
           1
         ],
-        "thetaOffset": -176.3683951642217,
         "fovy": 45,
         "near": 0.5,
         "far": 4991,
@@ -161,13 +161,25 @@
       "transforms": {},
       "topics": {
         "/measurements_markers": {
-          "visible": true
+          "visible": false
         },
         "/terrain_map": {
           "visible": true,
           "colorField": "value",
           "colorMode": "rgba-fields",
           "colorMap": "turbo"
+        },
+        "/freespace_markers": {
+          "visible": true
+        },
+        "/envelope_markers": {
+          "visible": true
+        },
+        "/concave_markers": {
+          "visible": true
+        },
+        "/initialpose": {
+          "visible": false
         }
       },
       "layers": {
@@ -256,7 +268,7 @@
       "diffMethod": "custom",
       "diffTopicPath": "",
       "showFullMessageForDiff": false,
-      "topicPath": "sensor_msgs/msg/Image",
+      "topicPath": "/collected_measurements",
       "fontSize": 12
     },
     "TopicGraph!hd7ouv": {},
@@ -291,7 +303,7 @@
               "first": "3D!2oa13l8",
               "second": "Image!3c6k2o0",
               "direction": "row",
-              "splitPercentage": 51.64233576642335
+              "splitPercentage": 98
             },
             "direction": "row",
             "splitPercentage": 31.5
