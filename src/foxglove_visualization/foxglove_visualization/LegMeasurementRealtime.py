@@ -42,7 +42,7 @@ class RealtimeSubscriber(Node):
         self.realtime_pene_publisher  # prevent unused variable warning
         self.spatial_measurement_publisher = self.create_publisher(
             SpatialMeasurement,
-            'spatial_measurements',
+            'spirit/spatial_measurements',
             10)
         self.spatial_measurement_publisher  # prevent unused variable warning
 
