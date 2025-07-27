@@ -2,8 +2,10 @@ from scipy.spatial.transform import Rotation
 import rclpy
 from rclpy.node import Node
 from trusses_custom_interfaces.msg import SpiritState
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, PoseStamped
+from nav_msgs.msg import Path
 from trusses_custom_interfaces.msg import RobotMeasurements, SpatialMeasurement
+from visualization_msgs.msg import Marker
 # import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -12,32 +14,35 @@ import time
 class RealtimeSubscriber(Node):
     def __init__(self):
         super().__init__('measurement_subscriber')
+        
+        # Declare parameters
+        self.declare_parameter('enable_visualization', False)
+        
+        # Read parameters
+        self.enable_visualization = self.get_parameter('enable_visualization').value
+        
         self.subscription_state = self.create_subscription(
             SpiritState,
-            '/spirit/state_low_speed',
+            'spirit/state_low_speed',
             self.SpiritState_callback,
             10)
         self.subscription_state  # prevent unused variable warning
-        self.subscription_mocap = self.create_subscription(
+        self.subscription_current_pose = self.create_subscription(
             Pose,
-            'spirit/mocap',
+            'spirit/current_pose',
             self.Pose_callback,
             10)
-        self.subscription_mocap  # prevent unused variable warning
-        self.subscription_marker = self.create_subscription(
-            Pose,
-            'spirit/marker_robot',
-            self.marker_pose_callback,
-            10)
-        self.subscription_marker # prevent unused variable warning
+        self.subscription_current_pose  # prevent unused variable warning
+       
+        
         self.realtime_publisher = self.create_publisher(
             RobotMeasurements,
-            'raw_measurements',
+            'spirit/raw_measurements',
             10)
         self.realtime_publisher  # prevent unused variable warning
         self.realtime_pene_publisher = self.create_publisher(
             RobotMeasurements,
-            'raw_pene_measurements',
+            'spirit/raw_pene_measurements',
             10)
         self.realtime_pene_publisher  # prevent unused variable warning
         self.spatial_measurement_publisher = self.create_publisher(
@@ -45,6 +50,28 @@ class RealtimeSubscriber(Node):
             'spirit/spatial_measurements',
             10)
         self.spatial_measurement_publisher  # prevent unused variable warning
+        
+        # Only create visualization publishers if visualization is enabled
+        if self.enable_visualization:
+            self.robot_marker_publisher = self.create_publisher(
+                Marker,
+                'spirit/current_pose_marker',
+                10)
+            self.robot_marker_publisher  # prevent unused variable warning
+            
+            self.path_publisher = self.create_publisher(
+                Path,
+                'spirit/robot_path',
+                10)
+            self.path_publisher  # prevent unused variable warning
+            
+            # Initialize robot path
+            self.robot_path = Path()
+            self.robot_path.header.frame_id = "map"
+            
+            self.get_logger().info("Robot pose and path visualization enabled")
+        else:
+            self.get_logger().info("Robot pose and path visualization disabled")
 
         # initialize hip positions in body frame
         # now suppose the MoCap gives the CoM location & body orientation
@@ -359,36 +386,15 @@ class RealtimeSubscriber(Node):
         # self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
         self.CoM_pos = p_WMo_W
 
-        # update toe position
-        # self.update_toePos_W()
-
-    def marker_pose_callback(self, msg):
-        # Get data from mocap
-        self.get_logger().info("Pose Update *******************************")
-        mocap_q = np.array([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
-        p_WMo_W = np.array([msg.position.x, msg.position.y, msg.position.z])
-        
-        
-        # Init Rotations
-        # quaternion to rotation matrix, this is rotation matrix from MoCap to World
-        R_WM = Rotation.from_quat(mocap_q).as_matrix()
-        R_MB = np.array([[1.0, 0.0, 0.0],
-                        [0.0, 1.0, 0.0],
-                        [0.0, 0.0, 1.0]])
-        R_WB = R_WM @ R_MB
-
-        p_BM_B = np.array([0.0,0,0.0]) #body to tracker in body
-        p_WB_W = p_WMo_W + R_WB @ ( -p_BM_B )
-        
-        self.R_WB = R_WB
-        # self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
-        self.CoM_pos = p_WB_W
-
-        self.get_logger().info(np.array2string(self.R_WB))
-        self.get_logger().info(np.array2string(self.CoM_pos))
+        # Publish robot position marker and update path if visualization is enabled
+        if self.enable_visualization:
+            self.publish_robot_position_marker(msg)
+            self.update_robot_path(msg)
 
         # update toe position
         # self.update_toePos_W()
+
+    
 
     def realtime_measurement_publish(self):
         msg = RobotMeasurements()
@@ -446,6 +452,69 @@ class RealtimeSubscriber(Node):
         # print(self.pene_leg_idx)
         # print(msg)
         self.spatial_measurement_publisher.publish(msg)
+
+    def publish_robot_position_marker(self, pose_msg):
+        """Publish a marker showing robot position and head orientation (only called when visualization is enabled)"""
+        marker = Marker()
+        marker.header.frame_id = "map"  # or "world" depending on your frame setup
+        marker.header.stamp = self.get_clock().now().to_msg()
+        marker.ns = "robot"
+        marker.id = 0
+        marker.type = Marker.ARROW
+        marker.action = Marker.ADD
+
+        # Set position from pose
+        marker.pose.position.x = pose_msg.position.x
+        marker.pose.position.y = pose_msg.position.y
+        marker.pose.position.z = pose_msg.position.z
+
+        # Set orientation to show head direction
+        marker.pose.orientation.x = pose_msg.orientation.x
+        marker.pose.orientation.y = pose_msg.orientation.y
+        marker.pose.orientation.z = 1.0
+        marker.pose.orientation.w = pose_msg.orientation.w
+
+        # Set arrow size to represent robot scale
+        marker.scale.x = 0.1  # Length of arrow (robot length)
+        marker.scale.y = 0.05  # Width of arrow shaft
+        marker.scale.z = 0.05  # Height of arrow shaft
+
+        # Set color - blue for robot
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 1.0
+        marker.color.a = 1.0  # Semi-transparent
+
+        # Set lifetime (0 means forever)
+        marker.lifetime.sec = 0
+        marker.lifetime.nanosec = 0
+
+        self.robot_marker_publisher.publish(marker)
+
+    def update_robot_path(self, pose_msg):
+        """Update and publish robot path trajectory (only called when visualization is enabled)"""
+        # Create PoseStamped message for the path
+        pose_stamped = PoseStamped()
+        pose_stamped.header.frame_id = "map"
+        pose_stamped.header.stamp = self.get_clock().now().to_msg()
+        pose_stamped.pose.position.x = pose_msg.position.x
+        pose_stamped.pose.position.y = pose_msg.position.y
+        pose_stamped.pose.position.z = pose_msg.position.z
+        pose_stamped.pose.orientation.x = pose_msg.orientation.x
+        pose_stamped.pose.orientation.y = pose_msg.orientation.y
+        pose_stamped.pose.orientation.z = pose_msg.orientation.z
+        pose_stamped.pose.orientation.w = pose_msg.orientation.w
+        
+        # Add to path
+        self.robot_path.poses.append(pose_stamped)
+        self.robot_path.header.stamp = self.get_clock().now().to_msg()
+        
+        # Limit path length to avoid memory issues
+        if len(self.robot_path.poses) > 1000:
+            self.robot_path.poses = self.robot_path.poses[-500:]
+        
+        # Publish path
+        self.path_publisher.publish(self.robot_path)
 
     '''
     def plot_4toes(self):

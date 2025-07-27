@@ -12,9 +12,9 @@ class DifferentialDriveSim(Node):
         super().__init__('differential_drive_sim')
 
         # Robot state
-        self.x = 0.0
-        self.y = 0.0
-        self.theta = 0.0  # Heading angle (rad)
+        self.x = 3.0
+        self.y = 3.0
+        self.theta = 20.0 * math.pi / 180.0  # Heading angle (rad)
 
         # Velocity commands
         self.linear_velocity = 0.0
@@ -29,7 +29,7 @@ class DifferentialDriveSim(Node):
         )
 
         # Publisher for pose (geometry_msgs/Pose)
-        self.pose_pub = self.create_publisher(Pose, 'spirit/mocap', 10)
+        self.pose_pub = self.create_publisher(Pose, 'spirit/current_pose', 10)
 
         # TF broadcaster for map -> base_link
         self.tf_broadcaster = TransformBroadcaster(self)
@@ -68,22 +68,6 @@ class DifferentialDriveSim(Node):
 
         self.pose_pub.publish(pose_msg)
 
-        # Publish TF map -> base_link
-        self.publish_tf(qz, qw)
-
-    def publish_tf(self, qz, qw):
-        t = TransformStamped()
-        t.header.stamp = self.get_clock().now().to_msg()
-        t.header.frame_id = 'map'
-        t.child_frame_id = 'base_link'
-
-        t.transform.translation.x = self.x
-        t.transform.translation.y = self.y
-        t.transform.translation.z = 0.0
-        t.transform.rotation.z = qz
-        t.transform.rotation.w = qw
-
-        self.tf_broadcaster.sendTransform(t)
 
 
 def main(args=None):

@@ -25,6 +25,7 @@ def generate_launch_description():
         config = yaml.safe_load(file)
     visualizer_params = config.get('visualizer', {}).get('ros__parameters', {})
     print(visualizer_params)
+    leg_measurements_publisher_params = config.get('leg_measurements_publisher', {}).get('ros__parameters', {})
     mapping_params = config.get('mapping_node', {}).get('ros__parameters', {})
     data_collector_params = config.get('data_collector', {}).get('ros__parameters', {})
     reactive_planner_params = config.get('reactive_planner', {}).get('ros__parameters', {})
@@ -72,7 +73,8 @@ def generate_launch_description():
             package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
             executable='leg_measurements_publisher',  # Replace with the executable name of FakeDataPublisher
             name='leg_measurements_publisher',
-            output='screen'
+            output='screen',
+            parameters=[leg_measurements_publisher_params]
         ),
         # Node(
         #     package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined

@@ -32,7 +32,7 @@ class FakePathPublisher(Node):
         self.frame_id = self.get_parameter('frame_id').get_parameter_value().string_value
         
         # Create publisher
-        self.path_publisher = self.create_publisher(Path, 'planner_path/rover', 10)
+        self.path_publisher = self.create_publisher(Path, 'rover/planned_path', 10)
         
         # Create timer
         timer_period = 1.0 / self.publish_rate
