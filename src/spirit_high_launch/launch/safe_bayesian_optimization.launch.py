@@ -62,13 +62,6 @@ def generate_launch_description():
             parameters=[reactive_planner_params],
             output='screen'
             ),
-                Node(
-            package='foxglove_visualization',  # Replace with the package where Foxglove is defined
-            executable='visualizer',  # Replace with the executable name of Foxglove
-            name='visualizer',
-            output='screen',
-            parameters=[visualizer_params]
-        ),
         Node(
             package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
             executable='leg_measurements_publisher',  # Replace with the executable name of FakeDataPublisher

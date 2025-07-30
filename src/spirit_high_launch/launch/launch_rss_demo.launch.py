@@ -13,7 +13,7 @@ import yaml
 
 
 def generate_launch_description():
-    yaml_dir = "/home/qianlab/SpiritHighLevel/src/spirit_high_launch/config"
+    yaml_dir = "/home/sandy/temp/SpiritHighLevel/src/spirit_high_launch/config"
     config_file = os.path.join(yaml_dir, 'rss.yaml')
     print(config_file)
     # LaunchConfiguration('ros_control_config').perform(context)
@@ -81,7 +81,7 @@ def generate_launch_description():
 
         Node(
             package='mapping_package',  # Replace with the package where FakeDataPublisher is defined
-            executable='mapping_node',  # Replace with the executable name of FakeDataPublisher
+            executable='terrain_mapping_node',  # Replace with the executable name of FakeDataPublisher
             name='mapping_node',
             output='screen',
             parameters=[mapping_params]
