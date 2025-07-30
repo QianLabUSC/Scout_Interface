@@ -7,18 +7,19 @@ from geometry_msgs.msg import Twist, Pose, Point, Quaternion, TransformStamped
 from tf2_ros import TransformBroadcaster
 
 
-class DifferentialDriveSim(Node):
+class FullyActuated2DDriveSim(Node):
     def __init__(self):
-        super().__init__('differential_drive_sim')
+        super().__init__('fully_actuated_2d_drive_sim')
 
         # Robot state
         self.x = 3.0
         self.y = 3.0
         self.theta = 20.0 * math.pi / 180.0  # Heading angle (rad)
 
-        # Velocity commands
-        self.linear_velocity = 0.0
-        self.angular_velocity = 0.0
+        # Velocity commands (local frame)
+        self.linear_x = 0.0  # Forward/backward velocity
+        self.linear_y = 0.0  # Left/right velocity (sideways)
+        self.angular_velocity = 0.0  # Rotational velocity
 
         # Subscriber to cmd_vel
         self.cmd_vel_sub = self.create_subscription(
@@ -38,20 +39,31 @@ class DifferentialDriveSim(Node):
         self.timer_period = 0.1  # seconds
         self.timer = self.create_timer(self.timer_period, self.update_pose)
 
-        self.get_logger().info("Differential Drive Simulator with Pose & TF Started")
+        self.get_logger().info("Fully Actuated 2D Drive Simulator with Pose & TF Started")
+        self.get_logger().info("Supports holonomic movement: forward/back (linear.x), left/right (linear.y), rotation (angular.z)")
 
     def cmd_vel_callback(self, msg: Twist):
-        """Callback to receive velocity commands."""
-        self.linear_velocity = msg.linear.x
-        self.angular_velocity = msg.angular.z
+        """Callback to receive velocity commands in robot's local frame."""
+        self.linear_x = msg.linear.x      # Forward/backward
+        self.linear_y = msg.linear.y      # Left/right (sideways)
+        self.angular_velocity = msg.angular.z  # Rotation
 
     def update_pose(self):
-        """Update the robot pose using simple kinematics."""
+        """Update the robot pose using fully actuated 2D kinematics."""
         dt = self.timer_period
 
-        # Differential drive model (2D)
-        self.x += self.linear_velocity * math.cos(self.theta) * dt
-        self.y += self.linear_velocity * math.sin(self.theta) * dt
+        # Transform local velocities to global coordinate frame
+        # Robot can move in any direction relative to its current orientation
+        cos_theta = math.cos(self.theta)
+        sin_theta = math.sin(self.theta)
+        
+        # Global velocities from local velocities
+        global_vx = self.linear_x * cos_theta - self.linear_y * sin_theta
+        global_vy = self.linear_x * sin_theta + self.linear_y * cos_theta
+        
+        # Update position and orientation
+        self.x += global_vx * dt
+        self.y += global_vy * dt
         self.theta += self.angular_velocity * dt
 
         # Normalize theta to [-pi, pi]
@@ -72,11 +84,11 @@ class DifferentialDriveSim(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = DifferentialDriveSim()
+    node = FullyActuated2DDriveSim()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        node.get_logger().info('Shutting down Differential Drive Simulator')
+        node.get_logger().info('Shutting down Fully Actuated 2D Drive Simulator')
     finally:
         node.destroy_node()
         rclpy.shutdown()
