@@ -56,7 +56,7 @@ reactive_planner:
     varepsilon: 0.2          # Distance allowed to dilate the polygon
     mu_1: 1.0                 # Switch exponent mu1
     mu_2: 0.15                 # Switch exponent mu2
-    robot_radius: 0.15         # Robot radius for collision avoidance (meters)
+    robot_radius: 0.0         # Robot radius for collision avoidance (meters)
     linear_gain: 1.0          # Linear velocity gain
     angular_gain: 1.0         # Angular velocity gain
     linear_cmd_limit: 0.3     # Maximum linear velocity command (m/s)
