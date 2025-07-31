@@ -20,9 +20,9 @@ def generate_launch_description():
     
     with open(config_file, 'r') as file:
         config = yaml.safe_load(file)
-    visualizer_params = config.get('visualizer', {}).get('ros__parameters', {})
-    print(visualizer_params)
+    
     mapping_params = config.get('mapping_node', {}).get('ros__parameters', {})
+    print(mapping_params)
     data_collector_params = config.get('data_collector', {}).get('ros__parameters', {})
     
     foxglove_bridge_launch = IncludeLaunchDescription(
@@ -37,23 +37,23 @@ def generate_launch_description():
 
     return LaunchDescription([ 
         # Node 2: Foxglove
-        Node(
-            package='foxglove_visualization',  # Replace with the package where Foxglove is defined
-            executable='visualizer',  # Replace with the executable name of Foxglove
-            name='visualizer',
-            output='screen',
-            parameters=[visualizer_params]
+        # Node(
+        #     package='foxglove_visualization',  # Replace with the package where Foxglove is defined
+        #     executable='visualizer',  # Replace with the executable name of Foxglove
+        #     name='visualizer',
+        #     output='screen',
+        #     parameters=[visualizer_params]
             
-        ),
+        # ),
 
-        Node(
-            package='foxglove_visualization',  # Replace with the package where Foxglove is defined
-            executable='mocap_collection',  # Replace with the executable name of Foxglove
-            name='mocap_collection',
-            output='screen',
-            parameters=[visualizer_params]
+        # Node(
+        #     package='foxglove_visualization',  # Replace with the package where Foxglove is defined
+        #     executable='mocap_collection',  # Replace with the executable name of Foxglove
+        #     name='mocap_collection',
+        #     output='screen',
+        #     parameters=[visualizer_params]
             
-        ),
+        # ),
 
 
         Node(
@@ -64,12 +64,12 @@ def generate_launch_description():
         ),
 
 
-        Node(
-            package='top_view_visualization',  # Replace with the package where FakeDataPublisher is defined
-            executable='camera',  # Replace with the executable name of FakeDataPublisher
-            name='top_view_camera',
-            output='screen'
-        ),
+        # Node(
+        #     package='top_view_visualization',  # Replace with the package where FakeDataPublisher is defined
+        #     executable='camera',  # Replace with the executable name of FakeDataPublisher
+        #     name='top_view_camera',
+        #     output='screen'
+        # ),
         
         Node(
             package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined

@@ -1,11 +1,3 @@
-visualizer:
-  ros__parameters:
-    x_range: [0.0, 0.8]
-    y_range: [0.0, 3.1]
-    resolution: [310, 80]
-    stiffness_range: [500, 1400]
-    uncertainty_threshold: 1.0
-    uncertainty_alpha: 200
 
 # mocapCollection:
 #   ros__parameters:
@@ -14,6 +6,8 @@ visualizer:
 
 leg_measurements_publisher:
   ros__parameters:
+    enable_visualization: true  # Enable robot pose marker and path visualization
+    
 
 
 top_view_camera:
@@ -21,15 +15,28 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: rsstest25
-    enable_visualization: True
+    csv_file: spacerobotistesting5
+    enable_visualization: true
 
 mapping_node:
   ros__parameters:
-    x_range: [0.0, 0.8]
-    y_range: [0.0, 3.1]
-    resolution: [310, 80]
+    x_range: [0.0, 3.0]
+    y_range: [-0.45, 0.35]
+    resolution: [80, 300]
     noise_level: 0.1
     length_scale: 20.0
     sigma_f: 1.0
-    enable_visualization: True
+    enable_visualization: true
+    auto_x_y_range: false
+    stiffness_range: [300, 1500]
+    auto_stiffness_range: true
+    data_padding: 0.3
+    no_data_alpha: 20
+    # Signal-to-Noise Ratio (SNR) Configuration:
+    # SNR = |predicted_value| / uncertainty
+    # SNR > 3: Generally trustworthy predictions (high confidence)
+    # SNR 1-3: Moderate confidence predictions  
+    # SNR < 1: Low confidence predictions (noise dominates signal)
+    snr_threshold: 3.0          # Threshold for trustworthy predictions
+    alpha_high_confidence: 255  # Opacity for SNR >= threshold (trustworthy)
+    alpha_low_confidence: 100   # Opacity for SNR < threshold (low confidence)
