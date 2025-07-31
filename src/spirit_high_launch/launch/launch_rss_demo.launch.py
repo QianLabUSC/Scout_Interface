@@ -24,6 +24,21 @@ def generate_launch_description():
     mapping_params = config.get('mapping_node', {}).get('ros__parameters', {})
     print(mapping_params)
     data_collector_params = config.get('data_collector', {}).get('ros__parameters', {})
+    foxglove_bridge_params = config.get('foxglove_bridge', {}).get('ros__parameters', {})
+    print("foxglove_bridge_params from config:", foxglove_bridge_params)
+    
+    # Convert foxglove_bridge_params to launch arguments format
+    launch_args = {}
+    for key, value in foxglove_bridge_params.items():
+        if isinstance(value, list):
+            # Convert list to string format for launch arguments
+            # Example: ['topic1', 'topic2'] -> [topic1,topic2]
+            launch_args[key] = str(value).replace("'", "").replace(" ", "")
+        else:
+            # Convert other types to strings
+            launch_args[key] = str(value)
+    
+    print("Converted launch arguments:", launch_args)
     
     foxglove_bridge_launch = IncludeLaunchDescription(
         FrontendLaunchDescriptionSource([
@@ -32,7 +47,8 @@ def generate_launch_description():
                 'launch',
                 'foxglove_bridge_launch.xml'
             )
-        ])
+        ]),
+        launch_arguments=launch_args.items()
     )
 
     return LaunchDescription([ 

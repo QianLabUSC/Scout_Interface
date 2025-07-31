@@ -194,6 +194,42 @@ class RealtimeSubscriber(Node):
         toeForce = JT_inv@jointTorque
         return toeForce
 
+    def findPenetrationPortion(JointResidualZ):
+        # prominence to be tuned
+        # this prominence is tuned to find the penetration force peaks
+        prominence0 = 50.0
+        peaks0, properties0 = find_peaks(JointResidualZ, prominence=prominence0)
+        # will only pick penetration force from 30 N to 60 N
+        forcePeneLowerThreshold = 20
+        forcePeneUpperThreshold = 60
+        # find the penetration portion
+        peneStartIdx = np.array([], dtype=int)
+        peneEndIdx = np.array([], dtype=int)
+        for i in range(1, len(peaks0)):
+            currPeakIdx = peaks0[i]
+            # find the valley between peaks0[i-1] and peaks0[i]
+            currValleyIdx = np.argmin(JointResidualZ[peaks0[i - 1] : peaks0[i]])
+            currValleyIdx = currValleyIdx + peaks0[i - 1]
+            inPenetration = False
+            peneStartIdxCurr = currValleyIdx + 1
+            peneEndIdxCurr = currPeakIdx
+            if JointResidualZ[currValleyIdx + 1] > forcePeneLowerThreshold:
+                inPenetration = True
+            for j in range(currValleyIdx + 1, currPeakIdx + 1):
+                if inPenetration:
+                    if JointResidualZ[j] > forcePeneUpperThreshold:
+                        inPenetration = False
+                        peneEndIdxCurr = j
+                        break
+                else:
+                    if JointResidualZ[j - 1] < forcePeneLowerThreshold and JointResidualZ[j] > forcePeneLowerThreshold:
+                        inPenetration = True
+                        peneStartIdxCurr = j
+            peneStartIdx = np.append(peneStartIdx, peneStartIdxCurr)
+            peneEndIdx = np.append(peneEndIdx, peneEndIdxCurr)
+        return peneStartIdx, peneEndIdx
+
+
     def update_measurement(self):
         #gets the custom mode
         try:
@@ -206,7 +242,7 @@ class RealtimeSubscriber(Node):
         #gets the ghost behavior mode
         ghost_behav_mode = self.spirit_state.behavior[1]
         #gets forces during walk, i guess we will develop the later
-        # spirit_forces = self.spirit_state.joint_residuals
+        spirit_forces = self.spirit_state.joint_residuals
         #gets user inputs
         user_data = self.spirit_state.user_custom
         current_penetrate = user_data[0]
