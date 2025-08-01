@@ -5,15 +5,17 @@
 foxglove_bridge:
   ros__parameters:
     topic_whitelist: 
-      # - '.*'
-      - '/spirit/state_low_speed'
-      - '/spirit/current_pose'
-      - '/scout_mapping/spatial_measurements_markers'
-      - '/scouting_mapping/extrapolated_map'
-      - '/scouting_mapping/extrapolated_map_colorbar'
-      - '/spirit/raw_measurements'
-      - '/spirit/raw_pene_measurements'
-      - '/spirit/spatial_measurements'
+      - '.*'
+      # - '/spirit/state_low_speed'
+      # - '/spirit/current_pose'
+      # - '/scout_mapping/spatial_measurements_markers'
+      # - '/scouting_mapping/extrapolated_map'
+      # - '/scouting_mapping/extrapolated_map_colorbar'
+      # - '/spirit/raw_measurements'
+      # - '/spirit/raw_pene_measurements'
+      # - '/spirit/spatial_measurements'
+      # - '/spirit/gps'
+      # - '/spirit/gps/reference_point'
 
 
 leg_measurements_publisher:

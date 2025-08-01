@@ -54,16 +54,16 @@ class FullyActuated2DDriveSim(Node):
 
         # Transform local velocities to global coordinate frame
         # Robot can move in any direction relative to its current orientation
-        cos_theta = math.cos(self.theta)
-        sin_theta = math.sin(self.theta)
+        # cos_theta = math.cos(self.theta)
+        # sin_theta = math.sin(self.theta)
         
         # Global velocities from local velocities
-        global_vx = self.linear_x * cos_theta - self.linear_y * sin_theta
-        global_vy = self.linear_x * sin_theta + self.linear_y * cos_theta
+        # global_vx = self.linear_x * cos_theta - self.linear_y * sin_theta
+        # global_vy = self.linear_x * sin_theta + self.linear_y * cos_theta
         
         # Update position and orientation
-        self.x += global_vx * dt
-        self.y += global_vy * dt
+        self.x += self.linear_x * dt
+        self.y += self.linear_y * dt
         self.theta += self.angular_velocity * dt
 
         # Normalize theta to [-pi, pi]
