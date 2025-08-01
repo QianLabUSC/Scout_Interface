@@ -15,6 +15,11 @@ foxglove_bridge:
       - '/spirit/raw_measurements'
       - '/spirit/raw_pene_measurements'
       - '/spirit/spatial_measurements'
+      - '/spirit/gps'
+      - '/spirit/gps/reference_point'
+      - '/spirit/raw_measurements'
+      - '/spirit/raw_pene_measurements'
+      
 
 
 
