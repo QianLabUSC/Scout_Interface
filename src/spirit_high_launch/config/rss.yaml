@@ -17,8 +17,7 @@ foxglove_bridge:
       - '/spirit/spatial_measurements'
       - '/spirit/gps'
       - '/spirit/gps/reference_point'
-      - '/spirit/raw_measurements'
-      - '/spirit/raw_pene_measurements'
+
       
 
 
@@ -34,19 +33,19 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: spacerobotistesting5
+    csv_file: wstest2
     enable_visualization: true
 
 mapping_node:
   ros__parameters:
-    x_range: [0.0, 3.0]
-    y_range: [-0.45, 0.35]
-    resolution: [80, 300]
+    x_range: [-10.0, 10.0]
+    y_range: [-10.0, 10.0]
+    resolution: [300, 300]
     noise_level: 0.1
     length_scale: 20.0
     sigma_f: 1.0
     enable_visualization: true
-    auto_x_y_range: false
+    auto_x_y_range: true
     stiffness_range: [300, 1500]
     auto_stiffness_range: true
     data_padding: 0.3

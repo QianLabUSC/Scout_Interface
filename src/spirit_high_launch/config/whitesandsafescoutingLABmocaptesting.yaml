@@ -59,7 +59,7 @@ mapping_node:
 reactive_planner:
   ros__parameters:
     p: 20.0                    # R-function exponent
-    epsilon: 0.5              # Distance for the switches
+    epsilon: 10.0              # Distance for the switches
     varepsilon: 0.5          # Distance allowed to dilate the polygon
     mu_1: 1.0                 # Switch exponent mu1
     mu_2: 0.15                 # Switch exponent mu2
