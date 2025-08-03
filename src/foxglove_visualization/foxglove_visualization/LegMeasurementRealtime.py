@@ -837,14 +837,17 @@ class RealtimeSubscriber(Node):
         marker.pose.position.y = pose_msg.position.y
         marker.pose.position.z = pose_msg.position.z
 
-        # Set orientation to show head direction
-        marker.pose.orientation.x = pose_msg.orientation.x
-        marker.pose.orientation.y = pose_msg.orientation.y
-        marker.pose.orientation.z = 1.0
-        marker.pose.orientation.w = pose_msg.orientation.w
+        # Set orientation to show head direction (apply 180-degree Z rotation for correct visualization)
+        # Create a 180-degree rotation around Z-axis: q_flip = [0, 0, 1, 0]
+        # Multiply: q_result = q_flip * q_original  
+        orig_x, orig_y, orig_z, orig_w = pose_msg.orientation.x, pose_msg.orientation.y, pose_msg.orientation.z, pose_msg.orientation.w
+        marker.pose.orientation.x = -orig_z
+        marker.pose.orientation.y = orig_w  
+        marker.pose.orientation.z = orig_x
+        marker.pose.orientation.w = -orig_y
 
-        # Set arrow size to represent robot scale
-        marker.scale.x = 0.1  # Length of arrow (robot length)
+        # Set arrow size to represent robot scale (negative x to reverse arrow direction)
+        marker.scale.x = -0.1  # Length of arrow (robot length) - negative to point forward
         marker.scale.y = 0.05  # Width of arrow shaft
         marker.scale.z = 0.05  # Height of arrow shaft
 
