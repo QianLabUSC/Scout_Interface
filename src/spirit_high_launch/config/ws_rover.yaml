@@ -1,0 +1,74 @@
+
+# mocapCollection:
+#   ros__parameters:
+#     localIP: 
+
+foxglove_bridge:
+  ros__parameters:
+    topic_whitelist: 
+      # - '.*'
+      - '/spirit/state_low_speed'
+      - '/spirit/current_pose'
+      - '/scout_mapping/spatial_measurements_markers'
+      - '/scouting_mapping/extrapolated_map'
+      - '/scouting_mapping/extrapolated_map_colorbar'
+      - '/spirit/raw_measurements'
+      - '/spirit/raw_pene_measurements'
+      - '/spirit/spatial_measurements'
+      - '/spirit/gps'
+      - '/spirit/gps/reference_point'
+      - '/payload/camera/front/rgb/compression'
+      - '/payload/camera/front/depth/compression'
+      - '/payload/camera/back/rgb/compression'
+      - '/payload/camera/back/depth/compression'
+      - '/payload/camera/navigation/rgb/compression'
+      - '/payload/camera/navigation/depth/compression'
+
+      
+
+
+
+leg_measurements_publisher:
+  ros__parameters:
+    enable_visualization: true  # Enable robot pose marker and path visualization
+    
+
+
+top_view_camera:
+  ros__parameters:
+
+data_collector:
+  ros__parameters:
+    csv_file: wstest2
+    enable_visualization: true
+
+mapping_node:
+  ros__parameters:
+    x_range: [-10.0, 10.0]
+    y_range: [-10.0, 10.0]
+    resolution: [300, 300]
+    noise_level: 0.1
+    length_scale: 20.0
+    sigma_f: 1.0
+    enable_visualization: true
+    auto_x_y_range: true
+    stiffness_range: [300, 1500]
+    auto_stiffness_range: true
+    data_padding: 0.3
+    no_data_alpha: 20
+    # Signal-to-Noise Ratio (SNR) Configuration:
+    # SNR = |predicted_value| / uncertainty
+    # SNR > 3: Generally trustworthy predictions (high confidence)
+    # SNR 1-3: Moderate confidence predictions  
+    # SNR < 1: Low confidence predictions (noise dominates signal)
+    snr_threshold: 3.0          # Threshold for trustworthy predictions
+    alpha_high_confidence: 255  # Opacity for SNR >= threshold (trustworthy)
+    alpha_low_confidence: 100   # Opacity for SNR < threshold (low confidence)
+
+
+fake_path_publisher:
+  ros__parameters:
+    start_position: [0.0, 0.0, 0.0]  # [x, y, z]
+    goal_position: [5.0, 5.0, 0.0]   # [x, y, z]
+    num_points: 50
+    publish_rate: 1.0

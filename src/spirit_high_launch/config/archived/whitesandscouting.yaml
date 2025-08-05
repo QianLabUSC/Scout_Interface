@@ -21,7 +21,7 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: rsstest25
+    csv_file: wstestday1test1
 
 mapping_node:
   ros__parameters:
