@@ -8,9 +8,9 @@ foxglove_bridge:
       - '.*'
       # - '/spirit/state_low_speed'
       # - '/spirit/current_pose'
-      # - '/scout_mapping/spatial_measurements_markers'
-      # - '/scouting_mapping/extrapolated_map'
-      # - '/scouting_mapping/extrapolated_map_colorbar'
+      # - '/scout_map/spatial_measurements_markers'
+      # - '/scout_map/extrapolated_map'
+      # - '/scout_map/extrapolated_map_colorbar'
       # - '/spirit/raw_measurements'
       # - '/spirit/raw_pene_measurements'
       # - '/spirit/spatial_measurements'
@@ -29,16 +29,17 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: AMES_2024_Dec_10_Day5_Column2a_1b_4a_demo_3b_1.9a
+    csv_file: wstestatHotelsD1
     enable_visualization: true
 
 mapping_node:
   ros__parameters:
     x_range: [-10.0, 10.0]
     y_range: [-10.0, 10.0] # if set auto_x_y_range to true, this will be ignored
-    resolution: [600, 400]  #y, x
-    noise_level: 0.2
-    length_scale: 0.5
+    # resolution: [600, 400]  #y, x
+    cell_size: 0.05
+    noise_level: 0.1
+    length_scale: 0.2
     sigma_f: 1.0
     enable_visualization: true
     auto_x_y_range: true  
@@ -51,7 +52,7 @@ mapping_node:
     # SNR > 3: Generally trustworthy predictions (high confidence)
     # SNR 1-3: Moderate confidence predictions  
     # SNR < 1: Low confidence predictions (noise dominates signal)
-    snr_threshold: 3.0          # Threshold for trustworthy predictions
+    snr_threshold: 1.0          # Threshold for trustworthy predictions
     alpha_high_confidence: 255  # Opacity for SNR >= threshold (trustworthy)
     alpha_low_confidence: 100   # Opacity for SNR < threshold (low confidence)
 
@@ -76,12 +77,12 @@ safe_bayesian_optimization_node:
     opt: 
       beta: 2.0
       lipshitz: 1.0
-      f_min: 500.0
+      f_min: 300.0
       subgoal_erosion: 0.8
       
     # Terrain map request parameters (auto-calculated from spatial data)
     terrain_map:
-      resolution: [0.1, 0.1]   # [x_resolution, y_resolution] in meters per cell
+      resolution: [0.05, 0.05]   # [x_resolution, y_resolution] in meters per cell
       
     # Debug configuration
     debug:

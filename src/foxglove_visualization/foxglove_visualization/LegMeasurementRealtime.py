@@ -847,9 +847,9 @@ class RealtimeSubscriber(Node):
         marker.pose.orientation.w = -orig_y
 
         # Set arrow size to represent robot scale (negative x to reverse arrow direction)
-        marker.scale.x = -0.1  # Length of arrow (robot length) - negative to point forward
-        marker.scale.y = 0.05  # Width of arrow shaft
-        marker.scale.z = 0.05  # Height of arrow shaft
+        marker.scale.x = -0.5  # Length of arrow (robot length) - negative to point forward
+        marker.scale.y = 0.3  # Width of arrow shaft
+        marker.scale.z = 0.3  # Height of arrow shaft
 
         # Set color - blue for robot
         marker.color.r = 1.0

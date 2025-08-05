@@ -26,7 +26,7 @@ def generate_launch_description():
     data_collector_params = config.get('data_collector', {}).get('ros__parameters', {})
     foxglove_bridge_params = config.get('foxglove_bridge', {}).get('ros__parameters', {})
     print("foxglove_bridge_params from config:", foxglove_bridge_params)
-    
+    leg_measurements_publisher_params = config.get('leg_measurements_publisher', {}).get('ros__parameters', {})
     # Convert foxglove_bridge_params to launch arguments format
     launch_args = {}
     for key, value in foxglove_bridge_params.items():
@@ -76,7 +76,8 @@ def generate_launch_description():
             package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
             executable='leg_measurements_publisher',  # Replace with the executable name of FakeDataPublisher
             name='leg_measurements_publisher',
-            output='screen'
+            output='screen',
+            parameters=[leg_measurements_publisher_params]
         ),
 
 

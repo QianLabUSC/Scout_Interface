@@ -8,13 +8,15 @@ foxglove_bridge:
     topic_whitelist: 
       # - '.*'
       - '/spirit/state_low_speed'
-      - '/spirit/current_pose'
-      - '/scout_mapping/spatial_measurements_markers'
-      - '/scouting_mapping/extrapolated_map'
-      - '/scouting_mapping/extrapolated_map_colorbar'
+      # - '/spirit/current_pose'
+      - '/spirit/robot_path'
+      - '/scout_map/spatial_measurements_markers'
+      - '/scout_map/extrapolated_map'
+      - '/scout_map/extrapolated_map_colorbar'
       - '/spirit/raw_measurements'
       - '/spirit/raw_pene_measurements'
       - '/spirit/spatial_measurements'
+      - '/spirit/current_pose_marker'
       - '/spirit/gps'
       - '/spirit/detail_gps'
       - '/spirit/reference_point_update'
@@ -41,7 +43,7 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: wstest223322342
+    csv_file: wstestatHotelsD1T2
     enable_visualization: true
 
 mapping_node:
