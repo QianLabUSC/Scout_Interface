@@ -29,23 +29,23 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: wstestatHotelsD1
+    csv_file: test
     enable_visualization: true
 
 mapping_node:
   ros__parameters:
-    x_range: [-10.0, 10.0]
-    y_range: [-10.0, 10.0] # if set auto_x_y_range to true, this will be ignored
+    x_range: [-30.0, 30.0]
+    y_range: [-20.0, 20.0] # if set auto_x_y_range to true, this will be ignored
     # resolution: [600, 400]  #y, x
     cell_size: 0.05
     noise_level: 0.1
-    length_scale: 0.2
+    length_scale: 0.4
     sigma_f: 1.0
     enable_visualization: true
     auto_x_y_range: true  
     stiffness_range: [300, 1500]
     auto_stiffness_range: true
-    data_padding: 0.3
+    data_padding: 10.0
     no_data_alpha: 20
     # Signal-to-Noise Ratio (SNR) Configuration:
     # SNR = |predicted_value| / uncertainty
@@ -64,7 +64,7 @@ reactive_planner:
     varepsilon: 0.8              # Distance allowed to dilate the polygon
     mu_1: 1.0                 # Switch exponent mu1
     mu_2: 0.15                 # Switch exponent mu2
-    robot_radius: 0.3         # Robot radius for collision avoidance (meters)
+    robot_radius: 0.2         # Robot radius for collision avoidance (meters)
     linear_gain: 1.0          # Linear velocity gain
     angular_gain: 1.0         # Angular velocity gain
     linear_cmd_limit: 0.3     # Maximum linear velocity command (m/s)
@@ -77,8 +77,8 @@ safe_bayesian_optimization_node:
     opt: 
       beta: 2.0
       lipshitz: 1.0
-      f_min: 300.0
-      subgoal_erosion: 0.8
+      f_min: 800.0
+      subgoal_erosion: 0.2
       
     # Terrain map request parameters (auto-calculated from spatial data)
     terrain_map:

@@ -119,12 +119,12 @@ def generate_launch_description():
         #     output='screen',
         #     parameters=[{'background_r': 255, 'background_g': 255, 'background_b': 255}]
         #     ),
-        # Node(
-        #     package='safe_bayesian_optimization',
-        #     executable='turtlesim_spatial_publisher.py',
-        #     name='turtlesim_spatial_publisher',
-        #     output='screen'
-        #     ),
+        Node(
+            package='safe_bayesian_optimization',
+            executable='turtlesim_spatial_publisher.py',
+            name='turtlesim_spatial_publisher',
+            output='screen'
+            ),
 
         foxglove_bridge_launch,
 

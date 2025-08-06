@@ -12,8 +12,8 @@ class FullyActuated2DDriveSim(Node):
         super().__init__('fully_actuated_2d_drive_sim')
 
         # Robot state
-        self.x = 4.5
-        self.y = 4.5
+        self.x = 0
+        self.y = 0
         self.theta = 20.0 * math.pi / 180.0  # Heading angle (rad)
 
         # Velocity commands (local frame)
