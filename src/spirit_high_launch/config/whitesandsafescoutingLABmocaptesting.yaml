@@ -40,12 +40,12 @@ mapping_node:
     cell_size: 0.05
     noise_level: 0.1
     length_scale: 0.4
-    sigma_f: 1.0
+    sigma_f: 2.0
     enable_visualization: true
     auto_x_y_range: true  
     stiffness_range: [300, 1500]
     auto_stiffness_range: true
-    data_padding: 10.0
+    data_padding: 5.0
     no_data_alpha: 20
     # Signal-to-Noise Ratio (SNR) Configuration:
     # SNR = |predicted_value| / uncertainty
@@ -77,8 +77,10 @@ safe_bayesian_optimization_node:
     opt: 
       beta: 2.0
       lipshitz: 1.0
-      f_min: 800.0
+      f_min: 18.0
       subgoal_erosion: 0.2
+    robot:
+      radius: 0.2
       
     # Terrain map request parameters (auto-calculated from spatial data)
     terrain_map:
