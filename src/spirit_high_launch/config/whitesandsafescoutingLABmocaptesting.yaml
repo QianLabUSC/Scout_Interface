@@ -40,7 +40,7 @@ mapping_node:
     cell_size: 0.05
     noise_level: 0.1
     length_scale: 0.4
-    sigma_f: 2.0
+    sigma_f: 10.0
     enable_visualization: true
     auto_x_y_range: true  
     stiffness_range: [300, 1500]
@@ -76,8 +76,8 @@ safe_bayesian_optimization_node:
   ros__parameters:
     opt: 
       beta: 2.0
-      lipshitz: 1.0
-      f_min: 18.0
+      lipshitz: 3
+      f_min: 8.0
       subgoal_erosion: 0.2
     robot:
       radius: 0.2
