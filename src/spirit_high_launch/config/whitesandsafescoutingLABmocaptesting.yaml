@@ -100,7 +100,7 @@ safe_bayesian_optimization_node:
 goal_point_publisher:
   ros__parameters:
     waypoints: [0.0, 0.0, 0.0,     # First waypoint: x, y, z
-                -2.5, 4.0, 0.0,    # Second waypoint
-                -5.0, 4.0, 0.0,     # Third waypoint
-                -7.5, 4.0, 0.0,    # Fourth waypoint
-                -6.0, 5.0, 0.0]    # Fifth waypoint
+                -2.0, 4.0, 0.0,    # Second waypoint
+                -4.0, 0.0, 0.0,     # Third waypoint
+                -6.0, 4.0, 0.0,    # Fourth waypoint
+                -8.0, 0.0, 0.0]    # Fifth waypoint
