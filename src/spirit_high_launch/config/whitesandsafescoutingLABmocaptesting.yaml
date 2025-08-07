@@ -34,13 +34,13 @@ data_collector:
 
 mapping_node:
   ros__parameters:
-    x_range: [-30.0, 30.0]
-    y_range: [-20.0, 20.0] # if set auto_x_y_range to true, this will be ignored
+    x_range: [-15.0, 15.0]
+    y_range: [-15.0, 15.0] # if set auto_x_y_range to true, this will be ignored
     # resolution: [600, 400]  #y, x
-    cell_size: 0.05
+    cell_size: 0.1
     noise_level: 0.1
     length_scale: 0.4
-    sigma_f: 10.0
+    sigma_f: 15.0
     enable_visualization: true
     auto_x_y_range: true  
     stiffness_range: [300, 1500]
@@ -75,8 +75,8 @@ reactive_planner:
 safe_bayesian_optimization_node:
   ros__parameters:
     opt: 
-      beta: 2.0
-      lipshitz: 3
+      beta: 2.5
+      lipshitz: 4
       f_min: 8.0
       subgoal_erosion: 0.2
     robot:
@@ -84,7 +84,7 @@ safe_bayesian_optimization_node:
       
     # Terrain map request parameters (auto-calculated from spatial data)
     terrain_map:
-      resolution: [0.05, 0.05]   # [x_resolution, y_resolution] in meters per cell
+      resolution: [0.1, 0.1]   # [x_resolution, y_resolution] in meters per cell
       
     # Debug configuration
     debug:
@@ -100,7 +100,7 @@ safe_bayesian_optimization_node:
 goal_point_publisher:
   ros__parameters:
     waypoints: [0.0, 0.0, 0.0,     # First waypoint: x, y, z
-                2.5, 10.0, 0.0,    # Second waypoint
-                5.0, 0.0, 0.0,     # Third waypoint
-                7.5, 10.0, 0.0,    # Fourth waypoint
-                10.0, 0.0, 0.0]    # Fifth waypoint
+                -2.5, 4.0, 0.0,    # Second waypoint
+                -5.0, 4.0, 0.0,     # Third waypoint
+                -7.5, 4.0, 0.0,    # Fourth waypoint
+                -6.0, 5.0, 0.0]    # Fifth waypoint
