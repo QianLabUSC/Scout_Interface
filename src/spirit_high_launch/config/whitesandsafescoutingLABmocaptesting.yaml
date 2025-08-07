@@ -95,3 +95,12 @@ safe_bayesian_optimization_node:
       update_rate: 10.0  # Hzterrain_x_resolution_
       log_level: "info"
       enable_visualization: true
+
+
+goal_point_publisher:
+  ros__parameters:
+    waypoints: [0.0, 0.0, 0.0,     # First waypoint: x, y, z
+                2.5, 10.0, 0.0,    # Second waypoint
+                5.0, 0.0, 0.0,     # Third waypoint
+                7.5, 10.0, 0.0,    # Fourth waypoint
+                10.0, 0.0, 0.0]    # Fifth waypoint

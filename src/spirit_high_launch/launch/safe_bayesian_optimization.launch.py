@@ -30,6 +30,7 @@ def generate_launch_description():
     data_collector_params = config.get('data_collector', {}).get('ros__parameters', {})
     reactive_planner_params = config.get('reactive_planner', {}).get('ros__parameters', {})
     safe_optimization_params = config.get('safe_bayesian_optimization_node', {}).get('ros__parameters', {})
+    goal_point_publisher_params = config.get('goal_point_publisher', {}).get('ros__parameters', {})
     foxglove_bridge_params = config.get('foxglove_bridge', {}).get('ros__parameters', {})
     print("foxglove_bridge_params from config:", foxglove_bridge_params)
     # Convert foxglove_bridge_params to launch arguments format
@@ -65,12 +66,13 @@ def generate_launch_description():
              parameters=[reactive_planner_params, safe_optimization_params],
              output='screen'
              ),
-        #  Node(
-        #      package='safe_bayesian_optimization',
-        #      executable='goal_point_publisher',
-        #      name='goal_point_publisher',
-        #      output='screen'
-        #      ),
+         Node(
+             package='safe_bayesian_optimization',
+             executable='goal_point_publisher',
+             name='goal_point_publisher',
+             parameters=[goal_point_publisher_params],
+             output='screen'
+             ),
          Node(
             package='safe_bayesian_optimization',
             executable='reactive_navigation_node',

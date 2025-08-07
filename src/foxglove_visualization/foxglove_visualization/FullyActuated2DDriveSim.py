@@ -39,8 +39,7 @@ class FullyActuated2DDriveSim(Node):
         self.timer_period = 0.1  # seconds
         self.timer = self.create_timer(self.timer_period, self.update_pose)
 
-        self.get_logger().info("Fully Actuated 2D Drive Simulator with Pose & TF Started")
-        self.get_logger().info("Supports holonomic movement: forward/back (linear.x), left/right (linear.y), rotation (angular.z)")
+        self.get_logger().info('Drive sim started')
 
     def cmd_vel_callback(self, msg: Twist):
         """Callback to receive velocity commands in robot's local frame."""
@@ -79,6 +78,7 @@ class FullyActuated2DDriveSim(Node):
         pose_msg.orientation = Quaternion(x=0.0, y=0.0, z=qz, w=qw)
 
         self.pose_pub.publish(pose_msg)
+        self.get_logger().info(f'Pose: x={self.x:.2f}, y={self.y:.2f}, theta={self.theta:.2f}')
 
 
 
