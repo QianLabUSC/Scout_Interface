@@ -43,14 +43,14 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: wstestatHotelsD1T2
+    csv_file: ab
     enable_visualization: true
 
 mapping_node:
   ros__parameters:
     x_range: [-10.0, 10.0]
     y_range: [-10.0, 10.0]
-    cell_size: 0.5
+    cell_size: 0.1
     noise_level: 0.1
     length_scale: 0.1
     sigma_f: 1.0

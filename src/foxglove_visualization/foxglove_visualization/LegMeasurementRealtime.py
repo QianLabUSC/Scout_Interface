@@ -540,6 +540,7 @@ class RealtimeSubscriber(Node):
         """
         #FIND END PENE IDX
         max_force_threshold = 0.95*maxforce
+        end_pene_idx = 0
         for i in range(depth_zero_idx,len(depth)):
             if force[i] < max_force_threshold:
                 end_pene_idx = i
@@ -813,7 +814,7 @@ class RealtimeSubscriber(Node):
             msg.position.z = p_WT_homo[2,0]
 
         msg.uncertainty = self.r2_crawl  # Store R² as uncertainty measure
-        msg.leg_idx = self.pene_leg_idx
+        # msg.leg_idx = self.pene_leg_idx
         msg.value = self.stiffness
         msg.unit = "N/m"
         msg.source_name = "Crawling"
