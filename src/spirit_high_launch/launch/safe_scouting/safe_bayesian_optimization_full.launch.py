@@ -83,55 +83,47 @@ def generate_launch_description():
             output='screen'
             ),
         Node(
-            package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
-            executable='leg_measurements_publisher',  # Replace with the executable name of FakeDataPublisher
+            package='foxglove_visualization',  
+            executable='leg_measurements_publisher',  
             name='leg_measurements_publisher',
             output='screen',
             parameters=[leg_measurements_publisher_params]
         ),
-        # Node(
-        #     package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
-        #     executable='fake_data_publisher',  # Replace with the executable name of FakeDataPublisher
-        #     name='fake_data_publisher',
-        #     output='screen'
-        # ),
         Node(
-            package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
-            executable='drive_sim',  # Replace with the executable name of FakeDataPublisher
+            package='foxglove_visualization',  
+            executable='drive_sim',  
             name='drive_sim',
             output='screen'
         ),
         Node(
-            package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined
-            executable='data_collector',  # Replace with the executable name of FakeDataPublisher
+            package='mapping_collector',  
+            executable='data_collector',  
             name='data_collector',
             output='screen',
             parameters=[data_collector_params]
         ),
 
         Node(
-            package='mapping_package',  # Replace with the package where FakeDataPublisher is defined
-            executable='terrain_mapping_node',  # Replace with the executable name of FakeDataPublisher
+            package='mapping_package',  
+            executable='terrain_mapping_node',  
             name='mapping_node',
             output='screen',
             parameters=[mapping_params]
         ),
-        # Node(
-        #     package='turtlesim',
-        #     executable='turtlesim_node',
-        #     name='turtlesim_node',
-        #     output='screen',
-        #     parameters=[{'background_r': 255, 'background_g': 255, 'background_b': 255}]
-        #     ),
         Node(
             package='dense_ground_truth_generator',
             executable='ground_truth_server',
             name='ground_truth_server',
             output='screen',
-            parameters=[ground_truth_server_params, spatial_measurement_pub_params],
-            emulate_tty=True
+            parameters=[ground_truth_server_params],
         ),
-
+        Node(
+            package='dense_ground_truth_generator',
+            executable='spatial_measurement_publisher.py',
+            name='spatial_measurement_publisher',
+            output='screen',
+            parameters=[spatial_measurement_pub_params],
+        ),
         foxglove_bridge_launch,
 
 

@@ -38,13 +38,13 @@ mapping_node:
     y_range: [-15.0, 15.0] # if set auto_x_y_range to true, this will be ignored
     # resolution: [600, 400]  #y, x
     cell_size: 0.1
-    noise_level: 0.1
-    length_scale: 0.4
-    sigma_f: 15.0
+    noise_level: 5.0
+    length_scale: 0.2
+    sigma_f: 0.5
     enable_visualization: true
     auto_x_y_range: true  
-    stiffness_range: [300, 1500]
-    auto_stiffness_range: true
+    stiffness_range: [2, 32]
+    auto_stiffness_range: false
     data_padding: 5.0
     no_data_alpha: 20
     # Signal-to-Noise Ratio (SNR) Configuration:
@@ -75,9 +75,9 @@ reactive_planner:
 safe_bayesian_optimization_node:
   ros__parameters:
     opt: 
-      beta: 2.5
-      lipshitz: 4
-      f_min: 8.0
+      beta: 4.0
+      lipshitz: 10.0
+      f_min: 19.0
       subgoal_erosion: 0.2
     robot:
       radius: 0.2
@@ -100,12 +100,10 @@ safe_bayesian_optimization_node:
 goal_point_publisher:
   ros__parameters:
     waypoints: [0.0, 0.0, 0.0,     # First waypoint: x, y, z
-                -2.0, 4.0, 0.0,    # Second waypoint
-                -4.0, 0.0, 0.0,     # Third waypoint
-                -6.0, 4.0, 0.0,    # Fourth waypoint
-                -8.0, 0.0, 0.0]    # Fifth waypoint
+                -7.0, 0.0, 0.0,    # Second waypoint
+                1.0, 8.0, 0.0]     # Third waypoint
 
-ground_truth_server:
+dense_ground_truth_generator:
   ros__parameters:
     # Area boundaries (rectangular region)
     area_min_x: -15.0
@@ -130,8 +128,9 @@ spatial_measurement_publisher:
   ros__parameters:
     pose_topic: spirit/current_pose
     measurement_topic: spirit/spatial_measurements
-    publish_interval: 1.0
+    publish_interval: 0.2
     service_name: sample_ground_truth
     source_name: ground_truth
     unit: unitless
-    default_uncertainty: 0.0
+    default_uncertainty: 10.0
+    gaussian_noise_stddev: 0.3
