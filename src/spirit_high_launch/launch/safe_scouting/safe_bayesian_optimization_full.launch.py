@@ -32,6 +32,8 @@ def generate_launch_description():
     safe_optimization_params = config.get('safe_bayesian_optimization_node', {}).get('ros__parameters', {})
     goal_point_publisher_params = config.get('goal_point_publisher', {}).get('ros__parameters', {})
     foxglove_bridge_params = config.get('foxglove_bridge', {}).get('ros__parameters', {})
+    ground_truth_server_params = config.get('dense_ground_truth_generator', {}).get('ros__parameters', {})
+    spatial_measurement_pub_params = config.get('spatial_measurement_publisher', {}).get('ros__parameters', {})
     print("foxglove_bridge_params from config:", foxglove_bridge_params)
     # Convert foxglove_bridge_params to launch arguments format
     launch_args = {}
@@ -122,11 +124,13 @@ def generate_launch_description():
         #     parameters=[{'background_r': 255, 'background_g': 255, 'background_b': 255}]
         #     ),
         Node(
-            package='safe_bayesian_optimization',
-            executable='turtlesim_spatial_publisher.py',
-            name='turtlesim_spatial_publisher',
-            output='screen'
-            ),
+            package='dense_ground_truth_generator',
+            executable='ground_truth_server',
+            name='ground_truth_server',
+            output='screen',
+            parameters=[ground_truth_server_params, spatial_measurement_pub_params],
+            emulate_tty=True
+        ),
 
         foxglove_bridge_launch,
 

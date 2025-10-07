@@ -104,3 +104,34 @@ goal_point_publisher:
                 -4.0, 0.0, 0.0,     # Third waypoint
                 -6.0, 4.0, 0.0,    # Fourth waypoint
                 -8.0, 0.0, 0.0]    # Fifth waypoint
+
+ground_truth_server:
+  ros__parameters:
+    # Area boundaries (rectangular region)
+    area_min_x: -15.0
+    area_max_x: 15.0
+    area_min_y: -15.0
+    area_max_y: 15.0
+
+    # Number of Gaussian distributions
+    # Higher values create denser variations
+    num_gaussians: 300
+
+    # Seed for reproducible Gaussian placement (-1 uses nondeterministic seed)
+    random_seed: 42
+
+    # Lipschitz constant controls the rate of change
+    # Higher values create steeper gradients and more variation
+    # Lower values create smoother transitions
+    # Typical range: 1.0 (very smooth) to 50.0 (very steep)
+    lipschitz_constant: 1.0
+
+spatial_measurement_publisher:
+  ros__parameters:
+    pose_topic: spirit/current_pose
+    measurement_topic: spirit/spatial_measurements
+    publish_interval: 1.0
+    service_name: sample_ground_truth
+    source_name: ground_truth
+    unit: unitless
+    default_uncertainty: 0.0
