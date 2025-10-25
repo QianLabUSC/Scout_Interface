@@ -16,7 +16,7 @@ def generate_launch_description():
     # yaml_dir = get_package_share_directory('spirit_high_launch')
     # using source dir instead of install directory
     yaml_dir = "/home/qianlab/SpiritHighLevel/src/spirit_high_launch/config"
-    config_file = os.path.join(yaml_dir, 'lpsc.yaml')
+    config_file = os.path.join(yaml_dir, 'faketesting.yaml')
     print(config_file)
     # LaunchConfiguration('ros_control_config').perform(context)
     

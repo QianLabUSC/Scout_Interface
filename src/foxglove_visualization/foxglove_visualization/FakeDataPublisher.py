@@ -16,7 +16,7 @@ class FakeDataPublisher(Node):
         
         self.gradient_rate = 0.05
         # Publishers for each message type on the specified topics
-        self.spatial_measurement_publisher = self.create_publisher(SpatialMeasurement, 'spatial_measurements', 10)
+        self.spatial_measurement_publisher = self.create_publisher(SpatialMeasurement, 'spirit/spatial_measurements', 10)
         self.raw_measurments_publisher = self.create_publisher(RobotMeasurements, 'raw_measurements', 10)
         # self.extrapolated_map_publisher = self.create_publisher(ExtrapolatedMap, 'extrapolated_map', 10)
         # self.measurement_array_publisher = self.create_publisher(MeasurementArray, 'collected_measurements', 10)

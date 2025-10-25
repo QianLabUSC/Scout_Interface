@@ -1,0 +1,136 @@
+
+# mocapCollection:
+#   ros__parameters:
+#     localIP: 
+foxglove_bridge:
+  ros__parameters:
+    topic_whitelist: 
+      - '.*'
+      # - '/spirit/state_low_speed'
+      # - '/spirit/current_pose'
+      # - '/scout_map/spatial_measurements_markers'
+      # - '/scout_map/extrapolated_map'
+      # - '/scout_map/extrapolated_map_colorbar'
+      # - '/spirit/raw_measurements'
+      # - '/spirit/raw_pene_measurements'
+      # - '/spirit/spatial_measurements'
+      # - '/spirit/gps'
+      # - '/spirit/gps/reference_point'
+
+
+leg_measurements_publisher:
+  ros__parameters:
+    enable_visualization: true  # Enable robot pose marker and path visualization
+    
+
+
+top_view_camera:
+  ros__parameters:
+
+data_collector:
+  ros__parameters:
+    csv_file: test
+    enable_visualization: true
+
+mapping_node:
+  ros__parameters:
+    x_range: [-15.0, 15.0]
+    y_range: [-15.0, 15.0] # if set auto_x_y_range to true, this will be ignored
+    # resolution: [600, 400]  #y, x
+    cell_size: 0.1
+    noise_level: 5.0
+    length_scale: 0.2
+    sigma_f: 0.5
+    enable_visualization: true
+    auto_x_y_range: true  
+    stiffness_range: [2, 32]
+    auto_stiffness_range: false
+    data_padding: 5.0
+    no_data_alpha: 20
+    # Signal-to-Noise Ratio (SNR) Configuration:
+    # SNR = |predicted_value| / uncertainty
+    # SNR > 3: Generally trustworthy predictions (high confidence)
+    # SNR 1-3: Moderate confidence predictions  
+    # SNR < 1: Low confidence predictions (noise dominates signal)
+    snr_threshold: 1.0          # Threshold for trustworthy predictions
+    alpha_high_confidence: 255  # Opacity for SNR >= threshold (trustworthy)
+    alpha_low_confidence: 100   # Opacity for SNR < threshold (low confidence)
+
+
+reactive_planner:
+  ros__parameters:
+    p: 20.0                    # R-function exponent
+    epsilon: 0.8             # Distance for the switches
+    varepsilon: 0.8              # Distance allowed to dilate the polygon
+    mu_1: 1.0                 # Switch exponent mu1
+    mu_2: 0.15                 # Switch exponent mu2
+    robot_radius: 0.2         # Robot radius for collision avoidance (meters)
+    linear_gain: 1.0          # Linear velocity gain
+    angular_gain: 1.0         # Angular velocity gain
+    linear_cmd_limit: 0.3     # Maximum linear velocity command (m/s)
+    angular_cmd_limit: 1.0    # Maximum angular velocity command (rad/s)
+    goal_tolerance: 0.1       # Distance tolerance to stop near subgoal (meters)
+
+
+safe_bayesian_optimization_node:
+  ros__parameters:
+    opt: 
+      beta: 4.0
+      lipshitz: 10.0
+      f_min: 19.0
+      subgoal_erosion: 0.2
+    robot:
+      radius: 0.2
+      
+    # Terrain map request parameters (auto-calculated from spatial data)
+    terrain_map:
+      resolution: [0.1, 0.1]   # [x_resolution, y_resolution] in meters per cell
+      
+    # Debug configuration
+    debug:
+      publish_debug_image: false
+      
+    # Node configuration
+    node:
+      update_rate: 10.0  # Hzterrain_x_resolution_
+      log_level: "info"
+      enable_visualization: true
+
+
+goal_point_publisher:
+  ros__parameters:
+    waypoints: [0.0, 0.0, 0.0,     # First waypoint: x, y, z
+                -7.0, 0.0, 0.0,    # Second waypoint
+                1.0, 8.0, 0.0]     # Third waypoint
+
+dense_ground_truth_generator:
+  ros__parameters:
+    # Area boundaries (rectangular region)
+    area_min_x: -15.0
+    area_max_x: 15.0
+    area_min_y: -15.0
+    area_max_y: 15.0
+
+    # Number of Gaussian distributions
+    # Higher values create denser variations
+    num_gaussians: 300
+
+    # Seed for reproducible Gaussian placement (-1 uses nondeterministic seed)
+    random_seed: 42
+
+    # Lipschitz constant controls the rate of change
+    # Higher values create steeper gradients and more variation
+    # Lower values create smoother transitions
+    # Typical range: 1.0 (very smooth) to 50.0 (very steep)
+    lipschitz_constant: 1.0
+
+spatial_measurement_publisher:
+  ros__parameters:
+    pose_topic: spirit/current_pose
+    measurement_topic: spirit/spatial_measurements
+    publish_interval: 0.2
+    service_name: sample_ground_truth
+    source_name: ground_truth
+    unit: unitless
+    default_uncertainty: 10.0
+    gaussian_noise_stddev: 0.3
