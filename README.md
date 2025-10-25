@@ -120,16 +120,23 @@ pip3 install \
 
 ## Quick Start
 
-### 1. Basic Scout Interface Launch
+### 1. Basic Scout Interface Launch (for lab demo, robot is controlled by joystick)
 
 ```bash
 # Source the workspace
-cd ~/safe-exploration-deformable
+cd ~/your_ros_workspace
 source install/setup.bash
 
 # Launch the basic scout interface with Foxglove visualization
 ros2 launch spirit_high_launch launch_ws_scouting_foxglove.launch.py
+
+# open another terminal. 
+ros2 launch spirit_high_launch launch_ws_scouting_maping.launch.py
+
+# open another terminal. 
+ros2 launch spirit_high_launch launch_ws_scouting_robotsciencenode.launch.py
 ```
+
 
 ### 2. Safe Bayesian Optimization System
 
