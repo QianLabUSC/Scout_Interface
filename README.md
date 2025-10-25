@@ -56,7 +56,7 @@ sudo apt install -y \
     libgdal-dev \
     cmake \
     build-essential
-
+sudo apt update && sudo apt install -y libcurl4-openssl-dev libgdal-dev libnetcdf-dev
 # Initialize rosdep
 sudo rosdep init
 rosdep update
