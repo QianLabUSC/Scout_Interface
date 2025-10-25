@@ -72,7 +72,7 @@ mkdir -p ~/your_ros_workspace/src
 cd ~/your_ros_workspace/src/
 
 # Clone the main Scout Interface repository
-git clone -b git@github.com:QianLabUSC/Scout_Interface.git
+git clone -b main git@github.com:QianLabUSC/Scout_Interface.git
 
 # Clone the Risk Mapping repository
 git clone -b mapping_world_coordinates git@github.com:TRUSSES/risk_mapping.git
