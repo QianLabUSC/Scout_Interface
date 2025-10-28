@@ -137,7 +137,7 @@ ros2 launch spirit_high_launch launch_ws_scouting_maping.launch.py
 ros2 launch spirit_high_launch launch_ws_scouting_robotsciencenode.launch.py
 ```
 
-
+Note that for each launch file, you have to modify the configuration file path, manually, this is designed in purpose to allows you to not recomplile after modifying the config. 
 ### 2. Safe scouting path automatic planning (not tested in real robot yet)
 
 ```bash
