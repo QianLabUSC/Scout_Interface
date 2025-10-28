@@ -138,18 +138,11 @@ ros2 launch spirit_high_launch launch_ws_scouting_robotsciencenode.launch.py
 ```
 
 
-### 2. Safe Bayesian Optimization System
+### 2. Safe scouting path automatic planning (not tested in real robot yet)
 
 ```bash
 # Launch the complete safe scouting system
 ros2 launch spirit_high_launch safe_bayesian_optimization_full.launch.py
-```
-
-### 3. Risk Mapping System
-
-```bash
-# Launch the terrain mapping system
-ros2 launch spirit_high_launch safe_bayesian_optimization_mapping_launch.py
 ```
 
 ## Configuration
