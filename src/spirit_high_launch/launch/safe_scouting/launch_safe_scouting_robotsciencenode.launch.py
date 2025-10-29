@@ -15,7 +15,7 @@ import yaml
 def generate_launch_description():
     config_file = os.path.join(
         get_package_share_directory('spirit_high_launch'),
-        'config', 'rss.yaml'
+        'config', 'safe_scouting.yaml'
     )
     print(config_file)
     # LaunchConfiguration('ros_control_config').perform(context)
@@ -28,7 +28,7 @@ def generate_launch_description():
     data_collector_params = config.get('data_collector', {}).get('ros__parameters', {})
     foxglove_bridge_params = config.get('foxglove_bridge', {}).get('ros__parameters', {})
     print("foxglove_bridge_params from config:", foxglove_bridge_params)
-    
+    leg_measurements_publisher_params = config.get('leg_measurements_publisher', {}).get('ros__parameters', {})
     # Convert foxglove_bridge_params to launch arguments format
     launch_args = {}
     for key, value in foxglove_bridge_params.items():
@@ -78,7 +78,8 @@ def generate_launch_description():
             package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
             executable='leg_measurements_publisher',  # Replace with the executable name of FakeDataPublisher
             name='leg_measurements_publisher',
-            output='screen'
+            output='screen',
+            parameters=[leg_measurements_publisher_params]
         ),
 
 
@@ -88,24 +89,7 @@ def generate_launch_description():
         #     name='top_view_camera',
         #     output='screen'
         # ),
-        
-        Node(
-            package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined
-            executable='data_collector',  # Replace with the executable name of FakeDataPublisher
-            name='data_collector',
-            output='screen',
-            parameters=[data_collector_params]
-        ),
-
-        Node(
-            package='mapping_package',  # Replace with the package where FakeDataPublisher is defined
-            executable='terrain_mapping_node',  # Replace with the executable name of FakeDataPublisher
-            name='mapping_node',
-            output='screen',
-            parameters=[mapping_params]
-        ),
-
-        foxglove_bridge_launch,
+       
 
 
     ])

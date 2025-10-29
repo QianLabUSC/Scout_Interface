@@ -60,6 +60,15 @@ sudo apt update && sudo apt install -y libcurl4-openssl-dev libgdal-dev libnetcd
 # Initialize rosdep
 sudo rosdep init
 rosdep update
+
+### Foxglove Bridge (required for visualization)
+
+Install the Foxglove WebSocket bridge so Foxglove Studio can connect to ROS 2 topics used by the scouting launch files:
+
+```bash
+sudo apt update
+sudo apt install ros-$ROS_DISTRO-foxglove-bridge
+```
 ```
 
 ## Installation
@@ -83,8 +92,6 @@ git clone git@github.com:QianLabUSC/safe_legged_scouting.git
 # Clone the TRUSSES Custom Interfaces repository
 git clone git@github.com:TRUSSES/trusses_custom_interfaces.git
 
-# Clone the Dense Ground Truth Generator (optional)
-git clone <dense-ground-truth-repo-url> dense-ground-truth-generator
 ```
 
 ### 2. Build the Workspace
@@ -94,7 +101,7 @@ git clone <dense-ground-truth-repo-url> dense-ground-truth-generator
 cd ~/your_ros_workspace
 
 # Build all packages
-colcon build --cmake-args -DBUILD_EXAMPLES=OFF
+colcon build --cmake-args -DBUILD_EXAMPLES=OFF --symlink-install
 
 # Source the workspace
 source install/setup.bash
@@ -105,18 +112,18 @@ source install/setup.bash
 ```bash
 # Install Python packages for risk mapping
 cd risk_mapping
-pip3 install -r requirements.txt
 
 # Install additional Python dependencies
-pip3 install \
-    scikit-learn \
-    gpytorch \
-    torch \
-    matplotlib \
-    opencv-python \
-    pandas \
-    scipy
-```
+pip install \
+  numpy==1.26.4 \
+  scipy==1.10.1 \
+  scikit-learn==1.3.2 \
+  pandas==2.2.2 \
+  matplotlib==3.8.4 \
+  opencv-python==4.10.0.84 \
+  torch==2.2.2 \
+  gpytorch==1.11 \
+  imutils
 
 ## Quick Start
 
@@ -141,8 +148,22 @@ Note that for each launch file, you have to modify the configuration file path, 
 ### 2. Safe scouting path automatic planning (not tested in real robot yet)
 
 ```bash
-# Launch the complete safe scouting system
-ros2 launch spirit_high_launch safe_bayesian_optimization_full.launch.py
+
+# Launch the basic scout interface with Foxglove visualization
+ros2 launch spirit_high_launch launch_safe_scouting_interface.launch.py
+
+# open another terminal. 
+ros2 launch spirit_high_launch launch_safe_scouting_mapping.launch.py
+
+# open another terminal. 
+
+ros2 launch spirit_high_launch launch_safe_scouting_planner.launch.py
+
+# for real robot:
+ros2 launch spirit_high_launch launch_safe_scouting_robotsciencenode.launch.py
+
+# for simulation
+ros2 launch spirit_high_launch launch_safe_scouting_simulator.launch.py
 ```
 
 ## Configuration

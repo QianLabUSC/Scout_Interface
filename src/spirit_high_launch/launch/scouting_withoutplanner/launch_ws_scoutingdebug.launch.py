@@ -13,8 +13,10 @@ import yaml
 
 
 def generate_launch_description():
-    yaml_dir = "/home/sandy/temp/SpiritHighLevel/src/spirit_high_launch/config"
-    config_file = os.path.join(yaml_dir, 'ws_scouting.yaml')
+    config_file = os.path.join(
+        get_package_share_directory('spirit_high_launch'),
+        'config', 'ws_scouting.yaml'
+    )
     print(config_file)
     # LaunchConfiguration('ros_control_config').perform(context)
     

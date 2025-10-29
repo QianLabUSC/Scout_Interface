@@ -17,7 +17,7 @@ import yaml
 
 def generate_launch_description():
     yaml_dir = get_package_share_directory("spirit_high_launch")
-    config_file = os.path.join(yaml_dir, 'config/whitesandsafescoutingLABmocaptesting.yaml')
+    config_file = os.path.join(yaml_dir, 'config/safe_scouting.yaml')
     print(config_file)
     # LaunchConfiguration('ros_control_config').perform(context)
 
@@ -59,27 +59,27 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-         Node(
-            package='safe_bayesian_optimization',
-             executable='safe_bayesian_optimization_node',
-             name='safe_bayesian_optimization_node',
-             parameters=[reactive_planner_params, safe_optimization_params],
-             output='screen'
-             ),
-         Node(
-             package='safe_bayesian_optimization',
-             executable='goal_point_publisher',
-             name='goal_point_publisher',
-             parameters=[goal_point_publisher_params],
-             output='screen'
-             ),
-         Node(
-            package='safe_bayesian_optimization',
-            executable='reactive_navigation_node',
-            name='reactive_navigation_node',
-            parameters=[reactive_planner_params],
-            output='screen'
-            ),
+        #  Node(
+        #     package='safe_bayesian_optimization',
+        #      executable='safe_bayesian_optimization_node',
+        #      name='safe_bayesian_optimization_node',
+        #      parameters=[reactive_planner_params, safe_optimization_params],
+        #      output='screen'
+        #      ),
+        #  Node(
+        #      package='safe_bayesian_optimization',
+        #      executable='goal_point_publisher',
+        #      name='goal_point_publisher',
+        #      parameters=[goal_point_publisher_params],
+        #      output='screen'
+        #      ),
+        #  Node(
+        #     package='safe_bayesian_optimization',
+        #     executable='reactive_navigation_node',
+        #     name='reactive_navigation_node',
+        #     parameters=[reactive_planner_params],
+        #     output='screen'
+        #     ),
         # Node(
         #     package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
         #     executable='leg_measurements_publisher',  # Replace with the executable name of FakeDataPublisher
@@ -99,21 +99,21 @@ def generate_launch_description():
         #     name='drive_sim',
         #     output='screen'
         # ),
-        # Node(
-        #     package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined
-        #     executable='data_collector',  # Replace with the executable name of FakeDataPublisher
-        #     name='data_collector',
-        #     output='screen',
-        #     parameters=[data_collector_params]
-        # ),
+        Node(
+            package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined
+            executable='data_collector',  # Replace with the executable name of FakeDataPublisher
+            name='data_collector',
+            output='screen',
+            parameters=[data_collector_params]
+        ),
 
-        # Node(
-        #     package='mapping_package',  # Replace with the package where FakeDataPublisher is defined
-        #     executable='terrain_mapping_node',  # Replace with the executable name of FakeDataPublisher
-        #     name='mapping_node',
-        #     output='screen',
-        #     parameters=[mapping_params]
-        # ),
+        Node(
+            package='mapping_package',  # Replace with the package where FakeDataPublisher is defined
+            executable='terrain_mapping_node',  # Replace with the executable name of FakeDataPublisher
+            name='mapping_node',
+            output='screen',
+            parameters=[mapping_params]
+        ),
         # Node(
         #     package='turtlesim',
         #     executable='turtlesim_node',
@@ -121,12 +121,12 @@ def generate_launch_description():
         #     output='screen',
         #     parameters=[{'background_r': 255, 'background_g': 255, 'background_b': 255}]
         #     ),
-        Node(
-            package='safe_bayesian_optimization',
-            executable='turtlesim_spatial_publisher.py',
-            name='turtlesim_spatial_publisher',
-            output='screen'
-            ),
+        # Node(
+        #     package='safe_bayesian_optimization',
+        #     executable='turtlesim_spatial_publisher.py',
+        #     name='turtlesim_spatial_publisher',
+        #     output='screen'
+        #     ),
 
         # foxglove_bridge_launch,
 

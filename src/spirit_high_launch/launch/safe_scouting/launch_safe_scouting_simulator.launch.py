@@ -17,7 +17,7 @@ import yaml
 
 def generate_launch_description():
     yaml_dir = get_package_share_directory("spirit_high_launch")
-    config_file = os.path.join(yaml_dir, 'config/whitesandsafescoutingLABmocaptesting.yaml')
+    config_file = os.path.join(yaml_dir, 'config/safe_scouting.yaml')
     print(config_file)
     # LaunchConfiguration('ros_control_config').perform(context)
 
@@ -32,6 +32,8 @@ def generate_launch_description():
     safe_optimization_params = config.get('safe_bayesian_optimization_node', {}).get('ros__parameters', {})
     goal_point_publisher_params = config.get('goal_point_publisher', {}).get('ros__parameters', {})
     foxglove_bridge_params = config.get('foxglove_bridge', {}).get('ros__parameters', {})
+    ground_truth_server_params = config.get('ground_truth_server', {}).get('ros__parameters', {})
+    spatial_measurement_pub_params = config.get('spatial_measurement_publisher', {}).get('ros__parameters', {})
     print("foxglove_bridge_params from config:", foxglove_bridge_params)
     # Convert foxglove_bridge_params to launch arguments format
     launch_args = {}
@@ -87,48 +89,30 @@ def generate_launch_description():
         #     output='screen',
         #     parameters=[leg_measurements_publisher_params]
         # ),
-        # Node(
-        #     package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
-        #     executable='fake_data_publisher',  # Replace with the executable name of FakeDataPublisher
+        # # Node(
+        # #     package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
+        # #     executable='fake_data_publisher',  # Replace with the executable name of FakeDataPublisher
         #     name='fake_data_publisher',
         #     output='screen'
         # ),
-        # Node(
-        #     package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
-        #     executable='drive_sim',  # Replace with the executable name of FakeDataPublisher
-        #     name='drive_sim',
-        #     output='screen'
-        # ),
         Node(
-            package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined
-            executable='data_collector',  # Replace with the executable name of FakeDataPublisher
-            name='data_collector',
-            output='screen',
-            parameters=[data_collector_params]
+            package='safe_scout_simulator',
+            executable='drive_sim',
+            name='drive_sim',
+            output='screen'
         ),
-
         Node(
-            package='mapping_package',  # Replace with the package where FakeDataPublisher is defined
-            executable='terrain_mapping_node',  # Replace with the executable name of FakeDataPublisher
-            name='mapping_node',
+            package='safe_scout_simulator',
+            executable='ground_truth_server',
+            name='ground_truth_server',
             output='screen',
-            parameters=[mapping_params]
+            parameters=[ground_truth_server_params],
         ),
-        # Node(
-        #     package='turtlesim',
-        #     executable='turtlesim_node',
-        #     name='turtlesim_node',
-        #     output='screen',
-        #     parameters=[{'background_r': 255, 'background_g': 255, 'background_b': 255}]
-        #     ),
-        # Node(
-        #     package='safe_bayesian_optimization',
-        #     executable='turtlesim_spatial_publisher.py',
-        #     name='turtlesim_spatial_publisher',
-        #     output='screen'
-        #     ),
-
-        # foxglove_bridge_launch,
-
-
+        Node(
+            package='safe_scout_simulator',
+            executable='spatial_measurement_publisher.py',
+            name='spatial_measurement_publisher',
+            output='screen',
+            parameters=[spatial_measurement_pub_params],
+        ),
     ]) 

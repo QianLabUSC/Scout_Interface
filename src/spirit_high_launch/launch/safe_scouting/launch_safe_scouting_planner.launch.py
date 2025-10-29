@@ -17,7 +17,7 @@ import yaml
 
 def generate_launch_description():
     yaml_dir = get_package_share_directory("spirit_high_launch")
-    config_file = os.path.join(yaml_dir, 'config/whitesandsafescoutingLABmocaptesting.yaml')
+    config_file = os.path.join(yaml_dir, 'config/safe_scouting.yaml')
     print(config_file)
     # LaunchConfiguration('ros_control_config').perform(context)
 
@@ -32,8 +32,6 @@ def generate_launch_description():
     safe_optimization_params = config.get('safe_bayesian_optimization_node', {}).get('ros__parameters', {})
     goal_point_publisher_params = config.get('goal_point_publisher', {}).get('ros__parameters', {})
     foxglove_bridge_params = config.get('foxglove_bridge', {}).get('ros__parameters', {})
-    ground_truth_server_params = config.get('dense_ground_truth_generator', {}).get('ros__parameters', {})
-    spatial_measurement_pub_params = config.get('spatial_measurement_publisher', {}).get('ros__parameters', {})
     print("foxglove_bridge_params from config:", foxglove_bridge_params)
     # Convert foxglove_bridge_params to launch arguments format
     launch_args = {}
@@ -82,49 +80,7 @@ def generate_launch_description():
             parameters=[reactive_planner_params],
             output='screen'
             ),
-        Node(
-            package='foxglove_visualization',  
-            executable='leg_measurements_publisher',  
-            name='leg_measurements_publisher',
-            output='screen',
-            parameters=[leg_measurements_publisher_params]
-        ),
-        Node(
-            package='foxglove_visualization',  
-            executable='drive_sim',  
-            name='drive_sim',
-            output='screen'
-        ),
-        Node(
-            package='mapping_collector',  
-            executable='data_collector',  
-            name='data_collector',
-            output='screen',
-            parameters=[data_collector_params]
-        ),
-
-        Node(
-            package='mapping_package',  
-            executable='terrain_mapping_node',  
-            name='mapping_node',
-            output='screen',
-            parameters=[mapping_params]
-        ),
-        Node(
-            package='dense_ground_truth_generator',
-            executable='ground_truth_server',
-            name='ground_truth_server',
-            output='screen',
-            parameters=[ground_truth_server_params],
-        ),
-        Node(
-            package='dense_ground_truth_generator',
-            executable='spatial_measurement_publisher.py',
-            name='spatial_measurement_publisher',
-            output='screen',
-            parameters=[spatial_measurement_pub_params],
-        ),
-        foxglove_bridge_launch,
+     
 
 
     ]) 

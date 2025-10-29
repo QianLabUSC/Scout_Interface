@@ -17,7 +17,7 @@ import yaml
 
 def generate_launch_description():
     yaml_dir = get_package_share_directory("spirit_high_launch")
-    config_file = os.path.join(yaml_dir, 'config/whitesandsafescoutingLABmocaptesting.yaml')
+    config_file = os.path.join(yaml_dir, 'config/safe_scouting.yaml')
     print(config_file)
     # LaunchConfiguration('ros_control_config').perform(context)
 
@@ -87,18 +87,18 @@ def generate_launch_description():
         #     output='screen',
         #     parameters=[leg_measurements_publisher_params]
         # ),
-        # # Node(
-        # #     package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
-        # #     executable='fake_data_publisher',  # Replace with the executable name of FakeDataPublisher
+        # Node(
+        #     package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
+        #     executable='fake_data_publisher',  # Replace with the executable name of FakeDataPublisher
         #     name='fake_data_publisher',
         #     output='screen'
         # ),
-        Node(
-            package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
-            executable='drive_sim',  # Replace with the executable name of FakeDataPublisher
-            name='drive_sim',
-            output='screen'
-        ),
+        # Node(
+        #     package='foxglove_visualization',  # Replace with the package where FakeDataPublisher is defined
+        #     executable='drive_sim',  # Replace with the executable name of FakeDataPublisher
+        #     name='drive_sim',
+        #     output='screen'
+        # ),
         # Node(
         #     package='mapping_collector',  # Replace with the package where FakeDataPublisher is defined
         #     executable='data_collector',  # Replace with the executable name of FakeDataPublisher
@@ -128,7 +128,7 @@ def generate_launch_description():
         #     output='screen'
         #     ),
 
-        # foxglove_bridge_launch,
+        foxglove_bridge_launch,
 
 
     ]) 

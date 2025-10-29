@@ -29,7 +29,7 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: test
+    csv_file: safe_scouting_test
     enable_visualization: true
 
 mapping_node:
@@ -100,10 +100,15 @@ safe_bayesian_optimization_node:
 goal_point_publisher:
   ros__parameters:
     waypoints: [0.0, 0.0, 0.0,     # First waypoint: x, y, z
-                -7.0, 0.0, 0.0,    # Second waypoint
-                1.0, 8.0, 0.0]     # Third waypoint
+                          -7.0, 0.0, 0.0,    # Second waypoint
+                          1.0, 8.0, 0.0]     # Third waypoint
 
-dense_ground_truth_generator:
+#### below is simulator parameters. used for simulation.
+drive_sim:
+  ros__parameters:
+    map_file: map_config1
+
+ground_truth_server:
   ros__parameters:
     # Area boundaries (rectangular region)
     area_min_x: -15.0
@@ -114,6 +119,7 @@ dense_ground_truth_generator:
     # Number of Gaussian distributions
     # Higher values create denser variations
     num_gaussians: 300
+    map_file: map_config1
 
     # Seed for reproducible Gaussian placement (-1 uses nondeterministic seed)
     random_seed: 42
