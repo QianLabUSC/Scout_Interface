@@ -2,11 +2,12 @@ from scipy.spatial.transform import Rotation
 import rclpy
 from rclpy.node import Node
 from trusses_custom_interfaces.msg import SpiritState
-from geometry_msgs.msg import Pose, PoseStamped
+from geometry_msgs.msg import Pose, PoseStamped, TransformStamped
 from nav_msgs.msg import Path
 from trusses_custom_interfaces.msg import RobotMeasurements, SpatialMeasurement
-from visualization_msgs.msg import Marker
+from visualization_msgs.msg import Marker, MarkerArray
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
+from tf2_ros import TransformBroadcaster
 # import matplotlib.pyplot as plt
 # from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -46,6 +47,9 @@ class RealtimeSubscriber(Node):
             self.Pose_callback,
             10)
         self.subscription_current_pose  # prevent unused variable warning
+        
+        # TF broadcaster for map -> base_link (for Foxglove visualization)
+        self.tf_broadcaster = TransformBroadcaster(self)
        
         
         self.realtime_publisher = self.create_publisher(
@@ -68,7 +72,7 @@ class RealtimeSubscriber(Node):
         # Only create visualization publishers if visualization is enabled
         if self.enable_visualization:
             self.robot_marker_publisher = self.create_publisher(
-                Marker,
+                MarkerArray,
                 'spirit/current_pose_marker',
                 10)
             self.robot_marker_publisher  # prevent unused variable warning
@@ -721,6 +725,20 @@ class RealtimeSubscriber(Node):
         # self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
         self.CoM_pos = p_WMo_W
 
+        # Broadcast TF transform (map -> base_link) for Foxglove visualization
+        t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = "map"
+        t.child_frame_id = "base_link"
+        t.transform.translation.x = msg.position.x
+        t.transform.translation.y = msg.position.y
+        t.transform.translation.z = msg.position.z
+        t.transform.rotation.x = msg.orientation.x
+        t.transform.rotation.y = msg.orientation.y
+        t.transform.rotation.z = msg.orientation.z
+        t.transform.rotation.w = msg.orientation.w
+        self.tf_broadcaster.sendTransform(t)
+
         # Publish robot position marker and update path if visualization is enabled
         if self.enable_visualization:
             self.publish_robot_position_marker(msg)
@@ -824,45 +842,100 @@ class RealtimeSubscriber(Node):
         self.spatial_measurement_publisher.publish(msg)
 
     def publish_robot_position_marker(self, pose_msg):
-        """Publish a marker showing robot position and head orientation (only called when visualization is enabled)"""
-        marker = Marker()
-        marker.header.frame_id = "map"  # or "world" depending on your frame setup
-        marker.header.stamp = self.get_clock().now().to_msg()
-        marker.ns = "robot"
-        marker.id = 0
-        marker.type = Marker.ARROW
-        marker.action = Marker.ADD
+        """Publish rectangle markers showing robot position and orientation.
+        
+        Publishes two markers in a MarkerArray for synchronization:
+        1. Body rectangle (cyan) - main robot body
+        2. Head rectangle (yellow) - front indicator to show orientation
+        """
+        import math
+        
+        # Get timestamp once for both markers
+        timestamp = self.get_clock().now().to_msg()
+        
+        # Robot body rectangle (cyan)
+        body_marker = Marker()
+        body_marker.header.frame_id = "map"
+        body_marker.header.stamp = timestamp
+        body_marker.ns = "robot"
+        body_marker.id = 0
+        body_marker.type = Marker.CUBE
+        body_marker.action = Marker.ADD
 
         # Set position from pose
-        marker.pose.position.x = pose_msg.position.x
-        marker.pose.position.y = pose_msg.position.y
-        marker.pose.position.z = pose_msg.position.z
+        body_marker.pose.position.x = pose_msg.position.x
+        body_marker.pose.position.y = pose_msg.position.y
+        body_marker.pose.position.z = pose_msg.position.z
 
-        # Set orientation to show head direction (apply 180-degree Z rotation for correct visualization)
-        # Create a 180-degree rotation around Z-axis: q_flip = [0, 0, 1, 0]
-        # Multiply: q_result = q_flip * q_original  
-        orig_x, orig_y, orig_z, orig_w = pose_msg.orientation.x, pose_msg.orientation.y, pose_msg.orientation.z, pose_msg.orientation.w
-        marker.pose.orientation.x = -orig_z
-        marker.pose.orientation.y = orig_w  
-        marker.pose.orientation.z = orig_x
-        marker.pose.orientation.w = -orig_y
+        # Set orientation from pose
+        body_marker.pose.orientation.x = pose_msg.orientation.x
+        body_marker.pose.orientation.y = pose_msg.orientation.y
+        body_marker.pose.orientation.z = pose_msg.orientation.z
+        body_marker.pose.orientation.w = pose_msg.orientation.w
 
-        # Set arrow size to represent robot scale (negative x to reverse arrow direction)
-        marker.scale.x = -0.5  # Length of arrow (robot length) - negative to point forward
-        marker.scale.y = 0.3  # Width of arrow shaft
-        marker.scale.z = 0.3  # Height of arrow shaft
+        # Set rectangle size (robot body dimensions)
+        body_marker.scale.x = 0.4  # Length (forward/backward)
+        body_marker.scale.y = 0.3  # Width (left/right)
+        body_marker.scale.z = 0.2  # Height
 
-        # Set color - blue for robot
-        marker.color.r = 1.0
-        marker.color.g = 1.0
-        marker.color.b = 1.0
-        marker.color.a = 1.0  # Semi-transparent
+        # Set color - cyan for robot body
+        body_marker.color.r = 0.0
+        body_marker.color.g = 1.0
+        body_marker.color.b = 1.0
+        body_marker.color.a = 1.0
 
         # Set lifetime (0 means forever)
-        marker.lifetime.sec = 0
-        marker.lifetime.nanosec = 0
+        body_marker.lifetime.sec = 0
+        body_marker.lifetime.nanosec = 0
 
-        self.robot_marker_publisher.publish(marker)
+        # Head/front rectangle (yellow) - positioned at front of robot
+        head_marker = Marker()
+        head_marker.header.frame_id = "map"
+        head_marker.header.stamp = timestamp
+        head_marker.ns = "robot"
+        head_marker.id = 1
+        head_marker.type = Marker.CUBE
+        head_marker.action = Marker.ADD
+
+        # Calculate front position offset (half body length forward)
+        # Extract yaw from quaternion
+        qx = pose_msg.orientation.x
+        qy = pose_msg.orientation.y
+        qz = pose_msg.orientation.z
+        qw = pose_msg.orientation.w
+        yaw = 2.0 * math.atan2(qz, qw)
+        
+        # Offset forward by half body length + half head length
+        offset_distance = 0.2 + 0.05  # half body (0.2) + half head (0.1/2)
+        head_marker.pose.position.x = pose_msg.position.x + offset_distance * math.cos(yaw)
+        head_marker.pose.position.y = pose_msg.position.y + offset_distance * math.sin(yaw)
+        head_marker.pose.position.z = pose_msg.position.z
+
+        # Same orientation as body
+        head_marker.pose.orientation.x = pose_msg.orientation.x
+        head_marker.pose.orientation.y = pose_msg.orientation.y
+        head_marker.pose.orientation.z = pose_msg.orientation.z
+        head_marker.pose.orientation.w = pose_msg.orientation.w
+
+        # Set head rectangle size (smaller than body)
+        head_marker.scale.x = 0.1  # Length
+        head_marker.scale.y = 0.25  # Width (slightly narrower than body)
+        head_marker.scale.z = 0.15  # Height (slightly shorter than body)
+
+        # Set color - yellow for head/front indicator
+        head_marker.color.r = 1.0
+        head_marker.color.g = 1.0
+        head_marker.color.b = 0.0
+        head_marker.color.a = 1.0
+
+        # Set lifetime (0 means forever)
+        head_marker.lifetime.sec = 0
+        head_marker.lifetime.nanosec = 0
+
+        # Publish both markers together in MarkerArray for synchronization
+        marker_array = MarkerArray()
+        marker_array.markers = [body_marker, head_marker]
+        self.robot_marker_publisher.publish(marker_array)
 
     def update_robot_path(self, pose_msg):
         """Update and publish robot path trajectory (only called when visualization is enabled)"""

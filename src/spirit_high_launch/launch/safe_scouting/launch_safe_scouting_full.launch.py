@@ -34,6 +34,7 @@ def generate_launch_description():
     foxglove_bridge_params = config.get('foxglove_bridge', {}).get('ros__parameters', {})
     ground_truth_server_params = config.get('ground_truth_server', {}).get('ros__parameters', {})
     spatial_measurement_pub_params = config.get('spatial_measurement_publisher', {}).get('ros__parameters', {})
+    drive_sim_params = config.get('drive_sim', {}).get('ros__parameters', {})
     print("foxglove_bridge_params from config:", foxglove_bridge_params)
     # Convert foxglove_bridge_params to launch arguments format
     launch_args = {}
@@ -93,7 +94,8 @@ def generate_launch_description():
             package='safe_scout_simulator',  
             executable='drive_sim',  
             name='drive_sim',
-            output='screen'
+            output='screen',
+            parameters=[drive_sim_params]
         ),
         Node(
             package='mapping_collector',  

@@ -23,17 +23,10 @@ def generate_launch_description():
 
     with open(config_file, 'r') as file:
         config = yaml.safe_load(file)
-    visualizer_params = config.get('visualizer', {}).get('ros__parameters', {})
-    print(visualizer_params)
-    leg_measurements_publisher_params = config.get('leg_measurements_publisher', {}).get('ros__parameters', {})
-    mapping_params = config.get('mapping_node', {}).get('ros__parameters', {})
-    data_collector_params = config.get('data_collector', {}).get('ros__parameters', {})
-    reactive_planner_params = config.get('reactive_planner', {}).get('ros__parameters', {})
-    safe_optimization_params = config.get('safe_bayesian_optimization_node', {}).get('ros__parameters', {})
-    goal_point_publisher_params = config.get('goal_point_publisher', {}).get('ros__parameters', {})
     foxglove_bridge_params = config.get('foxglove_bridge', {}).get('ros__parameters', {})
     ground_truth_server_params = config.get('ground_truth_server', {}).get('ros__parameters', {})
     spatial_measurement_pub_params = config.get('spatial_measurement_publisher', {}).get('ros__parameters', {})
+    drive_sim_params = config.get('drive_sim', {}).get('ros__parameters', {})
     print("foxglove_bridge_params from config:", foxglove_bridge_params)
     # Convert foxglove_bridge_params to launch arguments format
     launch_args = {}
@@ -96,10 +89,11 @@ def generate_launch_description():
         #     output='screen'
         # ),
         Node(
-            package='safe_scout_simulator',
-            executable='drive_sim',
+            package='safe_scout_simulator',  
+            executable='drive_sim',  
             name='drive_sim',
-            output='screen'
+            output='screen',
+            parameters=[drive_sim_params]
         ),
         Node(
             package='safe_scout_simulator',
