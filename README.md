@@ -92,6 +92,8 @@ git clone git@github.com:QianLabUSC/safe_legged_scouting.git
 # Clone the TRUSSES Custom Interfaces repository
 git clone git@github.com:TRUSSES/trusses_custom_interfaces.git
 
+# Clone the Simulation
+git clone git@github.com:QianLabUSC/kinematic_soft_terrain_simulator.git
 ```
 
 ### 2. Build the Workspace
