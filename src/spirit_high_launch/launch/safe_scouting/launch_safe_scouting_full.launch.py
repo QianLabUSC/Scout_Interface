@@ -106,11 +106,18 @@ def generate_launch_description():
         ),
 
         Node(
-            package='mapping_package',  
-            executable='terrain_mapping_node',  
+            package='mapping_package',
+            executable='terrain_mapping_node',
             name='mapping_node',
             output='screen',
             parameters=[mapping_params]
+        ),
+        Node(
+            package='mapping_package',
+            executable='live_gpr_visualizer',
+            name='live_gpr_visualizer',
+            output='screen',
+            parameters=[safe_optimization_params, mapping_params]
         ),
         Node(
             package='safe_scout_simulator',
