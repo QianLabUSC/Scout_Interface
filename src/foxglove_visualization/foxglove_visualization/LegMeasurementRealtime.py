@@ -2,7 +2,7 @@ from scipy.spatial.transform import Rotation
 import rclpy
 from rclpy.node import Node
 from trusses_custom_interfaces.msg import SpiritState
-from geometry_msgs.msg import Pose, PoseStamped, TransformStamped
+from geometry_msgs.msg import Pose, PoseStamped, TransformStamped, Point
 from nav_msgs.msg import Path
 from trusses_custom_interfaces.msg import RobotMeasurements, SpatialMeasurement
 from visualization_msgs.msg import Marker, MarkerArray
@@ -840,18 +840,22 @@ class RealtimeSubscriber(Node):
         self.spatial_measurement_publisher.publish(msg)
 
     def publish_robot_position_marker(self, pose_msg):
-        """Publish rectangle markers showing robot position and orientation.
+        """Publish cube list markers showing robot position and orientation.
         
-        Publishes two markers in a MarkerArray for synchronization:
-        1. Body rectangle (cyan) - main robot body
-        2. Head rectangle (yellow) - front indicator to show orientation
+        Uses CUBE_LIST markers:
+        1. Body cube (cyan) - main robot body
+        2. Head cube (yellow) - front indicator to show orientation
+        
+        Note: Using separate CUBE markers instead of CUBE_LIST to avoid white arrow
+        visualization issues in Foxglove Studio.
         """
         import math
+        from std_msgs.msg import ColorRGBA
         
         # Get timestamp once for both markers
         timestamp = self.get_clock().now().to_msg()
         
-        # Robot body rectangle (cyan)
+        # Body cube marker (cyan) - using individual CUBE for better compatibility
         body_marker = Marker()
         body_marker.header.frame_id = "map"
         body_marker.header.stamp = timestamp
@@ -871,7 +875,7 @@ class RealtimeSubscriber(Node):
         body_marker.pose.orientation.z = pose_msg.orientation.z
         body_marker.pose.orientation.w = pose_msg.orientation.w
 
-        # Set rectangle size (robot body dimensions)
+        # Set cube size (robot body dimensions)
         body_marker.scale.x = 0.4  # Length (forward/backward)
         body_marker.scale.y = 0.3  # Width (left/right)
         body_marker.scale.z = 0.2  # Height
@@ -886,7 +890,7 @@ class RealtimeSubscriber(Node):
         body_marker.lifetime.sec = 0
         body_marker.lifetime.nanosec = 0
 
-        # Head/front rectangle (yellow) - positioned at front of robot
+        # Head cube marker (yellow) - positioned at front of robot
         head_marker = Marker()
         head_marker.header.frame_id = "map"
         head_marker.header.stamp = timestamp
@@ -904,10 +908,10 @@ class RealtimeSubscriber(Node):
         yaw = 2.0 * math.atan2(qz, qw)
         
         # Offset forward by half body length + half head length
-        offset_distance = 0.2 + 0.05  # half body (0.2) + half head (0.1/2)
+        offset_distance = 0.14  # half body (0.2) + half head (0.1/2)
         head_marker.pose.position.x = pose_msg.position.x + offset_distance * math.cos(yaw)
         head_marker.pose.position.y = pose_msg.position.y + offset_distance * math.sin(yaw)
-        head_marker.pose.position.z = pose_msg.position.z
+        head_marker.pose.position.z = pose_msg.position.z + 0.03
 
         # Same orientation as body
         head_marker.pose.orientation.x = pose_msg.orientation.x
@@ -915,10 +919,10 @@ class RealtimeSubscriber(Node):
         head_marker.pose.orientation.z = pose_msg.orientation.z
         head_marker.pose.orientation.w = pose_msg.orientation.w
 
-        # Set head rectangle size (smaller than body)
+        # Set head cube size (smaller than body)
         head_marker.scale.x = 0.1  # Length
         head_marker.scale.y = 0.25  # Width (slightly narrower than body)
-        head_marker.scale.z = 0.15  # Height (slightly shorter than body)
+        head_marker.scale.z = 0.21  # Height (slightly shorter than body)
 
         # Set color - yellow for head/front indicator
         head_marker.color.r = 1.0
@@ -930,7 +934,7 @@ class RealtimeSubscriber(Node):
         head_marker.lifetime.sec = 0
         head_marker.lifetime.nanosec = 0
 
-        # Publish both markers together in MarkerArray for synchronization
+        # Publish both CUBE markers together in MarkerArray for synchronization
         marker_array = MarkerArray()
         marker_array.markers = [body_marker, head_marker]
         self.robot_marker_publisher.publish(marker_array)
