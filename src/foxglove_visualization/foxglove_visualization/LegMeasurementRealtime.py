@@ -8,8 +8,6 @@ from trusses_custom_interfaces.msg import RobotMeasurements, SpatialMeasurement
 from visualization_msgs.msg import Marker, MarkerArray
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 from tf2_ros import TransformBroadcaster
-# import matplotlib.pyplot as plt
-# from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import time
 
