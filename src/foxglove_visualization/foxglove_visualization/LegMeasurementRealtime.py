@@ -17,9 +17,19 @@ class RealtimeSubscriber(Node):
         
         # Declare parameters
         self.declare_parameter('enable_visualization', False)
+        self.declare_parameter('use_ground_truth_trotting', False)
         
         # Read parameters
         self.enable_visualization = self.get_parameter('enable_visualization').value
+        self.use_ground_truth_trotting = self.get_parameter('use_ground_truth_trotting').value
+        
+        # Ground truth trotting value (hardcoded constant)
+        self.ground_truth_trotting_value = 0.0  # N/m
+        
+        if self.use_ground_truth_trotting:
+            self.get_logger().info(f"Ground truth mode enabled for trotting: using constant value {self.ground_truth_trotting_value} N/m")
+        else:
+            self.get_logger().info("Using actual trotting measurements")
         
         self.subscription_state = self.create_subscription(
             SpiritState,
@@ -46,9 +56,7 @@ class RealtimeSubscriber(Node):
             10)
         self.subscription_current_pose  # prevent unused variable warning
         
-        # TF broadcaster for map -> base_link (for Foxglove visualization)
-        self.tf_broadcaster = TransformBroadcaster(self)
-       
+        
         
         self.realtime_publisher = self.create_publisher(
             RobotMeasurements,
@@ -342,7 +350,11 @@ class RealtimeSubscriber(Node):
                     # Store R² for FL
                     self.r2_trot_fl = r2_fl
                     # Publish trotting measurement for FL
-                    if r2_fl > 0.5:
+                    if self.use_ground_truth_trotting:
+                        # Use ground truth constant value instead of calculated stiffness
+                        self.publish_trotting_measurement(self.idx_fl, self.ground_truth_trotting_value, 1.0)
+                    elif r2_fl > 0.5:
+                        # Use actual calculated stiffness
                         self.publish_trotting_measurement(self.idx_fl, trot_stiffness_fl, r2_fl)
                     else:
                         print(f"Trotting FL stiffness R² too low: {r2_fl:.3f}, not publishing")
@@ -392,7 +404,11 @@ class RealtimeSubscriber(Node):
                     # Store R² for FR
                     self.r2_trot_fr = r2_fr
                     # Publish trotting measurement for FR
-                    if r2_fr > 0.5:
+                    if self.use_ground_truth_trotting:
+                        # Use ground truth constant value instead of calculated stiffness
+                        self.publish_trotting_measurement(self.idx_fr, self.ground_truth_trotting_value, 1.0)
+                    elif r2_fr > 0.5:
+                        # Use actual calculated stiffness
                         self.publish_trotting_measurement(self.idx_fr, trot_stiffness_fr, r2_fr)
                     else:
                         print(f"Trotting FR stiffness R² too low: {r2_fr:.3f}, not publishing")
@@ -723,19 +739,6 @@ class RealtimeSubscriber(Node):
         # self.CoM_pos = np.array([msg.position.x, msg.position.y, msg.position.z]) + p_offset
         self.CoM_pos = p_WMo_W
 
-        # Broadcast TF transform (map -> base_link) for Foxglove visualization
-        t = TransformStamped()
-        t.header.stamp = self.get_clock().now().to_msg()
-        t.header.frame_id = "map"
-        t.child_frame_id = "base_link"
-        t.transform.translation.x = msg.position.x
-        t.transform.translation.y = msg.position.y
-        t.transform.translation.z = msg.position.z
-        t.transform.rotation.x = msg.orientation.x
-        t.transform.rotation.y = msg.orientation.y
-        t.transform.rotation.z = msg.orientation.z
-        t.transform.rotation.w = msg.orientation.w
-        self.tf_broadcaster.sendTransform(t)
 
         # Publish robot position marker and update path if visualization is enabled
         if self.enable_visualization:

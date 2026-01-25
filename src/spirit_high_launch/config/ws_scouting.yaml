@@ -35,6 +35,7 @@ foxglove_bridge:
 leg_measurements_publisher:
   ros__parameters:
     enable_visualization: true  # Enable robot pose marker and path visualization
+    use_ground_truth_trotting: false  # If true, use constant ground truth value (1000.0 N/m) instead of calculated trotting stiffness
     
 
 

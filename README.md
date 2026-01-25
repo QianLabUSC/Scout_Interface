@@ -142,8 +142,8 @@ ros2 launch spirit_high_launch launch_ws_scouting_foxglove.launch.py
 # open another terminal. 
 ros2 launch spirit_high_launch launch_ws_scouting_maping.launch.py
 
-# open another terminal. 
-ros2 launch spirit_high_launch launch_ws_scouting_robotsciencenode.launch.py
+# # open another terminal. 
+# ros2 launch spirit_high_launch launch_ws_scouting_robotsciencenode.launch.py
 ```
 
 Note that for each launch file, you have to modify the configuration file path, manually, this is designed in purpose to allows you to not recomplile after modifying the config. 
@@ -161,11 +161,15 @@ ros2 launch spirit_high_launch launch_safe_scouting_mapping.launch.py
 
 ros2 launch spirit_high_launch launch_safe_scouting_planner.launch.py
 
-# for real robot:
-ros2 launch spirit_high_launch launch_safe_scouting_robotsciencenode.launch.py
+# # for real robot (now you don't have to, since you have move this to real robot.):
+# ros2 launch spirit_high_launch launch_safe_scouting_robotsciencenode.launch.py
 
 # for simulation
 ros2 launch spirit_high_launch launch_safe_scouting_simulator.launch.py
+
+# for real world
+# for simulation
+ros2 launch spirit_high_launch launch_safe_scouting_strengthsim.launch.py
 ```
 
 ## Configuration
