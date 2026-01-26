@@ -2,6 +2,16 @@
 # mocapCollection:
 #   ros__parameters:
 #     localIP: 
+
+# protocols to change:
+# feel free specify debugging visualization topics name
+# goal color change (current blue is not visible) (low priority)
+# how do we adding another goal (publish a goal point) (low priority)
+# change the terrain shape to x : 10 m, y is 4 m.  (the zero coordinates will have change based on read world coordinates)
+# create a map similar to the image (high priority) (create a gp to make ground truth publisher)
+# testing the scouting algorihthm to make it work
+# you can write a protocol, what parameter need to be chnage when we change map. 
+
 foxglove_bridge:
   ros__parameters:
     topic_whitelist: 
@@ -45,7 +55,7 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: safe_scouting_test789tttt8ssfddsfdsfe
+    csv_file: safe_scouting_testjan26
     enable_visualization: true
 
 mapping_node:
@@ -55,7 +65,7 @@ mapping_node:
     # resolution: [600, 400]  #y, x
     cell_size: 0.1
     noise_level: 0.1
-    length_scale: 5.0
+    length_scale: 1.0
     sigma_f: 1.0
     enable_visualization: true
     auto_x_y_range: false
