@@ -142,9 +142,8 @@ ros2 launch spirit_high_launch launch_ws_scouting_foxglove.launch.py
 # open another terminal. 
 ros2 launch spirit_high_launch launch_ws_scouting_maping.launch.py
 
-# # open another terminal. 
-# ros2 launch spirit_high_launch launch_ws_scouting_robotsciencenode.launch.py
-```
+# run the spirit main.py
+you need to run main.py on spirit, follow notion. 
 
 Note that for each launch file, you have to modify the configuration file path, manually, this is designed in purpose to allows you to not recomplile after modifying the config. 
 ### 2. Safe scouting path automatic planning (not tested in real robot yet)
@@ -168,7 +167,7 @@ ros2 launch spirit_high_launch launch_safe_scouting_planner.launch.py
 ros2 launch spirit_high_launch launch_safe_scouting_simulator.launch.py
 
 # for real world
-# for simulation
+# for strength sim
 ros2 launch spirit_high_launch launch_safe_scouting_strengthsim.launch.py
 ```
 
@@ -208,6 +207,23 @@ Available layouts:
 - `lassie-spirit-spirit_scouting.json` - Main scouting visualization
 - `lassie-spirit-RSS-demo.json` - RSS demonstration
 - `trusses_rover_operation_whitesand.json` - Whitesand rover operations
+
+#### Publishing a goal
+
+**Terminal (ROS 2 CLI):**
+
+```bash
+ros2 topic pub --once /input_goal_point geometry_msgs/msg/PointStamped "{header: {frame_id: 'map'}, point: {x: 1.0, y: 2.0, z: 0.0}}"
+```
+
+You can also publish directly to `/goal_point` with the same message format.
+
+**Foxglove Studio (Publish panel):**
+
+1. Add a **Publish** panel.
+2. Topic: `/input_goal_point` (no trailing `/`).
+3. Schema: `geometry_msgs/PointStamped`.
+4. Use the same `frame_id` and `point` fields as the CLI example.
 
 ## System Components
 

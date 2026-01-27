@@ -27,10 +27,11 @@ foxglove_bridge:
       - '/spirit/spatial_measurements'
       - '/spirit/current_pose_marker'
       - '/freespace_markers'
-      - '/goal_marker'  
+      # - '/goal_marker'  
       - '/goal_markers'  
       - '/merged_polygon_markers'  
       - '/ground_truth_map'
+      - '/input_goal_point'
       # - '/spirit/gps'
       # - '/spirit/detail_gps'
       # - '/spirit/reference_point_update'
@@ -42,11 +43,6 @@ foxglove_bridge:
       # - '/payload/camera/navigation/rgb/compressed'
       # - '/payload/camera/navigation/depth/compressed'
 
-
-leg_measurements_publisher:
-  ros__parameters:
-    enable_visualization: true  # Enable robot pose marker and path visualization
-    use_ground_truth_trotting: true  # If true, use constant ground truth value (1000.0 N/m) instead of calculated trotting stiffness
     
 
 
@@ -60,8 +56,8 @@ data_collector:
 
 mapping_node:
   ros__parameters:
-    x_range: [-4.0, 4.0]
-    y_range: [-3.0, 3.0] # if set auto_x_y_range to true, this will be ignored
+    x_range: [0.0, 20.0]
+    y_range: [0.0, 4.0] # if set auto_x_y_range to true, this will be ignored
     # resolution: [600, 400]  #y, x
     cell_size: 0.1
     noise_level: 0.1
@@ -138,16 +134,16 @@ safe_bayesian_optimization_node:
 
 goal_point_publisher:
   ros__parameters:
-    waypoints: [-0.4, -0.5, 0.0,     # First waypoint: x, y, z
-                2.2, -0.0, 0.0,    # Second waypoint
-                -2.2, 0.0, 0.0]     # Third waypoint
+    waypoints: [5.0, 2.0, 0.0,     # First waypoint: x, y, z
+                7.4, 3.5, 0.0,    # Second waypoint
+                2.5, 0.5, 0.0]     # Third waypoint
 
 #### below is simulator parameters. used for simulation.
 drive_sim:
   ros__parameters:
     # Initial robot pose
     initial_x: 0.0
-    initial_y: -0.8 
+    initial_y: 2.0
     initial_theta: 0.0  # radians (0.0 = 0 degrees, 1.57 = 90 degrees, 3.14 = 180 degrees)
     
     # Slip model parameters for drive_sim
@@ -158,19 +154,21 @@ drive_sim:
     payload_mass: 0.0
     excitation_frequency: 1.0
 
+
+# note the file contains normalize x, and y as well as std x and std y.
 ground_truth_server:
   ros__parameters:
     # Area boundaries (rectangular region)
-    area_min_x: -4.0
-    area_max_x: 4.0
-    area_min_y: -3.0
-    area_max_y: 3.0
+    area_min_x: 0.0
+    area_max_x: 20.0
+    area_min_y: 0.0
+    area_max_y: 4.0
 
     # Number of Gaussian distributions
     # Higher values create denser variations
     num_gaussians: 300
     if_randomize: false
-    map_file: maze  # set if_randomize: false and provide absolute path to use CSV
+    map_file: ames_full  # set if_randomize: false and provide absolute path to use CSV
     grid_resolution: 0.05  # must be double
 
     # Seed for reproducible Gaussian placement (-1 uses nondeterministic seed)
