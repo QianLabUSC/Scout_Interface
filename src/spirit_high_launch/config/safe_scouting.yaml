@@ -4,13 +4,13 @@
 #     localIP: 
 
 # protocols to change:
-# feel free specify debugging visualization topics name
 # goal color change (current blue is not visible) (low priority)
 # how do we adding another goal (publish a goal point) (low priority)
 # change the terrain shape to x : 10 m, y is 4 m.  (the zero coordinates will have change based on read world coordinates)
 # create a map similar to the image (high priority) (create a gp to make ground truth publisher)
 # testing the scouting algorihthm to make it work
-# you can write a protocol, what parameter need to be chnage when we change map. 
+
+
 
 foxglove_bridge:
   ros__parameters:
@@ -29,9 +29,17 @@ foxglove_bridge:
       - '/freespace_markers'
       # - '/goal_marker'  
       - '/goal_markers'  
+      - '/concave_markers'  
+      - '/projected_goal_marker'
       - '/merged_polygon_markers'  
       - '/ground_truth_map'
       - '/input_goal_point'
+      - '/envelope_markers'
+      - '/obstacle_centers_markers'
+      - '/clipped_polygon_markers'
+      - '/transformed_position_marker'
+      - '/local_goal_marker'
+      - '/free_space_line_marker'
       # - '/spirit/gps'
       # - '/spirit/detail_gps'
       # - '/spirit/reference_point_update'

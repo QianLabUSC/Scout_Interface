@@ -330,54 +330,13 @@ ros2 launch spirit_high_launch safe_bayesian_optimization_visualization.launch.p
 4. **Reactive Navigation**: Diffeomorphism-based path planning avoids obstacles
 5. **Visualization**: Real-time display in Foxglove Studio
 
-## Troubleshooting
 
-### Common Issues
-
-1. **Build Errors**: Ensure all dependencies are installed and ROS 2 is properly sourced
-2. **Missing Topics**: Check that all required nodes are running
-3. **Visualization Issues**: Verify Foxglove connection and layout files
-4. **Permission Errors**: Ensure proper SSH keys for GitHub repositories
-
-### Debug Commands
-
-```bash
-# Check node status
-ros2 node list
-
-# Check topic information
-ros2 topic list
-ros2 topic info /current_subgoal
-
-# Check service availability
-ros2 service list
-ros2 service call /get_spatial_data trusses_custom_interfaces/srv/SpatialData
-
-# Monitor system performance
-ros2 topic hz /spatial_measurements
-```
-
-## Development
-
-### Adding New Features
-
-1. Create new ROS 2 packages in appropriate directories
-2. Update launch files to include new nodes
-3. Add configuration parameters to YAML files
-4. Update Foxglove layouts for new visualizations
-
-### Testing
-
-```bash
-# Run tests for individual packages
-colcon test --packages-select <package_name>
-
-# Run all tests
-colcon test
-
-# View test results
-colcon test-result --all --verbose
-```
+## How to tune parameters after changing maps
+1. Adjust the length scale and `sigma_f` in the GPR config to match terrain features.
+2. Adjust the risk threshold to correspond to the scale of the maps
+3. Change the x and y bounds of the GPR to fit the new map size.
+4. Adjust reactive planner epsilon and var epsilon to change the diffeomorphism buffer zone
+5. Set an appropriate lipschitz value based on expected terrain variation.
 
 ## Contributing
 
