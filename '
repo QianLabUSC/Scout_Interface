@@ -101,7 +101,7 @@ mapping_node:
 reactive_planner:
   ros__parameters:
     p: 20.0                    # R-function exponent
-    epsilon: 0.2             # Distance for the switches
+    epsilon: 0.1             # Distance for the switches
     varepsilon: 0.2              # Distance allowed to dilate the polygon
     mu_1: 1.0                 # Switch exponent mu1
     mu_2: 0.15                 # Switch exponent mu2
@@ -119,8 +119,8 @@ safe_bayesian_optimization_node:
     opt:
       beta: 3.0
       f_max: 0.5
-      lipschitz: 2.0
-      subgoal_erosion: 0.1
+      lipschitz: 1.2
+      subgoal_erosion: 0.2
       preference_order: ["g","g","e"]
     robot:
       radius: 0.05
