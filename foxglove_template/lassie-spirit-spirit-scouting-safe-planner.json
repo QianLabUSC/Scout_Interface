@@ -62,30 +62,6 @@
       "timeWindowMode": "sliding",
       "followingViewWidth": 10
     },
-    "Plot!1fw6r47": {
-      "paths": [
-        {
-          "timestampMethod": "receiveTime",
-          "value": "/spirit/spatial_measurements.uncertainty",
-          "enabled": true,
-          "color": "#4e98e2",
-          "label": "FL",
-          "showLine": true,
-          "lineSize": 2.495
-        }
-      ],
-      "showXAxisLabels": true,
-      "showYAxisLabels": true,
-      "showLegend": true,
-      "legendDisplay": "floating",
-      "showPlotValuesInLegend": false,
-      "isSynced": true,
-      "xAxisVal": "timestamp",
-      "sidebarDimension": 240,
-      "foxglovePanelTitle": "Estimation uncertainty",
-      "timeWindowMode": "sliding",
-      "followingViewWidth": 10
-    },
     "Plot!4bhrthb": {
       "paths": [
         {
@@ -115,18 +91,199 @@
     "RosOut!ar7z8c": {
       "searchTerms": [],
       "minLogLevel": 1,
-      "nameFilter": {}
+      "nameFilter": {},
+      "preload": true
     },
     "3D!2oa13l8": {
       "cameraState": {
-        "perspective": false,
-        "distance": 18.049999999992384,
-        "phi": 37.047028635725546,
-        "thetaOffset": 3.7494546959425845,
+        "distance": 25.912350522715485,
+        "perspective": true,
+        "phi": 0.000057304686744168496,
+        "target": [
+          0,
+          0,
+          0
+        ],
         "targetOffset": [
-          2.6045493582096535,
-          1.6523529132510113,
-          -2.0440062923930764
+          7.047563623546159,
+          2.617530651078796,
+          -4.904023978288015e-18
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": -5.002570384735644,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 4991,
+        "logDepth": true
+      },
+      "followMode": "follow-none",
+      "scene": {
+        "syncCamera": false,
+        "ignoreColladaUpAxis": false,
+        "backgroundColor": "#524c4c",
+        "labelScaleFactor": 1.7,
+        "meshUpAxis": "y_up",
+        "transforms": {
+          "labelSize": 0.01,
+          "editable": false
+        }
+      },
+      "transforms": {},
+      "topics": {
+        "/measurements_markers": {
+          "visible": true
+        },
+        "/terrain_map": {
+          "visible": true,
+          "colorField": "value",
+          "colorMode": "rgba-fields",
+          "colorMap": "turbo"
+        },
+        "/scouting_mapping/extrapolated_map": {
+          "visible": true,
+          "colorField": "value",
+          "colorMode": "rgba-fields",
+          "colorMap": "turbo"
+        },
+        "/scout_mapping/spatial_measurements_markers": {
+          "visible": true,
+          "showOutlines": true
+        },
+        "/scout_map/extrapolated_map": {
+          "visible": false,
+          "colorField": "value",
+          "colorMode": "rgba-fields",
+          "colorMap": "turbo"
+        },
+        "/clipped_polygon_markers": {
+          "visible": false
+        },
+        "/concave_markers": {
+          "visible": false
+        },
+        "/envelope_markers": {
+          "visible": false
+        },
+        "/free_space_line_marker": {
+          "visible": false
+        },
+        "/freespace_markers": {
+          "visible": true
+        },
+        "/goal_marker": {
+          "visible": false
+        },
+        "/goal_markers": {
+          "visible": true
+        },
+        "/initialpose": {
+          "visible": false
+        },
+        "/interpolated_centers_markers": {
+          "visible": false
+        },
+        "/local_goal_marker": {
+          "visible": false
+        },
+        "/merged_polygon_markers": {
+          "visible": true
+        },
+        "/move_base_simple/goal": {
+          "visible": false
+        },
+        "/obstacle_centers_markers": {
+          "visible": false
+        },
+        "/projected_goal_marker": {
+          "visible": false
+        },
+        "/scout_map/extrapolated_map_colorbar": {
+          "visible": false
+        },
+        "/scout_map/spatial_measurements_markers": {
+          "visible": true
+        },
+        "/spirit/current_pose_marker": {
+          "visible": true,
+          "namespaces": {
+            "robot": {
+              "visible": true
+            }
+          },
+          "showOutlines": false
+        },
+        "/subgoal_marker": {
+          "visible": false
+        },
+        "/transformed_position_marker": {
+          "visible": false
+        },
+        "/spirit/robot_path": {
+          "visible": true,
+          "lineWidth": 0.0121,
+          "gradient": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "type": "line"
+        },
+        "/ground_truth_map": {
+          "visible": true,
+          "colorField": "value",
+          "colorMode": "rgba-fields",
+          "colorMap": "turbo"
+        }
+      },
+      "layers": {
+        "grid": {
+          "visible": false,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "9be0c8ea-fc77-41ce-93f3-fbbeac9300e9",
+          "layerId": "foxglove.Grid",
+          "size": 10,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "divisions": 10
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "",
+        "pointTopic": "/input_goal_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {},
+      "foxglovePanelTitle": "Physical Map"
+    },
+    "3D!20gogby": {
+      "cameraState": {
+        "perspective": true,
+        "distance": 17.147499999960576,
+        "phi": 30.830096817656724,
+        "thetaOffset": 94.88461676218498,
+        "targetOffset": [
+          3.8639101811781753,
+          0.446850715175882,
+          -2.3742192846483725e-17
         ],
         "target": [
           0,
@@ -152,7 +309,8 @@
         "labelScaleFactor": 1.7,
         "meshUpAxis": "y_up",
         "transforms": {
-          "labelSize": 0.01
+          "labelSize": 0.01,
+          "editable": false
         }
       },
       "transforms": {},
@@ -175,6 +333,91 @@
         "/scout_mapping/spatial_measurements_markers": {
           "visible": true,
           "showOutlines": true
+        },
+        "/scout_map/extrapolated_map": {
+          "visible": true,
+          "colorField": "value",
+          "colorMode": "rgba-fields",
+          "colorMap": "turbo"
+        },
+        "/clipped_polygon_markers": {
+          "visible": false
+        },
+        "/concave_markers": {
+          "visible": true
+        },
+        "/envelope_markers": {
+          "visible": true
+        },
+        "/free_space_line_marker": {
+          "visible": true
+        },
+        "/freespace_markers": {
+          "visible": true
+        },
+        "/goal_marker": {
+          "visible": false
+        },
+        "/goal_markers": {
+          "visible": true
+        },
+        "/initialpose": {
+          "visible": false
+        },
+        "/interpolated_centers_markers": {
+          "visible": false
+        },
+        "/local_goal_marker": {
+          "visible": false
+        },
+        "/merged_polygon_markers": {
+          "visible": true
+        },
+        "/move_base_simple/goal": {
+          "visible": false
+        },
+        "/obstacle_centers_markers": {
+          "visible": false
+        },
+        "/projected_goal_marker": {
+          "visible": true
+        },
+        "/scout_map/extrapolated_map_colorbar": {
+          "visible": false
+        },
+        "/scout_map/spatial_measurements_markers": {
+          "visible": true
+        },
+        "/spirit/current_pose_marker": {
+          "visible": true,
+          "namespaces": {
+            "robot": {
+              "visible": false
+            }
+          },
+          "showOutlines": false,
+          "color": "#33f2beff"
+        },
+        "/subgoal_marker": {
+          "visible": false
+        },
+        "/transformed_position_marker": {
+          "visible": false
+        },
+        "/spirit/robot_path": {
+          "visible": true,
+          "lineWidth": 0.0116,
+          "gradient": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "type": "line"
+        },
+        "/ground_truth_map": {
+          "visible": false,
+          "colorField": "value",
+          "colorMode": "rgba-fields",
+          "colorMap": "turbo"
         }
       },
       "layers": {
@@ -203,16 +446,16 @@
       "publish": {
         "type": "point",
         "poseTopic": "/move_base_simple/goal",
-        "pointTopic": "/clicked_point",
+        "pointTopic": "",
         "poseEstimateTopic": "/initialpose",
         "poseEstimateXDeviation": 0.5,
         "poseEstimateYDeviation": 0.5,
         "poseEstimateThetaDeviation": 0.26179939
       },
       "imageMode": {},
-      "foxglovePanelTitle": "Risk Map"
+      "foxglovePanelTitle": "Physical Map"
     },
-    "Image!212l19u": {
+    "Image!13vo80d": {
       "cameraState": {
         "distance": 20,
         "perspective": true,
@@ -262,10 +505,23 @@
       "diffMethod": "custom",
       "diffTopicPath": "",
       "showFullMessageForDiff": false,
-      "topicPath": "/spirit/state_low_speed",
+      "topicPath": "/spirit/spatial_measurements",
       "fontSize": 12
     },
+    "Parameters!11vp2zm": {
+      "title": "Parameters"
+    },
     "TopicGraph!hd7ouv": {},
+    "Markdown!3dgu2sm": {
+      "fontSize": 12,
+      "foxglovePanelTitle": "Description",
+      "markdown": "# 🦾 Robot raw force information  🟥 force from front left leg | 🟦 force from front right leg | Panels: Force · Cropped Force · Uncertainty · Stiffness "
+    },
+    "Markdown!2ql1wp4": {
+      "fontSize": 12,
+      "foxglovePanelTitle": "Description",
+      "markdown": "# 🦾 Robot Scouting Map  🟥 Risky | 🟦 Safe | 🟡 Robot  | Panels: Force · Cropped Force · Uncertainty · Stiffness · Risk Map | Tips: Yellow trail = path · Blue expands = safe zone · Force spike = impact\n"
+    },
     "Tab!1hjb5z2": {
       "activeTabIdx": 0,
       "tabs": [
@@ -275,31 +531,32 @@
             "first": {
               "first": {
                 "first": "Plot!4dytizu",
-                "second": {
-                  "first": "Plot!10l2t9v",
-                  "second": "Plot!1fw6r47",
-                  "direction": "column"
-                },
+                "second": "Plot!10l2t9v",
                 "direction": "column",
-                "splitPercentage": 45.02074688796681
+                "splitPercentage": 47.7523166839876
               },
               "second": {
                 "first": "Plot!4bhrthb",
                 "second": "RosOut!ar7z8c",
                 "direction": "column",
-                "splitPercentage": 76.17391304347828
+                "splitPercentage": 44.376329374114384
               },
               "direction": "column",
-              "splitPercentage": 70.6043956043956
+              "splitPercentage": 49.78460511339084
             },
             "second": {
-              "first": "3D!2oa13l8",
-              "second": "Image!212l19u",
+              "first": {
+                "first": "3D!2oa13l8",
+                "second": "3D!20gogby",
+                "direction": "row",
+                "splitPercentage": 50.861423220973776
+              },
+              "second": "Image!13vo80d",
               "direction": "column",
-              "splitPercentage": 91.28065395095368
+              "splitPercentage": 98
             },
             "direction": "row",
-            "splitPercentage": 34.61123110151188
+            "splitPercentage": 27.915766738660906
           }
         },
         {
@@ -308,10 +565,17 @@
             "first": {
               "first": "SourceInfo!ektq6e",
               "second": "RawMessages!1h6226c",
-              "direction": "column"
+              "direction": "column",
+              "splitPercentage": 30.840932473904974
             },
-            "second": "TopicGraph!hd7ouv",
-            "direction": "row"
+            "second": {
+              "first": "Parameters!11vp2zm",
+              "second": "TopicGraph!hd7ouv",
+              "direction": "row",
+              "splitPercentage": 22.0197418375095
+            },
+            "direction": "row",
+            "splitPercentage": 28.88768898488121
           }
         }
       ]
@@ -343,5 +607,15 @@
   "playbackConfig": {
     "speed": 1
   },
-  "layout": "Tab!1hjb5z2"
+  "layout": {
+    "first": {
+      "first": "Markdown!3dgu2sm",
+      "second": "Markdown!2ql1wp4",
+      "direction": "row",
+      "splitPercentage": 34.493041749502986
+    },
+    "second": "Tab!1hjb5z2",
+    "direction": "column",
+    "splitPercentage": 12.815283412069208
+  }
 }

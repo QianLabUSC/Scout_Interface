@@ -142,9 +142,8 @@ ros2 launch spirit_high_launch launch_ws_scouting_foxglove.launch.py
 # open another terminal. 
 ros2 launch spirit_high_launch launch_ws_scouting_maping.launch.py
 
-# # open another terminal. 
-# ros2 launch spirit_high_launch launch_ws_scouting_robotsciencenode.launch.py
-```
+# run the spirit main.py
+you need to run main.py on spirit, follow notion. 
 
 Note that for each launch file, you have to modify the configuration file path, manually, this is designed in purpose to allows you to not recomplile after modifying the config. 
 ### 2. Safe scouting path automatic planning (not tested in real robot yet)
@@ -168,7 +167,7 @@ ros2 launch spirit_high_launch launch_safe_scouting_planner.launch.py
 ros2 launch spirit_high_launch launch_safe_scouting_simulator.launch.py
 
 # for real world
-# for simulation
+# for strength sim
 ros2 launch spirit_high_launch launch_safe_scouting_strengthsim.launch.py
 ```
 
@@ -208,6 +207,23 @@ Available layouts:
 - `lassie-spirit-spirit_scouting.json` - Main scouting visualization
 - `lassie-spirit-RSS-demo.json` - RSS demonstration
 - `trusses_rover_operation_whitesand.json` - Whitesand rover operations
+
+#### Publishing a goal
+
+**Terminal (ROS 2 CLI):**
+
+```bash
+ros2 topic pub --once /input_goal_point geometry_msgs/msg/PointStamped "{header: {frame_id: 'map'}, point: {x: 1.0, y: 2.0, z: 0.0}}"
+```
+
+You can also publish directly to `/goal_point` with the same message format.
+
+**Foxglove Studio (Publish panel):**
+
+1. Add a **Publish** panel.
+2. Topic: `/input_goal_point` (no trailing `/`).
+3. Schema: `geometry_msgs/PointStamped`.
+4. Use the same `frame_id` and `point` fields as the CLI example.
 
 ## System Components
 
@@ -314,54 +330,13 @@ ros2 launch spirit_high_launch safe_bayesian_optimization_visualization.launch.p
 4. **Reactive Navigation**: Diffeomorphism-based path planning avoids obstacles
 5. **Visualization**: Real-time display in Foxglove Studio
 
-## Troubleshooting
 
-### Common Issues
-
-1. **Build Errors**: Ensure all dependencies are installed and ROS 2 is properly sourced
-2. **Missing Topics**: Check that all required nodes are running
-3. **Visualization Issues**: Verify Foxglove connection and layout files
-4. **Permission Errors**: Ensure proper SSH keys for GitHub repositories
-
-### Debug Commands
-
-```bash
-# Check node status
-ros2 node list
-
-# Check topic information
-ros2 topic list
-ros2 topic info /current_subgoal
-
-# Check service availability
-ros2 service list
-ros2 service call /get_spatial_data trusses_custom_interfaces/srv/SpatialData
-
-# Monitor system performance
-ros2 topic hz /spatial_measurements
-```
-
-## Development
-
-### Adding New Features
-
-1. Create new ROS 2 packages in appropriate directories
-2. Update launch files to include new nodes
-3. Add configuration parameters to YAML files
-4. Update Foxglove layouts for new visualizations
-
-### Testing
-
-```bash
-# Run tests for individual packages
-colcon test --packages-select <package_name>
-
-# Run all tests
-colcon test
-
-# View test results
-colcon test-result --all --verbose
-```
+## How to tune parameters after changing maps
+1. Adjust the length scale and `sigma_f` in the GPR config to match terrain features.
+2. Adjust the risk threshold to correspond to the scale of the maps
+3. Change the x and y bounds of the GPR to fit the new map size.
+4. Adjust reactive planner epsilon and var epsilon to change the diffeomorphism buffer zone
+5. Set an appropriate lipschitz value based on expected terrain variation.
 
 ## Contributing
 
