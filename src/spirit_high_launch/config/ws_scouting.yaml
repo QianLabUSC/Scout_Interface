@@ -44,19 +44,19 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: ab
+    csv_file: ames26_jan29_live_mapping_truss_redo
     enable_visualization: true
 
 mapping_node:
   ros__parameters:
-    x_range: [-10.0, 10.0]
-    y_range: [-10.0, 10.0]
+    x_range: [-4.0, 2.8]
+    y_range: [-4.5, 0.0]
     cell_size: 0.1
     noise_level: 0.1
     length_scale: 0.1
     sigma_f: 1.0
     enable_visualization: true
-    auto_x_y_range: true
+    auto_x_y_range: false
     stiffness_range: [300, 1500]
     auto_stiffness_range: true
     data_padding: 0.3
