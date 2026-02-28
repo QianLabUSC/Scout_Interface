@@ -67,7 +67,7 @@ top_view_camera:
 
 data_collector:
   ros__parameters:
-    csv_file: safe_scouting_testaaa11111
+    csv_file: iros3
     enable_visualization: true
 
 mapping_node:
