@@ -58,13 +58,6 @@ def generate_launch_description():
             output='screen'
             ),
         Node(
-            package='foxglove_visualization',
-            executable='leg_measurements_publisher',
-            name='leg_measurements_publisher',
-            output='screen',
-            parameters=[leg_measurements_publisher_params]
-        ),
-        Node(
             package='safe_scout_simulator',
             executable='drive_sim',
             name='drive_sim',
@@ -99,6 +92,12 @@ def generate_launch_description():
             name='spatial_measurement_publisher',
             output='screen',
             parameters=[spatial_measurement_pub_params],
+        ),
+        Node(
+            package='safe_bayesian_optimization',
+            executable='evaluation_node.py',
+            name='evaluation_node',
+            output='screen',
         ),
 
 
